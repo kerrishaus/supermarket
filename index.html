@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<title>let's go shoppin</title>
+		<style>
+			body { margin: 0; }
+		</style>
+		
+		<script src="https://kerrishaus.com/assets/scripts/jquery-3.6.0.min.js"></script>
+		<script src="https://portal.kerrishaus.com/assets/javascript/messages.js"></script>
+		<link rel='stylesheet' href='https://portal.kerrishaus.com/assets/styles/messages.css'>
+	</head>
+	<body>
+	    <div style='position: absolute; top: 0px; left: 0px; width: 100vw; height: 100vh; overflow-x: hidden; overflow-y: hidden;'>
+	        <div id='money' style='color: white;background-color: #222;border: 3px solid white; padding: 4px;'>
+	            fuck
+	        </div>
+	    </div>
+	    
+		<script src="https://kerrishaus.com/assets/threejs/build/three.js"></script>
+
+		<script type='module'>
+		    import { CSS2DObject, CSS2DRenderer } from "https://kerrishaus.com/assets/threejs/examples/jsm/renderers/CSS2DRenderer.js";
+		
+		    function createCube(color)
+		    {
+		        const geometry = new THREE.BoxGeometry(1, 1, 1);
+		        const material = new THREE.MeshBasicMaterial({ color: color });
+		        
+		        return new THREE.Mesh(geometry, material);
+		    }
+		    
+		    function createScaledCube(width, height, thickness, color)
+		    {
+		        const geometry = new THREE.BoxGeometry(width, height, thickness);
+		        const material = new THREE.MeshBasicMaterial({ color: color });
+		        
+		        return new THREE.Mesh(geometry, material);
+		    }
+		    
+		    class Interactable extends THREE.Mesh
+		    {
+		        constructor(width, height, color)
+		        {
+		            const geometry = new THREE.BoxGeometry(width, height, 1);
+		            const material = new THREE.MeshBasicMaterial({ color: color });
+		            
+		            super(geometry, material);
+		            
+		            this.geometry.computeBoundingBox();
+		            
+		            this.box = new THREE.Box3();
+		        }
+		        
+		        update(deltaTime)
+		        {
+		            this.box.copy( this.geometry.boundingBox ).applyMatrix4( this.matrixWorld );
+		        }
+		    }
+		    
+		    class TomatoPlant extends Interactable
+		    {
+		        constructor()
+		        {
+		            super(1, 1, 0xff0000);
+		            
+		            this.timeSinceLastGrowth = 0;
+		            this.tomatoes = 0;
+		            
+                    const labelDiv = document.createElement("div");
+    				labelDiv.id = this.uuid;
+        			labelDiv.className = 'unitCount';
+        			labelDiv.textContent = this.money;
+        			
+        			this.label = new CSS2DObject(labelDiv);
+        			this.label.color = "white";
+        			this.add(this.label);
+		        }
+		        
+		        update(deltaTime)
+		        {
+		            super.update(deltaTime);
+		            
+		            if (this.tomatoes < 3)
+    		            if (this.timeSinceLastGrowth > 1)
+    		            {
+    		                this.grow();
+    		                this.timeSinceLastGrowth = 0;
+    		            }
+		            
+		            this.timeSinceLastGrowth += deltaTime;
+		        }
+		        
+		        grow()
+		        {
+		            this.tomatoes += 1;
+		            this.label.element.textContent = this.tomatoes;
+		        }
+		    }
+		    
+		    class Carryable extends THREE.Mesh
+		    {
+		        constructor(width, height, thickness, color)
+		        {
+		            const geometry = new THREE.BoxGeometry(width, height, thickness);
+		            const material = new THREE.MeshBasicMaterial({color: color});
+		            
+		            super(geometry, material);
+		        }
+		        
+		        setTarget(object)
+		        {
+		            
+		        }
+		        
+		        update(deltaTime)
+		        {
+		            
+		        }
+		    }
+		    
+		    class Register extends Interactable
+		    {
+		        constructor()
+		        {
+		            super(3, 1, 0xff0000);
+		            
+        			this.money = new Array();
+		            this.timeSinceLastMoney = 0;
+		            
+		            this.addMoney();
+		            this.addMoney();
+		            this.addMoney();
+		        }
+		        
+		        update(deltaTime)
+		        {
+		            super.update(deltaTime);
+		            
+		            if (this.timeSinceLastMoney >= 0.1)
+		            {
+		                this.addMoney();
+		                this.timeSinceLastMoney = 0;
+		            }
+		            
+		            this.timeSinceLastMoney += deltaTime;
+		        }
+		        
+		        addMoney()
+		        {
+		            const money = createScaledCube(0.3, 0.2, 0.02, 0x00ff00);
+		            money.position.copy(this.position);
+		            
+                    const rows = 4;
+                    const columns = 5;
+                    const totalPerStack = rows * columns;
+                    
+                    let stacks = Math.floor(this.money.length / totalPerStack);
+                    let currentStack = this.money.length - (stacks * totalPerStack);
+                    let row = Math.floor(currentStack / rows);
+                    let column = currentStack - (row * columns) + (1 * row)
+                    
+                    money.position.z = 0.5 + (0.1 * stacks);
+                    money.position.x = column * 0.3;
+                    money.position.y = row * 0.2;
+		            
+		            console.log(stacks, currentStack, row, column);
+		            
+		            this.add(money);
+		            this.money.push(money);
+		            
+		            console.log("added, now at: " + this.money.length);
+		        }
+		        
+		        removeMoney()
+		        {
+		            const obj = this.money[this.money.length - 1];
+		            
+		            this.remove(obj);
+		            
+		            this.money.pop();
+		            
+		            console.log("remove, now at: " + this.money.length);
+		        }
+		    }
+		    
+		    class Customer extends THREE.Mesh
+		    {
+	            constructor(register)
+                {
+                    const geometry = new THREE.BoxGeometry(0.8, 0.8, 0.8);
+                    const material = new THREE.MeshBasicMaterial({color: 0xaabbcc});
+                    
+                    super(geometry, material);
+                    
+                    this.register = register;
+                    
+                    this.timeElapsed = 0;
+                    this.startPosition = null;
+                    this.endPosition = null;
+                    
+                    return this;
+                }
+                
+                destruct()
+                {
+                }
+                
+                setTarget(endPosition)
+                {
+                    this.timeElapsed = 0;
+                    this.startPosition = this.object.position;
+                    this.endPosition = endPosition;
+                }
+                
+                update(deltaTime)
+                {
+                    if (this.timeElapsed > 0.7)
+                    {
+                        this.object.position.copy(this.endPosition);
+                        
+                        if (this.state == 0)
+                        {
+                            this.state = 2;
+                            this.setHex(0x0000ff);
+                        }
+                        else if (this.state == 2 && this.linePosition == 0)
+                        {
+                            this.state = 3;
+                            this.setHex(0x00ff00);
+                        }
+                    }
+                    else
+                    {
+                        this.object.position.lerpVectors(this.startPosition, this.endPosition, this.timeElapsed / 3);
+                        this.timeElapsed += deltaTime;
+                    }
+                }
+		    }
+		    
+		    class Player extends THREE.Mesh
+		    {
+		        constructor()
+		        {
+		            const geometry = new THREE.BoxGeometry(1, 1, 1);
+		            const material = new THREE.MeshBasicMaterial({ color: 0x0000ff });
+		            
+		            super(geometry, material);
+		            
+		            this.geometry.computeBoundingBox();
+		            
+		            this.box = new THREE.Box3();
+		            
+		            this.money = 0;
+		        }
+		        
+		        update(deltaTime)
+		        {
+		            this.box.copy( this.geometry.boundingBox ).applyMatrix4( this.matrixWorld );
+		        }
+		        
+		        addMoney(register)
+		        {
+		            if (register.money.length > 0)
+		            {
+		                register.removeMoney();
+		                this.money += 1;
+		                
+		                $("#money").html(this.money);
+		            }
+		        }
+		    }
+		
+			const scene = new THREE.Scene();
+
+			const renderer = new THREE.WebGLRenderer();
+			renderer.setSize(window.innerWidth, window.innerHeight);
+			document.body.appendChild(renderer.domElement);
+			
+			const htmlRenderer = new CSS2DRenderer();
+			htmlRenderer.setSize(window.innerWidth, window.innerHeight);
+			htmlRenderer.domElement.style.position = 'absolute';
+			htmlRenderer.domElement.style.top = '0px';
+			document.body.appendChild(htmlRenderer.domElement).style.pointerEvents = "none";
+			
+			const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+			camera.position.z = 10;
+			camera.position.y -= 3;
+			
+			const shopFloor = createCube(0x222222);
+			shopFloor.scale.x = 20;
+			shopFloor.scale.y = 10;
+			shopFloor.position.z = -1;
+			scene.add(shopFloor);
+			
+			const farmFloor = createCube(0x00aa00);
+			farmFloor.scale.x = 20;
+			farmFloor.scale.y = 10;
+			farmFloor.position.y = -10;
+			farmFloor.position.z = -1;
+			scene.add(farmFloor);
+			
+			const register = new Register();
+			register.position.x = -3;
+			scene.add(register);
+			
+			const tomatoPlant1 = new TomatoPlant();
+			tomatoPlant1.position.x = 3;
+			scene.add(tomatoPlant1);
+
+            const player = new Player();
+            camera.lookAt(player.position);
+            player.attach(camera);
+            scene.add(player);
+
+            let keys = new Array();
+
+            $(document).keydown(function()
+            {
+                keys[event.code] = true;
+            });
+            
+            $(document).keyup(function()
+            {
+                keys[event.code] = false;
+            });
+
+            const clock = new THREE.Clock();
+            
+            let customers = new Array();
+            
+            setInterval(function()
+            {
+                customer = new Customer();
+                customer.setRegister(register);
+                customer.setTarget(register.position());
+                customers.push(customer);
+                scene.add(customer);
+            }, 5000);
+
+			function animate()
+			{
+				requestAnimationFrame(animate);
+				
+				const deltaTime = clock.getDelta();
+				
+				if (keys["KeyW"])
+				    player.translateY(0.15);
+			    if (keys["KeyA"])
+			        player.translateX(-0.15);
+		        if (keys["KeyS"])
+				    player.translateY(-0.15);
+				if (keys["KeyD"])
+				    player.translateX(0.15);
+				    
+			    if (player.box.intersectsBox(register.box))
+			    {
+			        player.addMoney(register);
+			        register.material.color.setHex(0x00ff00);
+			    }
+			    else
+			        register.material.color.setHex(0xff0000);
+			    
+			    if (player.box.intersectsBox(tomatoPlant1.box))
+			        tomatoPlant1.material.color.setHex(0x00ff00);
+			    else
+			        tomatoPlant1.material.color.setHex(0xff0000);
+				
+				for (const customer of customers)
+				    customer.update(deltaTime);
+				
+				tomatoPlant1.update(deltaTime);
+				register.update(deltaTime);
+				player.update(deltaTime);
+
+				renderer.render(scene, camera);
+				htmlRenderer.render(scene, camera);
+			};
+
+			animate();
+		</script>
+	</body>
+</html>
