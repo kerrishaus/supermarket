@@ -55,7 +55,7 @@
 		        
 		        update(deltaTime)
 		        {
-		            this.box.copy( this.geometry.boundingBox ).applyMatrix4( this.matrixWorld );
+		            this.box.copy(this.geometry.boundingBox).applyMatrix4(this.matrixWorld);
 		        }
 		    }
 		    
@@ -63,10 +63,10 @@
 		    {
 		        constructor()
 		        {
-		            super(1, 1, 0xff0000);
+		            super(0.2, 0.2, 0xff0000);
 		            
 		            this.timeSinceLastGrowth = 0;
-		            this.tomatoes = 0;
+		            this.tomatoes = new Array();
 		            
                     const labelDiv = document.createElement("div");
     				labelDiv.id = this.uuid;
@@ -82,20 +82,40 @@
 		        {
 		            super.update(deltaTime);
 		            
-		            if (this.tomatoes < 3)
-    		            if (this.timeSinceLastGrowth > 1)
+		            if (this.tomatoes.length < 3)
+    		            if (this.timeSinceLastGrowth > 3)
     		            {
     		                this.grow();
     		                this.timeSinceLastGrowth = 0;
     		            }
 		            
 		            this.timeSinceLastGrowth += deltaTime;
+		            
+		            for (const tomato of this.tomatoes)
+		                tomato.update(deltaTime);
 		        }
 		        
 		        grow()
 		        {
-		            this.tomatoes += 1;
-		            this.label.element.textContent = this.tomatoes;
+		            if (this.tomatoes.length > 0)
+		                this.tomatoes[this.tomatoes.length - 1].setOwner(new THREE.Vector3(0, 0, 0), new THREE.Vector3(0, 0, 0));
+		            
+		            const newTomato = new Carryable(0.4, 0.4, 0.4, 0x852520);
+		            newTomato.setOwner(this.position, new THREE.Vector3(0, 0, 0));
+		            this.tomatoes.push(newTomato);
+		            this.add(newTomato);
+		            
+		            this.label.element.textContent = this.tomatoes.length;
+		        }
+		        
+		        removeTomato()
+		        {
+		            /*
+		            this.remove(this.tomatoes[this.tomatoes.length -1]);
+		            this.tomatoes.pop();
+		            
+		            this.label.element.textContent = this.tomatoes.length;
+		            */
 		        }
 		    }
 		    
@@ -107,18 +127,38 @@
 		            const material = new THREE.MeshBasicMaterial({color: color});
 		            
 		            super(geometry, material);
+		            
+		            this.owner  = new THREE.Vector3(0, 0, 0);
+		            this.offset = new THREE.Vector3(0, 0, 0);
 		        }
 		        
-		        setTarget(object)
+		        setOwner(owner, offset)
 		        {
+		            if (!(owner instanceof THREE.Vector3))
+		            {
+		                console.error("owner not instance of Vector3", owner);
+		                return
+		            }
 		            
+		            if (!(offset instanceof THREE.Vector3))
+		            {
+		                console.error("offset not instance of Vector3", offset);
+		                return
+		            }
+		            
+		            this.owner.copy(owner);
+		            this.offset.copy(offset);
 		        }
 		        
 		        update(deltaTime)
 		        {
-		            
+		            const move = new THREE.Vector3(this.owner.x + this.offset.x,
+		                                           this.owner.y + this.offset.y,
+		                                           this.owner.z + this.offset.z);
+		                                           
+                   this.position.lerp(move, 0.03);
 		        }
-		    }
+		    };
 		    
 		    class Register extends Interactable
 		    {
@@ -145,13 +185,13 @@
 		            }
 		            
 		            this.timeSinceLastMoney += deltaTime;
+		            
+		            for (const money of this.money)
+		                money.update(deltaTime);
 		        }
 		        
 		        addMoney()
 		        {
-		            const money = createScaledCube(0.3, 0.2, 0.02, 0x00ff00);
-		            money.position.copy(this.position);
-		            
                     const rows = 4;
                     const columns = 5;
                     const totalPerStack = rows * columns;
@@ -160,34 +200,51 @@
                     let currentStack = this.money.length - (stacks * totalPerStack);
                     let row = Math.floor(currentStack / rows);
                     let column = currentStack - (row * columns) + (1 * row)
+
+                    const money = new Carryable(0.3, 0.2, 0.02, 0x48c942);
+                    money.setOwner(new THREE.Vector3(0, 0, 0), new THREE.Vector3(column * 0.3, row + 0.2, 0.5 + (0.1 * stacks)));
                     
-                    money.position.z = 0.5 + (0.1 * stacks);
+                    /*
                     money.position.x = column * 0.3;
                     money.position.y = row * 0.2;
-		            
-		            console.log(stacks, currentStack, row, column);
+                    money.position.z = 0.5 + (0.1 * stacks);
+                    */
 		            
 		            this.add(money);
 		            this.money.push(money);
-		            
-		            console.log("added, now at: " + this.money.length);
 		        }
 		        
 		        removeMoney()
 		        {
 		            const obj = this.money[this.money.length - 1];
 		            
+		            obj.setOwner(player.position, new THREE.Vector3(0, 0, 0));
+		            
 		            this.remove(obj);
+		            this.money.pop();
+		        }
+		        
+		        transferMoney(player, amount)
+		        {
+		            if (this.money.length <= 0)
+		                return;
+		                
+		            const money = this.money[this.money.length - 1];
+		            money.setOwner(player.position, new THREE.Vector3(0, 2, 0));
+		            
+		            this.remove(money);
+		            player.carriedMoney.push(money);
+		            player.add(money);
 		            
 		            this.money.pop();
 		            
-		            console.log("remove, now at: " + this.money.length);
+		            $("#money").html(player.money.length);
 		        }
 		    }
 		    
 		    class Customer extends THREE.Mesh
 		    {
-	            constructor(register)
+	            constructor(register, items)
                 {
                     const geometry = new THREE.BoxGeometry(0.8, 0.8, 0.8);
                     const material = new THREE.MeshBasicMaterial({color: 0xaabbcc});
@@ -253,22 +310,20 @@
 		            this.box = new THREE.Box3();
 		            
 		            this.money = 0;
+		            
+		            this.carriedItems = new Array();
+		            this.carriedMoney = new Array();
 		        }
 		        
 		        update(deltaTime)
 		        {
-		            this.box.copy( this.geometry.boundingBox ).applyMatrix4( this.matrixWorld );
-		        }
-		        
-		        addMoney(register)
-		        {
-		            if (register.money.length > 0)
-		            {
-		                register.removeMoney();
-		                this.money += 1;
+		            this.box.copy(this.geometry.boundingBox).applyMatrix4(this.matrixWorld);
+		            
+		            for (const item of this.carriedItems)
+		                item.update(deltaTime);
 		                
-		                $("#money").html(this.money);
-		            }
+	                for (const money of this.carriedMoney)
+	                    money.update(deltaTime);
 		        }
 		    }
 		
@@ -292,14 +347,14 @@
 			shopFloor.scale.x = 20;
 			shopFloor.scale.y = 10;
 			shopFloor.position.z = -1;
-			scene.add(shopFloor);
+			//scene.add(shopFloor);
 			
 			const farmFloor = createCube(0x00aa00);
 			farmFloor.scale.x = 20;
 			farmFloor.scale.y = 10;
 			farmFloor.position.y = -10;
 			farmFloor.position.z = -1;
-			scene.add(farmFloor);
+			//scene.add(farmFloor);
 			
 			const register = new Register();
 			register.position.x = -3;
@@ -332,7 +387,7 @@
             
             setInterval(function()
             {
-                customer = new Customer();
+                let customer = new Customer();
                 customer.setRegister(register);
                 customer.setTarget(register.position());
                 customers.push(customer);
@@ -356,14 +411,24 @@
 				    
 			    if (player.box.intersectsBox(register.box))
 			    {
-			        player.addMoney(register);
+			        register.transferMoney(player, 1);
 			        register.material.color.setHex(0x00ff00);
 			    }
 			    else
 			        register.material.color.setHex(0xff0000);
 			    
 			    if (player.box.intersectsBox(tomatoPlant1.box))
+			    {
 			        tomatoPlant1.material.color.setHex(0x00ff00);
+			        
+			        if (tomatoPlant1.tomatoes.length > 0)
+			        {
+    			        const tomato = tomatoPlant1.tomatoes[tomatoPlant1.tomatoes.length - 1];
+    			        tomatoPlant1.removeTomato();
+    			        tomato.setOwner(player.position, new THREE.Vector3(0, 0, 0));
+    			        player.add(tomato);
+			        }
+			    }
 			    else
 			        tomatoPlant1.material.color.setHex(0xff0000);
 				
