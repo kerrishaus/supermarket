@@ -5,6 +5,10 @@
 		<title>let's go shoppin</title>
 		<style>
 			body { margin: 0; }
+			html
+			{
+			    background-color: black;
+			}
 		</style>
 		
 		<script src="https://kerrishaus.com/assets/scripts/jquery-3.6.0.min.js"></script>
@@ -71,7 +75,7 @@
                     const labelDiv = document.createElement("div");
     				labelDiv.id = this.uuid;
         			labelDiv.className = 'unitCount';
-        			labelDiv.textContent = this.money;
+        			labelDiv.textContent = this.tomatoes.length;
         			
         			this.label = new CSS2DObject(labelDiv);
         			this.label.color = "white";
@@ -97,14 +101,26 @@
 		        
 		        grow()
 		        {
-		            if (this.tomatoes.length > 0)
-		                this.tomatoes[this.tomatoes.length - 1].setTarget(new THREE.Vector3(0, 0, 0), new THREE.Vector3(0, 0, 0));
-		            
 		            const newTomato = new Carryable(0.4, 0.4, 0.4, 0x852520);
+		            newTomato.position.copy(this.position);
 		            newTomato.setTarget(this.position, new THREE.Vector3(0, 1, 0));
 		            this.tomatoes.push(newTomato);
-		            this.add(newTomato);
+		            scene.add(newTomato);
 		            
+		            this.label.element.textContent = this.tomatoes.length;
+		        }
+		        
+		        transferTomato(receiver)
+		        {
+		            if (this.tomatoes.length <= 0)
+		                return;
+		                
+		            const tomato = this.tomatoes[this.tomatoes.length - 1];
+		            tomato.setTarget(player.position, new THREE.Vector3(0, 0, player.carriedItems.length + 3));
+		            
+		            player.carriedItems.push(tomato);
+		            
+		            this.tomatoes.pop();
 		            this.label.element.textContent = this.tomatoes.length;
 		        }
 		    }
@@ -118,9 +134,10 @@
 		            
 		            super(geometry, material);
 		            
-		            this.offset        = new THREE.Vector3(0, 0, 0);
-		            this.owner         = new THREE.Vector3(0, 0, 0);
-		            this.startPosition = new THREE.Vector3(0, 0, 0);
+		            this.offset         = new THREE.Vector3(0, 0, 0);
+		            this.owner          = new THREE.Vector3(0, 0, 0);
+		            this.targetPosition = new THREE.Vector3(0, 0, 0);
+		            this.startPosition  = new THREE.Vector3(0, 0, 0);
 		            
 		            this.elapsedTime = 0;
 		            this.moveTime = 0.4;
@@ -129,8 +146,8 @@
 		        setTarget(owner, offset)
 		        {
 		            this.startPosition.copy(this.position);
-		            
 		            this.updateTarget(owner, offset);
+		            this.elapsedTime = 0;
 		        }
 		        
 		        updateTarget(owner, offset)
@@ -149,41 +166,47 @@
 		            
 		            this.owner.copy(owner);
 		            this.offset.copy(offset);
+		            
+		            this.targetPosition = new THREE.Vector3(this.owner.x + this.offset.x,
+	                                                        this.owner.y + this.offset.y,
+		                                                    this.owner.z + this.offset.z);
 		        }
 		        
 		        update(deltaTime)
 		        {
-		            if (this.elapsedTime < this.moveTime)
+		            if (this.elapsedTime > this.moveTime)
 		            {
-    		            this.elapsedTime += deltaTime;
-    		            
-    		            const move = new THREE.Vector3(this.owner.x + this.offset.x,
-    		                                           this.owner.y + this.offset.y,
-    		                                           this.owner.z + this.offset.z);
-    		                                           
-                       this.position.lerpVectors(this.startPosition, move, this.elapsedTime / this.moveTime);
+		                this.position.copy(this.targetPosition);
+		                return;
 		            }
+		            
+                    this.elapsedTime += deltaTime;
+                    this.position.lerpVectors(this.startPosition, this.targetPosition, this.elapsedTime / this.moveTime);
 		        }
 		    };
 		    
-		    class Register extends Interactable
+		    class Register extends THREE.Mesh
 		    {
 		        constructor()
 		        {
-		            super(3, 1, 0xff0000);
+		            const geometry = new THREE.BoxGeometry(3, 1, 1);
+		            const material = new THREE.MeshBasicMaterial({color: 0x4d220b});
+		            super(geometry, material);
 		            
         			this.money = new Array();
 		            this.timeSinceLastMoney = 0;
 		            
-		            //for (let i = 0; i < 400; i++)
-		            //    this.addMoney();
+		            this.trigger = new Interactable(5, 3, 0xff0000);
+		            this.trigger.scale.z = 0.1;
+		            this.add(this.trigger);
+		            this.trigger.position.z -= 0.54;
 		        }
 		        
 		        update(deltaTime)
 		        {
-		            super.update(deltaTime);
+		            this.trigger.update(deltaTime);
 		            
-		            if (this.timeSinceLastMoney >= 0.1)
+		            if (this.timeSinceLastMoney >= 6)
 		            {
 		                this.addMoney();
 		                this.timeSinceLastMoney = 0;
@@ -220,7 +243,7 @@
 		            this.money.push(money);
 		        }
 		        
-		        transferMoney(player, amount)
+		        transferMoney(player)
 		        {
 		            if (this.money.length <= 0)
 		                return;
@@ -318,7 +341,17 @@
 		            this.box.copy(this.geometry.boundingBox).applyMatrix4(this.matrixWorld);
 		            
 		            for (const item of this.carriedItems)
-		                item.update(deltaTime);
+		            {
+		                if (item.elapsedTime > item.moveTime)
+	                    {
+	                        scene.remove(item);
+	                        this.carriedItems.splice(this.carriedItems.indexOf(item), 1);
+	                        continue;
+	                    }
+	                    
+	                    item.setTarget(player.position, new THREE.Vector3(0, 0, player.carriedItems.length + 1));
+	                    item.update(deltaTime);
+		            }
 		                
 	                for (const money of this.carriedMoney)
 	                {
@@ -355,17 +388,19 @@
 			shopFloor.scale.x = 20;
 			shopFloor.scale.y = 10;
 			shopFloor.position.z = -1;
-			//scene.add(shopFloor);
+			scene.add(shopFloor);
 			
 			const farmFloor = createCube(0x00aa00);
 			farmFloor.scale.x = 20;
 			farmFloor.scale.y = 10;
 			farmFloor.position.y = -10;
 			farmFloor.position.z = -1;
-			//scene.add(farmFloor);
+			scene.add(farmFloor);
 			
 			const register = new Register();
 			register.position.x = -3;
+			for (let i = 0; i < 400; i++)
+                register.addMoney();
 			scene.add(register);
 			
 			const tomatoPlant1 = new TomatoPlant();
@@ -419,22 +454,18 @@
 				if (keys["KeyD"])
 				    player.translateX(0.15);
 				    
-			    if (player.box.intersectsBox(register.box))
+			    if (player.box.intersectsBox(register.trigger.box))
 			    {
-			        register.transferMoney(player, 1);
+			        register.transferMoney(player);
 			        register.material.color.setHex(0x00ff00);
 			    }
 			    else
-			        register.material.color.setHex(0xff0000);
+			        register.material.color.setHex(0x4d220b);
 			    
 			    if (player.box.intersectsBox(tomatoPlant1.box))
 			    {
+		            tomatoPlant1.transferTomato(player);
 			        tomatoPlant1.material.color.setHex(0x00ff00);
-			        
-			        if (tomatoPlant1.tomatoes.length > 0)
-			        {
-			            tomatoPlant1.transferTomato(player, 1);
-			        }
 			    }
 			    else
 			        tomatoPlant1.material.color.setHex(0xff0000);
