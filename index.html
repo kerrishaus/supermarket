@@ -193,15 +193,15 @@
 		                return;
 		                
 		            const tomato = this.tomatoes[this.tomatoes.length - 1];
-		            tomato.carryPos = player.carriedItems.length + 1;
+		            tomato.carryPos = receiver.carriedItems.length + 1;
 		            tomato.moveTime = 0.17;
 		            
 		            // TODO: I want to set the offset vector here, in the future
 		            // but right now it's really not required because it will set by
 		            // updateTarget later in Player#update
-		            tomato.setTarget(player.position, new THREE.Vector3(0, 0, 0));
+		            tomato.setTarget(receiver.position, new THREE.Vector3(0, 0, 0));
 		            
-		            player.carriedItems.push(tomato);
+		            receiver.carriedItems.push(tomato);
 		            
 		            this.tomatoes.pop();
 		            this.label.element.textContent = this.tomatoes.length;
@@ -266,10 +266,7 @@
 		        update(deltaTime)
 		        {
 		            if (this.elapsedTime > this.moveTime)
-		            {
-		                this.position.copy(this.targetPosition);
 		                return;
-		            }
 		            
                     this.elapsedTime += deltaTime;
                     this.position.lerpVectors(this.startPosition, this.targetPosition, this.elapsedTime / this.moveTime);
@@ -427,12 +424,12 @@
 		                
 		                if (item.elapsedTime > item.moveTime)
 	                    {
-	                        item.position.copy(player.position);
+	                        item.position.copy(this.position);
 	                        item.position.z += carryPos;
 	                        continue;
 	                    }
 	                    
-	                    item.updateTarget(player.position, new THREE.Vector3(0, 0, carryPos));
+	                    item.updateTarget(this.position, new THREE.Vector3(0, 0, carryPos));
 		            }
 		                
 	                for (const money of this.carriedMoney)
