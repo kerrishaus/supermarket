@@ -45,21 +45,89 @@
 		    
 		    class Interactable extends THREE.Mesh
 		    {
-		        constructor(width, height, color)
+		        constructor(width, length, triggerWidth, triggerLength, color)
 		        {
-		            const geometry = new THREE.BoxGeometry(width, height, 1);
+		            const geometry = new THREE.BoxGeometry(width, length, 1);
 		            const material = new THREE.MeshBasicMaterial({ color: color });
 		            
 		            super(geometry, material);
 		            
-		            this.geometry.computeBoundingBox();
+		            const triggerGeometry = new THREE.BoxGeometry(triggerWidth, triggerLength, 0.1);
+		            const triggerMaterial = new THREE.MeshBasicMaterial({ color: 0xff0000, transparent: true, opacity: 0.2 });
 		            
-		            this.box = new THREE.Box3();
+		            this.triggerObject = new THREE.Mesh(triggerGeometry, triggerMaterial);
+		            this.triggerObject.geometry.computeBoundingBox();
+		            this.attach(this.triggerObject);
+		            this.triggerObject.position.z -= 0.4;
+		            
+		            this.trigger = new THREE.Box3();
 		        }
 		        
 		        update(deltaTime)
 		        {
-		            this.box.copy(this.geometry.boundingBox).applyMatrix4(this.matrixWorld);
+		            this.trigger.copy(this.triggerObject.geometry.boundingBox).applyMatrix4(this.triggerObject.matrixWorld);
+		        }
+		    }
+		    
+		    class BuyableTile extends Interactable
+		    {
+		        constructor(width, length, xPos, yPos, price, name)
+		        {
+		            super(width, length, width + 3, length + 3, 0xff0000);
+		            
+		            this.position.x = xPos;
+		            this.position.y = yPos;
+		            
+                    const labelDiv = document.createElement("div");
+    				labelDiv.id = this.uuid;
+        			labelDiv.className = 'buyableTileTitle';
+        			labelDiv.textContent = name;
+        			
+        			this.label = new CSS2DObject(labelDiv);
+        			this.label.color = "white";
+        			this.add(this.label);
+        			
+        			this.carriedMoney = new Array();
+        			
+		            this.price = price;
+		            this.pricePaid = 0;
+		        }
+		        
+                transferMoney(player)
+		        {
+		            if (player.money <= 0)
+		                return;
+		                
+		            const money = new Carryable(0.3, 0.2, 0.02, 0x48c942);
+                    money.position.copy(this.position);
+                    money.setTarget(this.position, new THREE.Vector3(0, 0, 0));
+                    money.startPosition.copy(player.position);
+                    scene.add(money);
+		            
+		            this.carriedMoney.push(money);
+		            this.pricePaid += 1;
+		            player.money -= 1;
+		            
+		            this.label.element.textContent = this.price - this.pricePaid;
+		            $("#money").html(player.money);
+		        }
+		        
+		        update(deltaTime)
+		        {
+                    super.update();
+                 
+                    for (const money of this.carriedMoney)
+                    {
+                        if (money.elapsedTime > money.moveTime)
+                        {
+                            scene.remove(money);
+                            this.carriedMoney.splice(this.carriedMoney.indexOf(money), 1);
+                            continue;
+                        }
+                        
+                        money.startPosition.copy(player.position);
+                        money.update(deltaTime);
+                    }
 		        }
 		    }
 		    
@@ -67,7 +135,7 @@
 		    {
 		        constructor()
 		        {
-		            super(0.2, 0.2, 0xff0000);
+		            super(0.2, 0.2, 1, 1, 0xff0000);
 		            
 		            this.timeSinceLastGrowth = 0;
 		            this.tomatoes = new Array();
@@ -117,7 +185,7 @@
 		                
 		            const tomato = this.tomatoes[this.tomatoes.length - 1];
 		            tomato.carryPos = player.carriedItems.length + 1;
-		            tomato.moveTime = 0.2;
+		            tomato.moveTime = 0.17;
 		            
 		            // TODO: I want to set the offset vector here, in the future
 		            // but right now it's really not required because it will set by
@@ -128,6 +196,14 @@
 		            
 		            this.tomatoes.pop();
 		            this.label.element.textContent = this.tomatoes.length;
+		        }
+		    }
+		    
+		    class TomatoStand extends Interactable
+		    {
+		        constructor(xPos, yPos)
+		        {
+		            
 		        }
 		    }
 		    
@@ -191,26 +267,19 @@
 		        }
 		    };
 		    
-		    class Register extends THREE.Mesh
+		    class Register extends Interactable
 		    {
 		        constructor()
 		        {
-		            const geometry = new THREE.BoxGeometry(3, 1, 1);
-		            const material = new THREE.MeshBasicMaterial({color: 0x4d220b});
-		            super(geometry, material);
+		            super(3, 1, 5, 3, 0x4d220b);
 		            
         			this.money = new Array();
 		            this.timeSinceLastMoney = 0;
-		            
-		            this.trigger = new Interactable(5, 3, 0xff0000);
-		            this.trigger.scale.z = 0.1;
-		            this.add(this.trigger);
-		            this.trigger.position.z -= 0.54;
 		        }
 		        
 		        update(deltaTime)
 		        {
-		            this.trigger.update(deltaTime);
+		            super.update(deltaTime);
 		            
 		            if (this.timeSinceLastMoney >= 6)
 		            {
@@ -348,14 +417,16 @@
 		            
 		            for (const item of this.carriedItems)
 		            {
+		                const carryPos = 1 + (item.scale.z * item.carryPos);
+		                
 		                if (item.elapsedTime > item.moveTime)
 	                    {
 	                        item.position.copy(player.position);
-	                        item.position.z += item.carryPos;
+	                        item.position.z += carryPos;
 	                        continue;
 	                    }
 	                    
-	                    item.updateTarget(player.position, new THREE.Vector3(0, 0, item.carryPos));
+	                    item.updateTarget(player.position, new THREE.Vector3(0, 0, carryPos));
 	                    item.update(deltaTime);
 		            }
 		                
@@ -394,14 +465,14 @@
 			shopFloor.scale.x = 20;
 			shopFloor.scale.y = 10;
 			shopFloor.position.z = -1;
-			scene.add(shopFloor);
+			//scene.add(shopFloor);
 			
 			const farmFloor = createCube(0x00aa00);
 			farmFloor.scale.x = 20;
 			farmFloor.scale.y = 10;
 			farmFloor.position.y = -10;
 			farmFloor.position.z = -1;
-			scene.add(farmFloor);
+			//scene.add(farmFloor);
 			
 			const register = new Register();
 			register.position.x = -3;
@@ -412,6 +483,9 @@
 			const tomatoPlant1 = new TomatoPlant();
 			tomatoPlant1.position.x = 3;
 			scene.add(tomatoPlant1);
+			
+			const tomatoStandBuyTile = new BuyableTile(1, 1, 1, 4, 100, "Tomato Stand");
+			scene.add(tomatoStandBuyTile);
 
             const player = new Player();
             camera.lookAt(player.position);
@@ -460,15 +534,23 @@
 				if (keys["KeyD"])
 				    player.translateX(0.15);
 				    
-			    if (player.box.intersectsBox(register.trigger.box))
+			    if (player.box.intersectsBox(register.trigger))
 			    {
 			        register.transferMoney(player);
 			        register.material.color.setHex(0x00ff00);
 			    }
 			    else
 			        register.material.color.setHex(0x4d220b);
+			        
+			    if (player.box.intersectsBox(tomatoStandBuyTile.trigger))
+			    {
+			        tomatoStandBuyTile.transferMoney(player);
+			        tomatoStandBuyTile.material.color.setHex(0x00ff00);
+			    }
+			    else
+			        tomatoStandBuyTile.material.color.setHex(0x4d220b);
 			    
-			    if (player.box.intersectsBox(tomatoPlant1.box))
+			    if (player.box.intersectsBox(tomatoPlant1.trigger))
 			    {
 		            tomatoPlant1.transferTomato(player);
 			        tomatoPlant1.material.color.setHex(0x00ff00);
@@ -480,6 +562,7 @@
 				    customer.update(deltaTime);
 				
 				tomatoPlant1.update(deltaTime);
+				tomatoStandBuyTile.update(deltaTime);
 				register.update(deltaTime);
 				player.update(deltaTime);
 
