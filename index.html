@@ -98,24 +98,14 @@
 		        grow()
 		        {
 		            if (this.tomatoes.length > 0)
-		                this.tomatoes[this.tomatoes.length - 1].setOwner(new THREE.Vector3(0, 0, 0), new THREE.Vector3(0, 0, 0));
+		                this.tomatoes[this.tomatoes.length - 1].setTarget(new THREE.Vector3(0, 0, 0), new THREE.Vector3(0, 0, 0));
 		            
 		            const newTomato = new Carryable(0.4, 0.4, 0.4, 0x852520);
-		            newTomato.setOwner(this.position, new THREE.Vector3(0, 0, 0));
+		            newTomato.setTarget(this.position, new THREE.Vector3(0, 1, 0));
 		            this.tomatoes.push(newTomato);
 		            this.add(newTomato);
 		            
 		            this.label.element.textContent = this.tomatoes.length;
-		        }
-		        
-		        removeTomato()
-		        {
-		            /*
-		            this.remove(this.tomatoes[this.tomatoes.length -1]);
-		            this.tomatoes.pop();
-		            
-		            this.label.element.textContent = this.tomatoes.length;
-		            */
 		        }
 		    }
 		    
@@ -128,11 +118,22 @@
 		            
 		            super(geometry, material);
 		            
-		            this.owner  = new THREE.Vector3(0, 0, 0);
-		            this.offset = new THREE.Vector3(0, 0, 0);
+		            this.offset        = new THREE.Vector3(0, 0, 0);
+		            this.owner         = new THREE.Vector3(0, 0, 0);
+		            this.startPosition = new THREE.Vector3(0, 0, 0);
+		            
+		            this.elapsedTime = 0;
+		            this.moveTime = 0.4;
 		        }
 		        
-		        setOwner(owner, offset)
+		        setTarget(owner, offset)
+		        {
+		            this.startPosition.copy(this.position);
+		            
+		            this.updateTarget(owner, offset);
+		        }
+		        
+		        updateTarget(owner, offset)
 		        {
 		            if (!(owner instanceof THREE.Vector3))
 		            {
@@ -152,11 +153,16 @@
 		        
 		        update(deltaTime)
 		        {
-		            const move = new THREE.Vector3(this.owner.x + this.offset.x,
-		                                           this.owner.y + this.offset.y,
-		                                           this.owner.z + this.offset.z);
-		                                           
-                   this.position.lerp(move, 0.03);
+		            if (this.elapsedTime < this.moveTime)
+		            {
+    		            this.elapsedTime += deltaTime;
+    		            
+    		            const move = new THREE.Vector3(this.owner.x + this.offset.x,
+    		                                           this.owner.y + this.offset.y,
+    		                                           this.owner.z + this.offset.z);
+    		                                           
+                       this.position.lerpVectors(this.startPosition, move, this.elapsedTime / this.moveTime);
+		            }
 		        }
 		    };
 		    
@@ -169,9 +175,8 @@
         			this.money = new Array();
 		            this.timeSinceLastMoney = 0;
 		            
-		            this.addMoney();
-		            this.addMoney();
-		            this.addMoney();
+		            //for (let i = 0; i < 400; i++)
+		            //    this.addMoney();
 		        }
 		        
 		        update(deltaTime)
@@ -202,7 +207,8 @@
                     let column = currentStack - (row * columns) + (1 * row)
 
                     const money = new Carryable(0.3, 0.2, 0.02, 0x48c942);
-                    money.setOwner(new THREE.Vector3(0, 0, 0), new THREE.Vector3(column * 0.3, row + 0.2, 0.5 + (0.1 * stacks)));
+                    money.position.copy(this.position);
+                    money.setTarget(this.position, new THREE.Vector3(column * 0.3, row * 0.2, 0.5 + (0.1 * stacks)));
                     
                     /*
                     money.position.x = column * 0.3;
@@ -210,18 +216,8 @@
                     money.position.z = 0.5 + (0.1 * stacks);
                     */
 		            
-		            this.add(money);
+		            scene.add(money);
 		            this.money.push(money);
-		        }
-		        
-		        removeMoney()
-		        {
-		            const obj = this.money[this.money.length - 1];
-		            
-		            obj.setOwner(player.position, new THREE.Vector3(0, 0, 0));
-		            
-		            this.remove(obj);
-		            this.money.pop();
 		        }
 		        
 		        transferMoney(player, amount)
@@ -230,15 +226,17 @@
 		                return;
 		                
 		            const money = this.money[this.money.length - 1];
-		            money.setOwner(player.position, new THREE.Vector3(0, 2, 0));
 		            
-		            this.remove(money);
+		            //money.parent.remove(money);
+                    //money.matrixWorld.decompose(money.position, money.quaternion, money.scale);
+		            money.setTarget(player.position, new THREE.Vector3(0, 0, 0));
+		            
 		            player.carriedMoney.push(money);
-		            player.add(money);
 		            
 		            this.money.pop();
 		            
-		            $("#money").html(player.money.length);
+		            player.money += 1;
+		            $("#money").html(player.money);
 		        }
 		    }
 		    
@@ -323,7 +321,17 @@
 		                item.update(deltaTime);
 		                
 	                for (const money of this.carriedMoney)
+	                {
+	                    if (money.elapsedTime > money.moveTime)
+	                    {
+	                        scene.remove(money);
+	                        this.carriedMoney.splice(this.carriedMoney.indexOf(money), 1);
+	                        continue;
+	                    }
+	                    
+	                    money.updateTarget(player.position, new THREE.Vector3(0, 0, 0));
 	                    money.update(deltaTime);
+	                }
 		        }
 		    }
 		
@@ -385,6 +393,7 @@
             
             let customers = new Array();
             
+            /*
             setInterval(function()
             {
                 let customer = new Customer();
@@ -393,6 +402,7 @@
                 customers.push(customer);
                 scene.add(customer);
             }, 5000);
+            */
 
 			function animate()
 			{
@@ -423,10 +433,7 @@
 			        
 			        if (tomatoPlant1.tomatoes.length > 0)
 			        {
-    			        const tomato = tomatoPlant1.tomatoes[tomatoPlant1.tomatoes.length - 1];
-    			        tomatoPlant1.removeTomato();
-    			        tomato.setOwner(player.position, new THREE.Vector3(0, 0, 0));
-    			        player.add(tomato);
+			            tomatoPlant1.transferTomato(player, 1);
 			        }
 			    }
 			    else
