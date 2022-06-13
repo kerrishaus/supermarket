@@ -116,7 +116,13 @@
 		                return;
 		                
 		            const tomato = this.tomatoes[this.tomatoes.length - 1];
-		            tomato.setTarget(player.position, new THREE.Vector3(0, 0, player.carriedItems.length + 3));
+		            tomato.carryPos = player.carriedItems.length + 1;
+		            tomato.moveTime = 0.2;
+		            
+		            // TODO: I want to set the offset vector here, in the future
+		            // but right now it's really not required because it will set by
+		            // updateTarget later in Player#update
+		            tomato.setTarget(player.position, new THREE.Vector3(0, 0, 0));
 		            
 		            player.carriedItems.push(tomato);
 		            
@@ -344,12 +350,12 @@
 		            {
 		                if (item.elapsedTime > item.moveTime)
 	                    {
-	                        scene.remove(item);
-	                        this.carriedItems.splice(this.carriedItems.indexOf(item), 1);
+	                        item.position.copy(player.position);
+	                        item.position.z += item.carryPos;
 	                        continue;
 	                    }
 	                    
-	                    item.setTarget(player.position, new THREE.Vector3(0, 0, player.carriedItems.length + 1));
+	                    item.updateTarget(player.position, new THREE.Vector3(0, 0, item.carryPos));
 	                    item.update(deltaTime);
 		            }
 		                
