@@ -43,12 +43,25 @@
 		        return new THREE.Mesh(geometry, material);
 		    }
 		    
-		    class Interactable extends THREE.Mesh
+		    class DynamicMesh extends THREE.Mesh
+		    {
+		        constructor(geometry, material)
+		        {
+		            super(geometry, material);
+		        }
+		        
+		        update()
+		        {
+		            
+		        }
+		    }
+		    
+		    class Interactable extends DynamicMesh
 		    {
 		        constructor(width, length, triggerWidth, triggerLength, color)
 		        {
 		            const geometry = new THREE.BoxGeometry(width, length, 1);
-		            const material = new THREE.MeshBasicMaterial({ color: color });
+		            const material = new THREE.MeshBasicMaterial({ color: color, transparent: true, opacity: 0.4 });
 		            
 		            super(geometry, material);
 		            
@@ -103,7 +116,7 @@
                     money.setTarget(this.position, new THREE.Vector3(0, 0, 0));
                     money.startPosition.copy(player.position);
                     scene.add(money);
-		            
+                    
 		            this.carriedMoney.push(money);
 		            this.pricePaid += 1;
 		            player.money -= 1;
@@ -126,7 +139,6 @@
                         }
                         
                         money.startPosition.copy(player.position);
-                        money.update(deltaTime);
                     }
 		        }
 		    }
@@ -162,9 +174,6 @@
     		            }
 		            
 		            this.timeSinceLastGrowth += deltaTime;
-		            
-		            for (const tomato of this.tomatoes)
-		                tomato.update(deltaTime);
 		        }
 		        
 		        grow()
@@ -207,7 +216,7 @@
 		        }
 		    }
 		    
-		    class Carryable extends THREE.Mesh
+		    class Carryable extends DynamicMesh
 		    {
 		        constructor(width, height, thickness, color)
 		        {
@@ -287,10 +296,7 @@
 		                this.timeSinceLastMoney = 0;
 		            }
 		            
-		            this.timeSinceLastMoney += deltaTime;
-		            
-		            for (const money of this.money)
-		                money.update(deltaTime);
+		            this.timeSinceLastMoney += deltaTime
 		        }
 		        
 		        addMoney()
@@ -338,7 +344,7 @@
 		        }
 		    }
 		    
-		    class Customer extends THREE.Mesh
+		    class Customer extends DynamicMesh
 		    {
 	            constructor(register, items)
                 {
@@ -392,7 +398,7 @@
                 }
 		    }
 		    
-		    class Player extends THREE.Mesh
+		    class Player extends DynamicMesh
 		    {
 		        constructor()
 		        {
@@ -427,7 +433,6 @@
 	                    }
 	                    
 	                    item.updateTarget(player.position, new THREE.Vector3(0, 0, carryPos));
-	                    item.update(deltaTime);
 		            }
 		                
 	                for (const money of this.carriedMoney)
@@ -440,7 +445,6 @@
 	                    }
 	                    
 	                    money.updateTarget(player.position, new THREE.Vector3(0, 0, 0));
-	                    money.update(deltaTime);
 	                }
 		        }
 		    }
@@ -558,14 +562,12 @@
 			    else
 			        tomatoPlant1.material.color.setHex(0xff0000);
 				
-				for (const customer of customers)
-				    customer.update(deltaTime);
-				
-				tomatoPlant1.update(deltaTime);
-				tomatoStandBuyTile.update(deltaTime);
-				register.update(deltaTime);
-				player.update(deltaTime);
-
+                scene.children.forEach( (object) =>
+                {
+                    if (object instanceof DynamicMesh)
+                        object.update(deltaTime);
+                });
+                
 				renderer.render(scene, camera);
 				htmlRenderer.render(scene, camera);
 			};
