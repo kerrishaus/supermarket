@@ -10,10 +10,14 @@
 			    background-color: black;
 			}
 			
-			canvas
+			*
 			{
 			    pointer-events: none;
-			    
+			    user-select: none;
+			}
+			
+			canvas
+			{
 			    width: 100vw;
 			    height: 100vh;
 			    
@@ -21,6 +25,8 @@
 			    overflow-y: hidden;
 			}
 		</style>
+		
+		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
 		
 		<script src="https://kerrishaus.com/assets/scripts/jquery-3.6.0.min.js"></script>
 		<script src="https://portal.kerrishaus.com/assets/javascript/messages.js"></script>
@@ -30,6 +36,14 @@
 	    <div style='position: absolute; top: 0px; left: 0px; width: 100vw; height: 100vh; overflow-x: hidden; overflow-y: hidden; pointer-events: none'>
 	        <div id='money' style='color: white;background-color: #222;border: 3px solid white; padding: 4px;'>
 	            fuck
+	        </div>
+	        
+	        <div id='moving' style='color: white;background-color: #222;border: 3px solid white; padding: 4px;'>
+	            no
+	        </div>
+	        
+	        <div id='mouse' style='color: white;background-color: #222;border: 3px solid white; padding: 4px;'>
+	            no
 	        </div>
 	    </div>
 	    
@@ -689,6 +703,12 @@
             const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
             scene.add(player);
             
+            window.oncontextmenu = function(event) {
+                 event.preventDefault();
+                 event.stopPropagation();
+                 return false;
+            };
+            
             $(document).resize((event) =>
             {
                 camera.aspect = window.innerWidth / window.innerHeight;
@@ -713,11 +733,19 @@
             $(document).on('mousedown touchstart', (event) =>
             {
                 moving = true;
+                
+                $("#moving").html(moving ? "yes" : "no");
+                
+                console.log("touchstart");
             });
             
             $(document).on('mouseup touchend', (event) =>
             {
                 moving = false;
+                
+                console.log("touchend");
+                
+                $("#moving").html(moving ? "yes" : "no");
             });
             
             let geometry = new THREE.SphereGeometry(1, 12, 8);
@@ -732,16 +760,28 @@
             let moveTarget = new THREE.Mesh(geometry, material);
             scene.add(moveTarget);
             
-            var plane = new THREE.Plane(new THREE.Vector3(0, 0, 1), 0);
+            let plane = new THREE.Plane(new THREE.Vector3(0, 0, 1), 0);
 
-            var mouse = new THREE.Vector2();
-            var raycaster = new THREE.Raycaster();
-            var intersects = new THREE.Vector3();
+            let mouse = new THREE.Vector2();
+            let raycaster = new THREE.Raycaster();
+            let intersects = new THREE.Vector3();
             
-            $(document).on('mousemove touchmove', (event) =>
+            $(document).on('mousemove', (event) =>
             {
                 mouse.x = ( event.clientX / window.innerWidth ) * 2 - 1;
                 mouse.y = - ( event.clientY / window.innerHeight ) * 2 + 1;
+                
+                $("#mouse").html(mouse.x + " " + mouse.y);
+            });
+            
+            $(document).on('touchmove', (event) =>
+            {
+                mouse.x = ( event.touches[0].clientX / window.innerWidth ) * 2 - 1;
+                mouse.y = - ( event.touches[0].clientY / window.innerHeight ) * 2 + 1;
+                
+                $("#mouse").html(mouse.x + " " + mouse.y);
+                
+                event.preventDefault();
             });
             
             const clock = new THREE.Clock();
@@ -775,24 +815,24 @@
     				    player.position.y -= 0.15;
     				if (keys["KeyD"])
     				    player.position.x += 0.15;
-				}
-				else
-				{
-				    raycaster.setFromCamera(mouse, camera);
+			    }
+			    else
+			    {
+    			    raycaster.setFromCamera(mouse, camera);
                     raycaster.ray.intersectPlane(plane, intersects);
                     moveTarget.position.set(intersects.x, intersects.y, intersects.z);
-				    
-				    player.rotationTarget.position.copy(player.position);
+    			    
+    			    player.rotationTarget.position.copy(player.position);
                     player.rotationTarget.lookAt(moveTarget.position);
-				    
-				    player.position.lerp(moveTarget.position, 0.04);
-				}
+    			    
+    			    player.position.lerp(moveTarget.position, 0.04);
+			    }
 				
 				camera.position.copy(player.position);
 				camera.position.z = 10;
     			camera.position.y += -3
     			camera.lookAt(player.position);
-				
+    			
 			    if (tomatoStandBuyTile !== null)
     			    if (player.box.intersectsBox(tomatoStandBuyTile.trigger))
     			        tomatoStandBuyTile.transferMoney(player);
