@@ -9,6 +9,17 @@
 			    margin: 0;
 			    background-color: black;
 			}
+			
+			canvas
+			{
+			    pointer-events: none;
+			    
+			    width: 100vw;
+			    height: 100vh;
+			    
+			    overflow-x: hidden;
+			    overflow-y: hidden;
+			}
 		</style>
 		
 		<script src="https://kerrishaus.com/assets/scripts/jquery-3.6.0.min.js"></script>
@@ -575,6 +586,8 @@
 		            
 		            super(geometry, material);
 		            
+		            this.rotationTarget = new THREE.Mesh(geometry, material);
+		            
 		            this.geometry.computeBoundingBox();
 		            
 		            this.box = new THREE.Box3();
@@ -614,6 +627,10 @@
 	                    
 	                    money.updateTarget(player.position, new THREE.Vector3(0, 0, 0));
 	                }
+	                
+	                this.quaternion.slerp(this.rotationTarget.quaternion, 0.3);
+	                this.quaternion.y = 0;
+	                this.quaternion.x = 0;
 		        }
 		    };
 		
@@ -628,84 +645,6 @@
 			htmlRenderer.domElement.style.position = 'absolute';
 			htmlRenderer.domElement.style.top = '0px';
 			document.body.appendChild(htmlRenderer.domElement).style.pointerEvents = "none";
-			
-			const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-			camera.position.z = 10;
-			camera.position.y -= 3;
-			
-			const moveControl = new TransformControls(camera, renderer.domElement);
-			
-			window.addEventListener('keydown', function (event)
-			{
-				switch (event.keyCode)
-				{
-					case 81: // Q
-						moveControl.setSpace( moveControl.space === 'local' ? 'world' : 'local' );
-						break;
-
-					case 16: // Shift
-						moveControl.setTranslationSnap( 100 );
-						moveControl.setRotationSnap( THREE.MathUtils.degToRad( 15 ) );
-						moveControl.setScaleSnap( 0.25 );
-						break;
-
-					case 87: // W
-						moveControl.setMode( 'translate' );
-						break;
-
-					case 69: // E
-						moveControl.setMode( 'rotate' );
-						break;
-
-					case 82: // R
-						moveControl.setMode( 'scale' );
-						break;
-
-					case 187:
-					case 107: // +, =, num+
-						moveControl.setSize( moveControl.size + 0.1 );
-						break;
-
-					case 189:
-					case 109: // -, _, num-
-						moveControl.setSize( Math.max( moveControl.size - 0.1, 0.1 ) );
-						break;
-
-					case 88: // X
-						moveControl.showX = ! moveControl.showX;
-						break;
-
-					case 89: // Y
-						moveControl.showY = ! moveControl.showY;
-						break;
-
-					case 90: // Z
-						moveControl.showZ = ! moveControl.showZ;
-						break;
-
-					case 32: // Spacebar
-						moveControl.enabled = ! moveControl.enabled;
-						break;
-
-					case 27: // Esc
-						moveControl.reset();
-						break;
-				}
-			});
-
-			window.addEventListener('keyup', function(event)
-			{
-				switch (event.keyCode)
-				{
-					case 16: // Shift
-						moveControl.setTranslationSnap( null );
-						moveControl.setRotationSnap( null );
-						moveControl.setScaleSnap( null );
-						break;
-				}
-			});
-			
-			scene.add(moveControl);
 			
 			const shopFloor = createCube(0x222222);
 			shopFloor.scale.x = 20;
@@ -746,9 +685,16 @@
 			scene.add(tomatoStandBuyTile);
 
             const player = new Player();
-            camera.lookAt(player.position);
-            player.attach(camera);
+            
+            const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
             scene.add(player);
+            
+            $(document).resize((event) =>
+            {
+                camera.aspect = window.innerWidth / window.innerHeight;
+                camera.updateProjectionMatrix();
+                renderer.setSize( window.innerWidth, window.innerHeight );
+            });
 
             let keys = new Array();
 
@@ -760,6 +706,42 @@
             $(document).keyup(function(event)
             {
                 keys[event.code] = false;
+            });
+            
+            let moving = false;
+            
+            $(document).on('mousedown touchstart', (event) =>
+            {
+                moving = true;
+            });
+            
+            $(document).on('mouseup touchend', (event) =>
+            {
+                moving = false;
+            });
+            
+            let geometry = new THREE.SphereGeometry(1, 12, 8);
+            
+            let material = new THREE.MeshPhongMaterial({
+              color: 0x00ffff, 
+              flatShading: true,
+              transparent: true,
+              opacity: 0.7,
+            });
+            
+            let moveTarget = new THREE.Mesh(geometry, material);
+            scene.add(moveTarget);
+            
+            var plane = new THREE.Plane(new THREE.Vector3(0, 0, 1), 0);
+
+            var mouse = new THREE.Vector2();
+            var raycaster = new THREE.Raycaster();
+            var intersects = new THREE.Vector3();
+            
+            $(document).on('mousemove touchmove', (event) =>
+            {
+                mouse.x = ( event.clientX / window.innerWidth ) * 2 - 1;
+                mouse.y = - ( event.clientY / window.innerHeight ) * 2 + 1;
             });
             
             const clock = new THREE.Clock();
@@ -783,14 +765,33 @@
 				
 				const deltaTime = clock.getDelta();
 				
-				if (keys["KeyW"])
-				    player.translateY(0.15);
-			    if (keys["KeyA"])
-			        player.translateX(-0.15);
-		        if (keys["KeyS"])
-				    player.translateY(-0.15);
-				if (keys["KeyD"])
-				    player.translateX(0.15);
+				if (!moving)
+				{
+    				if (keys["KeyW"])
+    				    player.position.y += 0.15;
+    			    if (keys["KeyA"])
+    			        player.position.x -= 0.15;
+    		        if (keys["KeyS"])
+    				    player.position.y -= 0.15;
+    				if (keys["KeyD"])
+    				    player.position.x += 0.15;
+				}
+				else
+				{
+				    raycaster.setFromCamera(mouse, camera);
+                    raycaster.ray.intersectPlane(plane, intersects);
+                    moveTarget.position.set(intersects.x, intersects.y, intersects.z);
+				    
+				    player.rotationTarget.position.copy(player.position);
+                    player.rotationTarget.lookAt(moveTarget.position);
+				    
+				    player.position.lerp(moveTarget.position, 0.04);
+				}
+				
+				camera.position.copy(player.position);
+				camera.position.z = 10;
+    			camera.position.y += -3
+    			camera.lookAt(player.position);
 				
 			    if (tomatoStandBuyTile !== null)
     			    if (player.box.intersectsBox(tomatoStandBuyTile.trigger))
