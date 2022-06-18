@@ -4,26 +4,29 @@
 		<meta charset="utf-8">
 		<title>let's go shoppin</title>
 		<style>
-			body
-			{
-			    margin: 0;
-			    background-color: black;
-			}
-			
-			*
+	        *
 			{
 			    pointer-events: none;
 			    user-select: none;
 			}
-			
-			canvas
+		
+			html, body
 			{
-			    width: 100vw;
-			    height: 100vh;
-			    
-			    overflow-x: hidden;
-			    overflow-y: hidden;
-			}
+			    margin: 0;
+			    background-color: black;
+                overflow-x: hidden;
+                
+                height: 100%;
+                width: 100%;
+                
+                overflow-x: hidden;
+                overflow-y: hidden;
+            }
+            
+            body
+            {
+                position: relative;
+            }
 		</style>
 		
 		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
@@ -460,7 +463,7 @@
 		    {
 		        constructor()
 		        {
-		            super(3, 1, 5, 3, 0xFFFFFF);
+		            super(2, 4, 4, 6, 0xad723e);
 		            
         			this.money = new Array();
 		            this.timeSinceLastMoney = 0;
@@ -647,45 +650,55 @@
 	                this.quaternion.x = 0;
 		        }
 		    };
-		
+
 			const scene = new THREE.Scene();
 
 			const renderer = new THREE.WebGLRenderer();
 			renderer.setSize(window.innerWidth, window.innerHeight);
 			document.body.appendChild(renderer.domElement);
-			
+
 			const htmlRenderer = new CSS2DRenderer();
 			htmlRenderer.setSize(window.innerWidth, window.innerHeight);
 			htmlRenderer.domElement.style.position = 'absolute';
 			htmlRenderer.domElement.style.top = '0px';
 			document.body.appendChild(htmlRenderer.domElement).style.pointerEvents = "none";
-			
-			const shopFloor = createCube(0x222222);
-			shopFloor.scale.x = 20;
-			shopFloor.scale.y = 10;
+
+			const shopFloor = createCube(0xe0e0e0);
+			shopFloor.scale.x = 40;
+			shopFloor.scale.y = 20;
 			shopFloor.position.z = -1;
 			scene.add(shopFloor);
 			
-			const farmFloor = createCube(0x00aa00);
-			farmFloor.scale.x = 20;
-			farmFloor.scale.y = 10;
-			farmFloor.position.y = -10;
+			const shopNorthWall = createCube(0xe0e0e0);
+			shopNorthWall.scale.x = 40;
+			shopNorthWall.scale.y = 1;
+			shopNorthWall.scale.z = 4;
+			shopNorthWall.position.z = -1;
+			scene.add(shopFloor);
+
+			const farmFloor = createCube(0x41c92c);
+			farmFloor.scale.x = 40;
+			farmFloor.scale.y = 20;
+			farmFloor.position.y = -20;
 			farmFloor.position.z = -1;
 			scene.add(farmFloor);
-			
+
 			const register = new Register();
-			register.position.x = -3;
+			register.position.x = -16;
+			register.position.y = 6;
 			for (let i = 0; i < 400; i++)
                 register.addMoney();
 			scene.add(register);
-			
+
 			const recycleBin = new RecycleBin(6, 4);
+			recycleBin.position.x = -4;
+			recycleBin.position.y = 8;
 			scene.add(recycleBin);
-			
+
 			const tomatoPlant1 = new TomatoPlant();
 			tomatoPlant1.position.x = 3;
 			scene.add(tomatoPlant1);
-			
+
 			let tomatoStandBuyTile = new BuyableTile(1, 1, 1, 4, 100, "Tomato Stand");
 			tomatoStandBuyTile.onFullyPaid = function()
 			{
@@ -734,18 +747,14 @@
             {
                 moving = true;
                 
-                $("#moving").html(moving ? "yes" : "no");
-                
-                console.log("touchstart");
+                scene.add(moveTarget);
             });
             
             $(document).on('mouseup touchend', (event) =>
             {
                 moving = false;
                 
-                console.log("touchend");
-                
-                $("#moving").html(moving ? "yes" : "no");
+                scene.remove(moveTarget);
             });
             
             let geometry = new THREE.SphereGeometry(1, 12, 8);
@@ -758,7 +767,6 @@
             });
             
             let moveTarget = new THREE.Mesh(geometry, material);
-            scene.add(moveTarget);
             
             let plane = new THREE.Plane(new THREE.Vector3(0, 0, 1), 0);
 
@@ -770,16 +778,12 @@
             {
                 mouse.x = ( event.clientX / window.innerWidth ) * 2 - 1;
                 mouse.y = - ( event.clientY / window.innerHeight ) * 2 + 1;
-                
-                $("#mouse").html(mouse.x + " " + mouse.y);
             });
             
             $(document).on('touchmove', (event) =>
             {
                 mouse.x = ( event.touches[0].clientX / window.innerWidth ) * 2 - 1;
                 mouse.y = - ( event.touches[0].clientY / window.innerHeight ) * 2 + 1;
-                
-                $("#mouse").html(mouse.x + " " + mouse.y);
                 
                 event.preventDefault();
             });
@@ -825,7 +829,7 @@
     			    player.rotationTarget.position.copy(player.position);
                     player.rotationTarget.lookAt(moveTarget.position);
     			    
-    			    player.position.lerp(moveTarget.position, 0.04);
+    			    player.position.lerp(moveTarget.position, 0.03);
 			    }
 				
 				camera.position.copy(player.position);
@@ -852,6 +856,18 @@
 				renderer.render(scene, camera);
 				htmlRenderer.render(scene, camera);
 			};
+			
+			/*
+			if (document.webkitFullscreenElement) 
+			{
+                document.webkitCancelFullScreen();
+            }
+            else
+            {
+                const el = document.documentElement;
+                el.webkitRequestFullscreen(Element.ALLOW_KEYBOARD_INPUT);
+            }
+            */
 
 			animate();
 		</script>
