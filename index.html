@@ -496,7 +496,7 @@
 		        
 		        addMoney()
                 {
-                    this.column_ += 1;
+                    this.calculateGrid();
                     
                     const money = new Carryable(this.moneyLength, this.moneyWidth, this.moneyThickness, 0x48c942);
                     money.position.copy(this.position);
@@ -506,18 +506,6 @@
                     
                     scene.add(money);
                     this.money.push(money);
-                    
-                    if (this.column_ >= this.gridColumns)
-                    {
-                        this.column_ = 0;
-                        this.row_ += 1;
-                    }
-                    
-                    if (this.row_ >= this.gridRows)
-                    {
-                        this.row_ = 0;
-                        this.layer_ += 1;
-                    }
 		        }
 		        
 		        transferMoney(player)
@@ -535,25 +523,35 @@
 		            
 		            this.money.pop();
 		            
-                    this.column_ -= 1;
-                    
-                    if (this.column_ <= 0)
-                    {
-                        this.column_ = this.gridColumns;
-                        this.row -= 1;
-                    }
-                    
-                    if (this.row_ <= 0)
-                    {
-                        this.row_ = this.gridRows;
-                        this.layer_ -= 1;
-                        
-                        console.log("dropping a layer");
-                    }
+		            this.calculateGrid();
 		            
 		            player.money += 1;
 		            $("#money").html(player.money);
 		        }
+		        
+                calculateGrid()
+                {
+                    this.column_ = 0;
+                    this.row_    = 0;
+                    this.layer_  = 0;
+                    
+                    for (let i = 0; i < this.money.length; i++)
+                    {
+                        this.column_ += 1;
+                        
+                        if (this.column_ >= this.gridColumns)
+                        {
+                            this.column_ = 0;
+                            this.row_ += 1;
+                        }
+                        
+                        if (this.row_ >= this.gridRows)
+                        {
+                            this.row_ = 0;
+                            this.layer_ += 1;
+                        }
+                    }
+                }
 		        
 		        onTrigger(object)
 		        {
@@ -698,37 +696,37 @@
 			shopFloor.scale.x = 40;
 			shopFloor.scale.y = 20;
 			shopFloor.position.z = -1;
-			//scene.add(shopFloor);
+			scene.add(shopFloor);
 			
 			const shopNorthWall = createCube(0xe0e0e0);
 			shopNorthWall.scale.x = 40;
 			shopNorthWall.scale.y = 1;
 			shopNorthWall.scale.z = 4;
 			shopNorthWall.position.z = -1;
-			//scene.add(shopFloor);
+			scene.add(shopFloor);
 
 			const farmFloor = createCube(0x41c92c);
 			farmFloor.scale.x = 40;
 			farmFloor.scale.y = 20;
 			farmFloor.position.y = -20;
 			farmFloor.position.z = -1;
-			//scene.add(farmFloor);
+			scene.add(farmFloor);
 
 			const register = new Register();
 			register.position.x = -16;
 			register.position.y = 6;
-			//for (let i = 0; i < 400; i++)
-                //register.addMoney();
+			for (let i = 0; i < 100; i++)
+                register.addMoney();
 			scene.add(register);
 
 			const recycleBin = new RecycleBin(6, 4);
 			recycleBin.position.x = -4;
 			recycleBin.position.y = 8;
-			//scene.add(recycleBin);
+			scene.add(recycleBin);
 
 			const tomatoPlant1 = new TomatoPlant();
 			tomatoPlant1.position.x = 3;
-			//scene.add(tomatoPlant1);
+			scene.add(tomatoPlant1);
 
 			let tomatoStandBuyTile = new BuyableTile(1, 1, 1, 4, 100, "Tomato Stand");
 			tomatoStandBuyTile.onFullyPaid = function()
