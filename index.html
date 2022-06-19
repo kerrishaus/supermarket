@@ -40,14 +40,6 @@
 	        <div id='money' style='color: white;background-color: #222;border: 3px solid white; padding: 4px;'>
 	            fuck
 	        </div>
-	        
-	        <div id='moving' style='color: white;background-color: #222;border: 3px solid white; padding: 4px;'>
-	            no
-	        </div>
-	        
-	        <div id='mouse' style='color: white;background-color: #222;border: 3px solid white; padding: 4px;'>
-	            no
-	        </div>
 	    </div>
 	    
 		<script type='module'>
@@ -150,6 +142,8 @@
 		            
 		            this.elapsedTime = 0;
 		            this.moveTime = 0.4;
+		            
+		            this.autoPositionAfterAnimation = true;
 		        }
 		        
 		        setTarget(owner, offset)
@@ -184,7 +178,12 @@
 		        update(deltaTime)
 		        {
 		            if (this.elapsedTime > this.moveTime)
+		            {
+		                if (this.autoPositionAfterAnimation)
+		                    this.position.copy(this.targetPosition);
+		                    
 		                return;
+		            }
 		            
                     this.elapsedTime += deltaTime;
                     this.position.lerpVectors(this.startPosition, this.targetPosition, this.elapsedTime / this.moveTime);
@@ -385,6 +384,7 @@
 		            // but right now it's really not required because it will set by
 		            // updateTarget later in Player#update
 		            tomato.setTarget(receiver.position, new THREE.Vector3(0, 0, 0));
+		            tomato.autoPositionAfterAnimation = false;
 		            
 		            receiver.carriedItems.push(tomato);
 		            
@@ -441,6 +441,7 @@
                             let column = currentStack - (row * columns);
 		                    
 		                    item.setTarget(this.position, new THREE.Vector3(column - 1, row - 1, 1));
+		                    item.autoPositionAfterAnimation = true;
 		                }
 		            }
 		        }
@@ -467,13 +468,24 @@
 		            
         			this.money = new Array();
 		            this.timeSinceLastMoney = 0;
+		            
+                    this.column_ = 0;
+                    this.row_ = 0;
+                    this.layer_ = 0;
+                    
+                    this.gridRows = 9;
+                    this.gridColumns = 4;
+		            
+		            this.moneyLength = 0.3;
+                    this.moneyWidth = 0.2;
+                    this.moneyThickness = 0.2;
 		        }
 		        
 		        update(deltaTime)
 		        {
 		            super.update(deltaTime);
 		            
-		            if (this.timeSinceLastMoney >= 6)
+		            if (this.timeSinceLastMoney >= 0.1)
 		            {
 		                this.addMoney();
 		                this.timeSinceLastMoney = 0;
@@ -483,28 +495,29 @@
 		        }
 		        
 		        addMoney()
-		        {
-                    const rows = 4;
-                    const columns = 5;
-                    const totalPerStack = rows * columns;
+                {
+                    this.column_ += 1;
                     
-                    let stacks = Math.floor(this.money.length / totalPerStack);
-                    let currentStack = this.money.length - (stacks * totalPerStack);
-                    let row = Math.floor(currentStack / rows);
-                    let column = currentStack - (row * columns) + (1 * row)
-
-                    const money = new Carryable(0.3, 0.2, 0.02, 0x48c942);
+                    const money = new Carryable(this.moneyLength, this.moneyWidth, this.moneyThickness, 0x48c942);
                     money.position.copy(this.position);
-                    money.setTarget(this.position, new THREE.Vector3(column * 0.3, row * 0.2, 0.5 + (0.1 * stacks)));
+                    money.setTarget(this.position, new THREE.Vector3(this.column_ * this.moneyLength,
+                                                                     this.row_ * this.moneyWidth,
+                                                                     this.scale.z / 2 + (this.layer_ * this.moneyThickness)));
                     
-                    /*
-                    money.position.x = column * 0.3;
-                    money.position.y = row * 0.2;
-                    money.position.z = 0.5 + (0.1 * stacks);
-                    */
-		            
-		            scene.add(money);
-		            this.money.push(money);
+                    scene.add(money);
+                    this.money.push(money);
+                    
+                    if (this.column_ >= this.gridColumns)
+                    {
+                        this.column_ = 0;
+                        this.row_ += 1;
+                    }
+                    
+                    if (this.row_ >= this.gridRows)
+                    {
+                        this.row_ = 0;
+                        this.layer_ += 1;
+                    }
 		        }
 		        
 		        transferMoney(player)
@@ -521,6 +534,22 @@
 		            player.carriedMoney.push(money);
 		            
 		            this.money.pop();
+		            
+                    this.column_ -= 1;
+                    
+                    if (this.column_ <= 0)
+                    {
+                        this.column_ = this.gridColumns;
+                        this.row -= 1;
+                    }
+                    
+                    if (this.row_ <= 0)
+                    {
+                        this.row_ = this.gridRows;
+                        this.layer_ -= 1;
+                        
+                        console.log("dropping a layer");
+                    }
 		            
 		            player.money += 1;
 		            $("#money").html(player.money);
@@ -653,7 +682,9 @@
 
 			const scene = new THREE.Scene();
 
-			const renderer = new THREE.WebGLRenderer();
+			const renderer = new THREE.WebGLRenderer({
+			    antialisaing: true
+			});
 			renderer.setSize(window.innerWidth, window.innerHeight);
 			document.body.appendChild(renderer.domElement);
 
@@ -667,37 +698,37 @@
 			shopFloor.scale.x = 40;
 			shopFloor.scale.y = 20;
 			shopFloor.position.z = -1;
-			scene.add(shopFloor);
+			//scene.add(shopFloor);
 			
 			const shopNorthWall = createCube(0xe0e0e0);
 			shopNorthWall.scale.x = 40;
 			shopNorthWall.scale.y = 1;
 			shopNorthWall.scale.z = 4;
 			shopNorthWall.position.z = -1;
-			scene.add(shopFloor);
+			//scene.add(shopFloor);
 
 			const farmFloor = createCube(0x41c92c);
 			farmFloor.scale.x = 40;
 			farmFloor.scale.y = 20;
 			farmFloor.position.y = -20;
 			farmFloor.position.z = -1;
-			scene.add(farmFloor);
+			//scene.add(farmFloor);
 
 			const register = new Register();
 			register.position.x = -16;
 			register.position.y = 6;
-			for (let i = 0; i < 400; i++)
-                register.addMoney();
+			//for (let i = 0; i < 400; i++)
+                //register.addMoney();
 			scene.add(register);
 
 			const recycleBin = new RecycleBin(6, 4);
 			recycleBin.position.x = -4;
 			recycleBin.position.y = 8;
-			scene.add(recycleBin);
+			//scene.add(recycleBin);
 
 			const tomatoPlant1 = new TomatoPlant();
 			tomatoPlant1.position.x = 3;
-			scene.add(tomatoPlant1);
+			//scene.add(tomatoPlant1);
 
 			let tomatoStandBuyTile = new BuyableTile(1, 1, 1, 4, 100, "Tomato Stand");
 			tomatoStandBuyTile.onFullyPaid = function()
@@ -757,7 +788,7 @@
                 scene.remove(moveTarget);
             });
             
-            let geometry = new THREE.SphereGeometry(1, 12, 8);
+            let geometry = new THREE.SphereGeometry(0.25, 24, 8);
             
             let material = new THREE.MeshPhongMaterial({
               color: 0x00ffff, 
