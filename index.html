@@ -8,6 +8,7 @@
 			{
 			    pointer-events: none;
 			    user-select: none;
+			    -webkit-user-select: none;
 			}
 		
 			html, body
@@ -69,6 +70,12 @@
 	        </div>
 	        <div id='reputation'>
 	            rep <span>0</span>
+	        </div>
+	    </div>
+	    
+	    <div class='buttons'>
+	        <div class='upgrades'>
+	            
 	        </div>
 	    </div>
 	    
@@ -356,6 +363,14 @@
                         
                         money.startPosition.copy(player.position);
                     }
+		        }
+		        
+		        onTrigger(object)
+		        {
+		            super.onTrigger(object);
+		            
+		            if (object instanceof Player)
+		                this.transferMoney(object);
 		        }
 		    };
 		    
@@ -697,65 +712,111 @@
         			this.recycleBin.position.x = -4;
         			this.recycleBin.position.y = 17;
         			scene.add(this.recycleBin);
+        			
+					let tomatoStandBuyTile = new BuyableTile(1, 1, 1, 4, 100, "Tomato Stand");
+        			tomatoStandBuyTile.onFullyPaid = function()
+        			{
+        			    console.log("i'm done!");
+        			    
+        			    scene.add(new TomatoStand(1, 4));
+        			    scene.remove(tomatoStandBuyTile.label);
+        			    scene.remove(tomatoStandBuyTile);
+        			};
+        			scene.add(tomatoStandBuyTile);
+        			
+					const tomatoPlant1 = new TomatoPlant();
+        			tomatoPlant1.position.x = -10;
+        			tomatoPlant1.position.y = -3;
+        			scene.add(tomatoPlant1);
+        			
+        			const tomatoPlant2 = new TomatoPlant();
+        			tomatoPlant2.position.x = -10;
+        			tomatoPlant2.position.y = -6;
+        			scene.add(tomatoPlant2);
+        			
+        			this.customers = new Array();
 		        }
 		        
 		        update()
 		        {
-		            
+		            for (const customer of this.customers)
+		            {
+		                if (customer.actions.length <= 0)
+		                {
+		                    this.customers.splice(this.customers.indexOf(customer), 1);
+		                    scene.remove(customer);
+		                }
+		            }
 		        }
 		    }
 		    
 		    class Customer extends DynamicMesh
 		    {
-	            constructor(register, items)
+	            constructor()
                 {
                     const geometry = new THREE.BoxGeometry(0.8, 0.8, 0.8);
                     const material = new THREE.MeshBasicMaterial({color: 0xaabbcc});
                     
                     super(geometry, material);
                     
-                    this.register = register;
+                    this.geometry.computeBoundingBox();
+		            this.box = new THREE.Box3();
                     
-                    this.timeElapsed = 0;
-                    this.startPosition = null;
-                    this.endPosition = null;
+                    this.elapsedTime = 0;
+                    this.moveTime = 3;
+                    this.startPosition = new THREE.Vector3(0, 0, 0);
+                    this.targetPosition = new THREE.Vector3(0, 0, 0);
+                    
+                    this.carriedItems = new Array();
+                    
+                    this.actions = new Array();
                     
                     return this;
                 }
                 
-                destruct()
+                pushAction(action)
                 {
+                    if (action.type == "move")
+                        this.setTarget(action.position);
+                    
+                    this.actions.push(action);
+                }
+                
+                updateAction()
+                {
+                    if (this.actions.length <= 0)
+                        return;
+                    
+                    const action = this.actions[this.actions.length - 1];
+                    
+                    if (this.timeElapsed > this.moveTime)
+                    {
+                        // check if the requirements of our action have been fulfilled
+                    }
                 }
                 
                 setTarget(endPosition)
                 {
-                    this.timeElapsed = 0;
-                    this.startPosition = this.object.position;
-                    this.endPosition = endPosition;
+                    this.elapsedTime = 0;
+                    this.startPosition = this.position;
+                    this.targetPosition = endPosition;
                 }
                 
                 update(deltaTime)
                 {
-                    if (this.timeElapsed > 0.7)
+                    this.updateAction();
+                    
+                    if (this.elapsedTime > this.moveTime)
                     {
-                        this.object.position.copy(this.endPosition);
-                        
-                        if (this.state == 0)
-                        {
-                            this.state = 2;
-                            this.setHex(0x0000ff);
-                        }
-                        else if (this.state == 2 && this.linePosition == 0)
-                        {
-                            this.state = 3;
-                            this.setHex(0x00ff00);
-                        }
+                        this.position.copy(this.targetPosition);
+                        return;
                     }
-                    else
-                    {
-                        this.object.position.lerpVectors(this.startPosition, this.endPosition, this.timeElapsed / 3);
-                        this.timeElapsed += deltaTime;
-                    }
+                    
+                    this.position.lerpVectors(this.startPosition, this.targetPosition, this.elapsedTime / this.moveTime);
+                    
+                    this.box.copy(this.geometry.boundingBox).applyMatrix4(this.matrixWorld);
+                    
+                    this.elapsedTime += deltaTime;
                 }
 		    };
 		    
@@ -833,22 +894,6 @@
 			const shop = new Shop();
 			scene.add(shop);
 
-			const tomatoPlant1 = new TomatoPlant();
-			tomatoPlant1.position.x = 3;
-			scene.add(tomatoPlant1);
-
-			let tomatoStandBuyTile = new BuyableTile(1, 1, 1, 4, 100, "Tomato Stand");
-			tomatoStandBuyTile.onFullyPaid = function()
-			{
-			    console.log("i'm done!");
-			    
-			    scene.add(new TomatoStand(1, 4));
-			    scene.remove(tomatoStandBuyTile.label);
-			    scene.remove(tomatoStandBuyTile);
-			    tomatoStandBuyTile = null;
-			};
-			scene.add(tomatoStandBuyTile);
-
             const player = new Player();
             
             const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
@@ -895,16 +940,11 @@
                 scene.remove(moveTarget);
             });
             
-            let geometry = new THREE.SphereGeometry(0.25, 24, 8);
-            
-            let material = new THREE.MeshPhongMaterial({
-              color: 0x00ffff, 
-              flatShading: true,
-              transparent: true,
-              opacity: 0.7,
-            });
-            
-            let moveTarget = new THREE.Mesh(geometry, material);
+            let moveTarget = new THREE.Mesh(new THREE.SphereGeometry(0.25, 24, 8), new THREE.MeshPhongMaterial({ color: 0x00ffff, 
+                                                                                                                 flatShading: true,
+                                                                                                                 transparent: true,
+                                                                                                                 opacity: 0.7,
+                                                                                                                }));
             
             let plane = new THREE.Plane(new THREE.Vector3(0, 0, 1), 0);
 
@@ -928,14 +968,17 @@
             
             const clock = new THREE.Clock();
             
-            let customers = new Array();
-            
             setInterval(() =>
             {
-                let customer = new Customer();
-                customer.setTarget(tomatoStand.position, new THREE.Vector3(0, 0, 0));
-                customers.push(customer);
+                let customer = new Customer(shop);
+                customer.position.copy(new THREE.Vector3(-9.5, 24, 0));
+                customer.pushAction({type: "move", position: new THREE.Vector3(10, 10, 0)});
+                customer.pushAction({type: "move", position: new THREE.Vector3(10, 10, 0)});
+                customer.pushAction({type: "move", position: new THREE.Vector3(10, 10, 0)});
+                shop.customers.push(customer);
                 scene.add(customer);
+                
+                console.log("added customer");
             }, 5000);
 
 			function animate()
@@ -972,10 +1015,6 @@
     			camera.position.y += -3
     			camera.lookAt(player.position);
     			
-			    if (tomatoStandBuyTile !== null)
-    			    if (player.box.intersectsBox(tomatoStandBuyTile.trigger))
-    			        tomatoStandBuyTile.transferMoney(player);
-			    
                 scene.children.forEach( (object) =>
                 {
                     if (object instanceof DynamicMesh)
