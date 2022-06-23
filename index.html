@@ -10,7 +10,7 @@
 			    user-select: none;
 			    -webkit-user-select: none;
 			}
-		
+
 			html, body
 			{
 			    margin: 0;
@@ -23,19 +23,19 @@
                 overflow-x: hidden;
                 overflow-y: hidden;
             }
-            
+
             body
             {
                 position: relative;
             }
 		</style>
-		
+
 		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
 		
 		<script src="https://kerrishaus.com/assets/scripts/jquery-3.6.0.min.js"></script>
 		<script src="https://portal.kerrishaus.com/assets/javascript/messages.js"></script>
 		<link rel='stylesheet' href='https://portal.kerrishaus.com/assets/styles/messages.css'>
-		
+
 	    <style>
 	        .banner
 	        {
@@ -53,7 +53,7 @@
 	            
 	            width: 100vw;
 	        }
-	        
+
 	        .banner > div
 	        {
 	            padding: 3px;
@@ -248,7 +248,7 @@
 		            this.position.y = yPos;
 		            
 		            this.timeSinceLastRecycle = 0;
-		            this.recycleInterval = 0.3;
+		            this.recycleInterval = 0.2;
 		            
 		            this.carriedItems = new Array();
 		        }
@@ -390,6 +390,8 @@
 		        {
 		            super(0.2, 0.2, 1, 1, 0xff0000);
 		            
+		            this.name = "tomatoPlant";
+		            
 		            this.timeSinceLastGrowth = 0;
 		            this.tomatoes = new Array();
 		            
@@ -468,6 +470,8 @@
 		        {
 		            super(1, 1, 2, 2, 0x4d220b);
 		            
+		            this.name = "tomatoStand";
+		            
 		            this.position.x = xPos;
 		            this.position.y = yPos;
 		            
@@ -521,6 +525,8 @@
 		        constructor(position)
 		        {
 		            super(3, 3, 6, 4, 0x000000);
+		            
+		            this.name = "door";
 		            
 		            this.position.copy(position);
 		            this.material.transparent = true;
@@ -578,6 +584,8 @@
 		        constructor()
 		        {
 		            super(2, 4, 4, 6, 0xad723e);
+		            
+		            this.name = "register";
 		            
         			this.money = new Array();
 		            this.timeSinceLastMoney = 0;
@@ -763,7 +771,7 @@
 		            this.box = new THREE.Box3();
                     
                     this.elapsedTime = 0;
-                    this.moveTime = 3;
+                    this.actionTime = 3;
                     this.startPosition = new THREE.Vector3(0, 0, 0);
                     this.targetPosition = new THREE.Vector3(0, 0, 0);
                     
@@ -776,43 +784,58 @@
                 
                 pushAction(action)
                 {
-                    if (action.type == "move")
-                        this.setTarget(action.position);
-                    
                     this.actions.push(action);
+                    
+                    console.log("added action");
+                    
+                    if (this.actions.length <= 1)
+                        this.focusAction(action);
                 }
                 
-                updateAction()
+                focusAction(action)
                 {
-                    if (this.actions.length <= 0)
-                        return;
-                    
-                    const action = this.actions[this.actions.length - 1];
-                    
-                    if (this.timeElapsed > this.moveTime)
+                    if (action.type == "move")
                     {
-                        // check if the requirements of our action have been fulfilled
+                        console.log("moving to", action.position);
+                        this.setTarget(action.position, this.actionTime);
                     }
+                        
+                    console.log("focused action");
                 }
                 
-                setTarget(endPosition)
+                setTarget(endPosition, actionTime)
                 {
+                    if (!(endPosition instanceof THREE.Vector3))
+                    {
+                        console.error("endPosition must be a THREE.Vector3");
+                        return
+                    }
+                    
                     this.elapsedTime = 0;
-                    this.startPosition = this.position;
-                    this.targetPosition = endPosition;
+                    this.startPosition.copy(this.position);
+                    this.targetPosition.copy(endPosition);
+                    this.actionTime = actionTime;
                 }
                 
                 update(deltaTime)
                 {
-                    this.updateAction();
-                    
-                    if (this.elapsedTime > this.moveTime)
+                    if (this.elapsedTime > this.actionTime)
                     {
+                        if (this.actions.length > 0)
+                        {
+                            console.log("action complete");
+                            
+                            this.actions.pop();
+                        
+                            if (this.actions.length > 0)
+                                this.focusAction(this.actions[this.actions.length - 1]);
+                        }
+                        
                         this.position.copy(this.targetPosition);
                         return;
                     }
                     
-                    this.position.lerpVectors(this.startPosition, this.targetPosition, this.elapsedTime / this.moveTime);
+                    this.position.lerpVectors(this.startPosition, this.targetPosition, this.elapsedTime / this.actionTime);
                     
                     this.box.copy(this.geometry.boundingBox).applyMatrix4(this.matrixWorld);
                     
@@ -828,8 +851,6 @@
 		            const material = new THREE.MeshBasicMaterial({ color: 0x0000ff });
 		            
 		            super(geometry, material);
-		            
-		            this.rotationTarget = new THREE.Mesh(geometry, material);
 		            
 		            this.geometry.computeBoundingBox();
 		            
@@ -858,7 +879,7 @@
 	                    
 	                    item.updateTarget(this.position, new THREE.Vector3(0, 0, carryPos));
 		            }
-		                
+
 	                for (const money of this.carriedMoney)
 	                {
 	                    if (money.elapsedTime > money.moveTime)
@@ -870,10 +891,6 @@
 	                    
 	                    money.updateTarget(player.position, new THREE.Vector3(0, 0, 0));
 	                }
-	                
-	                this.quaternion.slerp(this.rotationTarget.quaternion, 0.3);
-	                this.quaternion.y = 0;
-	                this.quaternion.x = 0;
 		        }
 		    };
 
@@ -899,7 +916,8 @@
             const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
             scene.add(player);
             
-            window.oncontextmenu = function(event) {
+            window.oncontextmenu = function(event)
+            {
                  event.preventDefault();
                  event.stopPropagation();
                  return false;
@@ -971,10 +989,10 @@
             setInterval(() =>
             {
                 let customer = new Customer(shop);
-                customer.position.copy(new THREE.Vector3(-9.5, 24, 0));
-                customer.pushAction({type: "move", position: new THREE.Vector3(10, 10, 0)});
-                customer.pushAction({type: "move", position: new THREE.Vector3(10, 10, 0)});
-                customer.pushAction({type: "move", position: new THREE.Vector3(10, 10, 0)});
+                customer.position.copy(new THREE.Vector3(-9.5, 22, 0));
+                customer.pushAction({type: "move", position: new THREE.Vector3(-9.5, 16, 0)});
+                customer.pushAction({type: "move", position: new THREE.Vector3(0, 0, 0)});
+                customer.pushAction({type: "move", position: new THREE.Vector3(12, 16, 0)});
                 shop.customers.push(customer);
                 scene.add(customer);
                 
@@ -989,13 +1007,13 @@
 				
 				if (!moving)
 				{
-    				if (keys["KeyW"])
+    				if (keys["KeyW"] || keys["ArrowUp"])
     				    player.position.y += 0.15;
-    			    if (keys["KeyA"])
+    			    if (keys["KeyA"] || keys["ArrowLeft"])
     			        player.position.x -= 0.15;
-    		        if (keys["KeyS"])
+    		        if (keys["KeyS"] || keys["ArrowDown"])
     				    player.position.y -= 0.15;
-    				if (keys["KeyD"])
+    				if (keys["KeyD"] || keys["ArrowRight"])
     				    player.position.x += 0.15;
 			    }
 			    else
@@ -1004,16 +1022,15 @@
                     raycaster.ray.intersectPlane(plane, intersects);
                     moveTarget.position.set(intersects.x, intersects.y, intersects.z);
     			    
-    			    player.rotationTarget.position.copy(player.position);
-                    player.rotationTarget.lookAt(moveTarget.position);
-    			    
+                    player.lookAt(moveTarget.position);
     			    player.position.lerp(moveTarget.position, 0.03);
 			    }
 				
 				camera.position.copy(player.position);
 				camera.position.z = 10;
-    			camera.position.y += -3
+				camera.position.y -= 8;
     			camera.lookAt(player.position);
+    			camera.position.y += 5;
     			
                 scene.children.forEach( (object) =>
                 {
