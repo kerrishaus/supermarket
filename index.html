@@ -825,10 +825,13 @@
                         {
                             console.log("action complete");
                             
-                            this.actions.pop();
+                            this.actions.shift();
                         
                             if (this.actions.length > 0)
-                                this.focusAction(this.actions[this.actions.length - 1]);
+                            {
+                                this.focusAction(this.actions[0]);
+                                return; // prevents jumping to endPosition and then doing the movement
+                            }
                         }
                         
                         this.position.copy(this.targetPosition);
@@ -992,7 +995,9 @@
                 customer.position.copy(new THREE.Vector3(-9.5, 22, 0));
                 customer.pushAction({type: "move", position: new THREE.Vector3(-9.5, 16, 0)});
                 customer.pushAction({type: "move", position: new THREE.Vector3(0, 0, 0)});
-                customer.pushAction({type: "move", position: new THREE.Vector3(12, 16, 0)});
+                customer.pushAction({type: "move", position: new THREE.Vector3(-14, 15, 0)});
+                customer.pushAction({type: "move", position: new THREE.Vector3(-9.5, 16, 0)});
+                customer.pushAction({type: "move", position: new THREE.Vector3(-9.5, 22, 0)});
                 shop.customers.push(customer);
                 scene.add(customer);
                 
