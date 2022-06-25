@@ -13,8 +13,8 @@
 		<script src="https://portal.kerrishaus.com/assets/javascript/messages.js"></script>
 		<link rel='stylesheet' href='https://portal.kerrishaus.com/assets/styles/messages.css'>
 	</head>
+
 	<body>
-	    
 	    <div class='banner'>
 	        <div>
 	            $<span id='money'>0</span>
@@ -31,7 +31,9 @@
 	    </div>
 	    
 		<script type='module'>
-			import * as Ammo from "https://kerrishaus.com/assets/ammojs/ammo.wasm.js";
+			import AmmoLib from "https://kerrishaus.com/assets/ammojs/ammo.module.js";
+			let Ammo;
+
 		    import * as THREE from "https://kerrishaus.com/assets/threejs/build/three.module.js";
 		    import { CSS2DObject, CSS2DRenderer } from "https://kerrishaus.com/assets/threejs/examples/jsm/renderers/CSS2DRenderer.js";
 		    import { TransformControls } from 'https://kerrishaus.com/assets/threejs/examples/jsm/controls/TransformControls.js';
@@ -438,10 +440,30 @@
         			scene.add(tomatoPlant2);
         			
         			this.customers = new Array();
+					this.customerTimer = 10;
+					this.timeSinceLastCustomer = 0;
 		        }
 		        
-		        update()
+		        update(deltaTime)
 		        {
+					if (this.timeSinceLastCustomer > this.customerTimer)
+					{
+						let customer = new Customer(this);
+						customer.position.copy(new THREE.Vector3(-9.5, 22, 0));
+						customer.pushAction({type: "move", position: new THREE.Vector3(-9.5, 16, 0)});
+						customer.pushAction({type: "move", position: new THREE.Vector3(0, 0, 0)});
+						customer.pushAction({type: "move", position: new THREE.Vector3(-14, 15, 0)});
+						customer.pushAction({type: "move", position: new THREE.Vector3(-9.5, 16, 0)});
+						customer.pushAction({type: "move", position: new THREE.Vector3(-9.5, 22, 0)});
+						this.customers.push(customer);
+						scene.add(customer);
+
+						this.timeSinceLastCustomer = 0;
+						console.log("added customer");
+					}
+					else
+						this.timeSinceLastCustomer += deltaTime;
+
 		            for (const customer of this.customers)
 		            {
 		                if (customer.actions.length <= 0)
@@ -573,6 +595,22 @@
                 });
 		    }
 
+			window.collisionConfiguration_ = null;
+			window.dispatcher_ 			   = null;
+			window.broadphase_             = null;
+			window.solver_				   = null;
+			window.physicsWorld_           = null;
+
+			function prepareAmmo()
+			{
+				collisionConfiguration_ = new Ammo.btDefaultCollisionConfiguration();
+				dispatcher_ = new Ammo.btCollisionDispatcher(collisionConfiguration_);
+				broadphase_ = new Ammo.btDbvtBroadphase();
+				solver_ = new Ammo.btSequentialImpulseConstraintSolver();
+				physicsWorld_ = new Ammo.btDiscreteDynamicsWorld(dispatcher_, broadphase_, solver_, collisionConfiguration_);
+				physicsWorld_.setGravity(new Ammo.btVector3(0, -100, 0));
+			}
+
 			function registerEventListeners()
 			{
 				window.oncontextmenu = function(event)
@@ -625,20 +663,10 @@
 					keys[event.code] = false;
 				});
 			}
-
-		    prepareThree();
-			registerEventListeners();
 		    
 		    let shop, player;
 		    
-			shop = new Shop();
-			scene.add(shop);
-
-            player = new Player();
-            scene.add(player);
-            
             let keys = new Array();
-            
             let moving = false;
             
             let moveTarget = new THREE.Mesh(new THREE.SphereGeometry(0.25, 24, 8), new THREE.MeshPhongMaterial({ color: 0x00ffff, 
@@ -647,29 +675,23 @@
                                                                                                                  opacity: 0.7,
                                                                                                                 }));
             
-            let plane = new THREE.Plane(new THREE.Vector3(0, 0, 1), 0);
+																												let plane = new THREE.Plane(new THREE.Vector3(0, 0, 1), 0);
 
             let mouse = new THREE.Vector2();
             let raycaster = new THREE.Raycaster();
             let intersects = new THREE.Vector3();
             
             const clock = new THREE.Clock();
-            
-            setInterval(() =>
-            {
-                let customer = new Customer(shop);
-                customer.position.copy(new THREE.Vector3(-9.5, 22, 0));
-                customer.pushAction({type: "move", position: new THREE.Vector3(-9.5, 16, 0)});
-                customer.pushAction({type: "move", position: new THREE.Vector3(0, 0, 0)});
-                customer.pushAction({type: "move", position: new THREE.Vector3(-14, 15, 0)});
-                customer.pushAction({type: "move", position: new THREE.Vector3(-9.5, 16, 0)});
-                customer.pushAction({type: "move", position: new THREE.Vector3(-9.5, 22, 0)});
-                shop.customers.push(customer);
-                scene.add(customer);
-                
-                console.log("added customer");
-            }, 5000);
 
+			function prepareGame()
+			{
+				shop = new Shop();
+				scene.add(shop);
+	
+				player = new Player();
+				scene.add(player);
+			}
+			
 			function animate()
 			{
 				requestAnimationFrame(animate);
@@ -731,7 +753,20 @@
             }
             */
 
-			animate();
+			window.addEventListener('DOMContentLoaded', async () =>
+            {
+                AmmoLib().then((lib) =>
+                {
+                    Ammo = lib;
+
+					prepareThree();
+					prepareAmmo();
+					registerEventListeners();
+					prepareGame();
+		
+					animate();
+                });
+            });
 		</script>
 	</body>
 </html>
