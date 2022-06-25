@@ -85,102 +85,15 @@
 		    import { CSS2DObject, CSS2DRenderer } from "https://kerrishaus.com/assets/threejs/examples/jsm/renderers/CSS2DRenderer.js";
 		    import { TransformControls } from 'https://kerrishaus.com/assets/threejs/examples/jsm/controls/TransformControls.js';
 		    
+			import * as GeometryUtil from "./scripts/GeometryUtility.js";
+
 		    import { DynamicMesh } from "./scripts/DynamicMesh.js";
 		    import { Interactable } from "./scripts/InteractableMesh.js";
+			import { Carryable } from "./scripts/Carryable.js";
 		    import { RecycleBin } from "./scripts/RecycleBin.js";
+			import { Door } from "./scripts/Door.js";
 		    import { Player } from "./scripts/Player.js";
 
-		    function createCube(color)
-		    {
-		        const geometry = new THREE.BoxGeometry(1, 1, 1);
-		        const material = new THREE.MeshBasicMaterial({ color: color });
-		        
-		        return new THREE.Mesh(geometry, material);
-		    }
-		    
-		    function createObject(size, position, color)
-		    {
-		        const geometry = new THREE.BoxGeometry(size.x, size.y, size.z);
-		        const material = new THREE.MeshBasicMaterial({color: color});
-		        
-		        const mesh = new THREE.Mesh(geometry, material);
-		        mesh.position.copy(position);
-		        
-		        return mesh;
-		    }
-		    
-		    function createScaledCube(width, height, thickness, color)
-		    {
-		        const geometry = new THREE.BoxGeometry(width, height, thickness);
-		        const material = new THREE.MeshBasicMaterial({ color: color });
-		        
-		        return new THREE.Mesh(geometry, material);
-		    }
-		    
-		    class Carryable extends DynamicMesh
-		    {
-		        constructor(width, height, thickness, color)
-		        {
-		            const geometry = new THREE.BoxGeometry(width, height, thickness);
-		            const material = new THREE.MeshBasicMaterial({color: color});
-		            
-		            super(geometry, material);
-		            
-		            this.offset         = new THREE.Vector3(0, 0, 0);
-		            this.owner          = new THREE.Vector3(0, 0, 0);
-		            this.targetPosition = new THREE.Vector3(0, 0, 0);
-		            this.startPosition  = new THREE.Vector3(0, 0, 0);
-		            
-		            this.elapsedTime = 0;
-		            this.moveTime = 0.4;
-		            
-		            this.autoPositionAfterAnimation = true;
-		        }
-		        
-		        setTarget(owner, offset)
-		        {
-		            this.startPosition.copy(this.position);
-		            this.updateTarget(owner, offset);
-		            this.elapsedTime = 0;
-		        }
-		        
-		        updateTarget(owner, offset)
-		        {
-		            if (!(owner instanceof THREE.Vector3))
-		            {
-		                console.error("owner not instance of Vector3", owner);
-		                return
-		            }
-		            
-		            if (!(offset instanceof THREE.Vector3))
-		            {
-		                console.error("offset not instance of Vector3", offset);
-		                return
-		            }
-		            
-		            this.owner.copy(owner);
-		            this.offset.copy(offset);
-		            
-		            this.targetPosition = new THREE.Vector3(this.owner.x + this.offset.x,
-	                                                        this.owner.y + this.offset.y,
-		                                                    this.owner.z + this.offset.z);
-		        }
-		        
-		        update(deltaTime)
-		        {
-		            if (this.elapsedTime > this.moveTime)
-		            {
-		                if (this.autoPositionAfterAnimation)
-		                    this.position.copy(this.targetPosition);
-		                    
-		                return;
-		            }
-		            
-                    this.elapsedTime += deltaTime;
-                    this.position.lerpVectors(this.startPosition, this.targetPosition, this.elapsedTime / this.moveTime);
-		        }
-		    };
-		    
 		    class BuyableTile extends Interactable
 		    {
 		        constructor(width, length, xPos, yPos, price, name)
@@ -403,66 +316,7 @@
 		            super.onStopTrigger(object);
 		        }
 		    };
-		    
-		    class Door extends Interactable
-		    {
-		        constructor(position)
-		        {
-		            super(3, 3, 6, 4, 0x000000);
-		            
-		            this.name = "door";
-		            
-		            this.position.copy(position);
-		            this.material.transparent = true;
-		            this.material.opacity = 0;
-		            
-		            this.leftDoor = new Carryable(2, 1, 4, 0x00d1e8);
-		            this.leftDoor.setTarget(new THREE.Vector3(-8.5, 19.4, 1), new THREE.Vector3(0, 0, 0));
-		            
-		            this.leftDoor.add(createObject(new THREE.Vector3(0.2, 0.1, 4), new THREE.Vector3(-0.9, -0.55, 0), 0x919191));
-		            this.leftDoor.add(createObject(new THREE.Vector3(0.2, 0.1, 4), new THREE.Vector3(0.9, -0.55, 0), 0x919191));
-		            
-		            this.leftDoor.add(createObject(new THREE.Vector3(1.6, 0.1, 0.2), new THREE.Vector3(0, -0.55, 1.9), 0x919191));
-		            this.leftDoor.add(createObject(new THREE.Vector3(1.6, 0.1, 0.2), new THREE.Vector3(0, -0.55, 0.1), 0x919191));
-		            this.leftDoor.add(createObject(new THREE.Vector3(1.6, 0.1, 0.2), new THREE.Vector3(0, -0.55, -1.4), 0x919191));
-		            
-		            this.rightDoor = new Carryable(2, 1, 4, 0x00d1e8)
-		            this.rightDoor.setTarget(new THREE.Vector3(-10.5, 19.4, 1), new THREE.Vector3(0, 0, 0));
-		            this.rightDoor.add(createObject(new THREE.Vector3(0.2, 0.1, 4), new THREE.Vector3(-0.9, -0.55, 0), 0x919191));
-		            this.rightDoor.add(createObject(new THREE.Vector3(0.2, 0.1, 4), new THREE.Vector3(0.9, -0.55, 0), 0x919191));
-		            
-		            this.rightDoor.add(createObject(new THREE.Vector3(1.6, 0.1, 0.2), new THREE.Vector3(0, -0.55, 1.9), 0x919191));
-		            this.rightDoor.add(createObject(new THREE.Vector3(1.6, 0.1, 0.2), new THREE.Vector3(0, -0.55, 0.1), 0x919191));
-		            this.rightDoor.add(createObject(new THREE.Vector3(1.6, 0.1, 0.2), new THREE.Vector3(0, -0.55, -1.4), 0x919191));
-		            
-		            scene.add(createObject(new THREE.Vector3(4, 1, 4), new THREE.Vector3(-9.5, 19.45, 0.99), 0x000000));
-		            
-		            scene.add(this.leftDoor);
-		            scene.add(this.rightDoor);
-		        }
-		        
-		        update(deltaTime)
-		        {
-		            super.update(deltaTime);
-		        }
-		        
-		        onTrigger(object)
-		        {
-		            super.onTrigger(object);
-		            
-		            this.rightDoor.setTarget(new THREE.Vector3(-12.5, 19.4, 1), new THREE.Vector3(0, 0, 0));
-		            this.leftDoor.setTarget(new THREE.Vector3(-6.5, 19.4, 1), new THREE.Vector3(0, 0, 0));
-		        }
-		        
-		        onStopTrigger(object)
-		        {
-		            super.onStopTrigger(object);
-		            
-		            this.rightDoor.setTarget(new THREE.Vector3(-10.5, 19.4, 1), new THREE.Vector3(0, 0, 0));
-		            this.leftDoor.setTarget(new THREE.Vector3(-8.5, 19.4, 1), new THREE.Vector3(0, 0, 0));
-		        }
-		    }
-		    
+
 		    class Register extends Interactable
 		    {
 		        constructor()
@@ -585,19 +439,19 @@
 		            super();
 		            
 		            // shop floor
-		            scene.add(createObject(new THREE.Vector3(40, 20, 1), new THREE.Vector3(0, 10, -1), 0xE0E0E0));
+		            scene.add(GeometryUtil.createObject(new THREE.Vector3(40, 20, 1), new THREE.Vector3(0, 10, -1), 0xE0E0E0));
 		            // shop north wall
-		            scene.add(createObject(new THREE.Vector3(40, 1, 4), new THREE.Vector3(0, 19.5, 1.5), 0xbfbfbf));
+		            scene.add(GeometryUtil.createObject(new THREE.Vector3(40, 1, 4), new THREE.Vector3(0, 19.5, 1.5), 0xbfbfbf));
 		            // west wall
-		            scene.add(createObject(new THREE.Vector3(1, 20, 4), new THREE.Vector3(-19.5, 10, 1.5), 0xbfbfbf));
+		            scene.add(GeometryUtil.createObject(new THREE.Vector3(1, 20, 4), new THREE.Vector3(-19.5, 10, 1.5), 0xbfbfbf));
 		            // east wall
-		            scene.add(createObject(new THREE.Vector3(1, 20, 4), new THREE.Vector3(19.5, 10, 1.5), 0xbfbfbf));
+		            scene.add(GeometryUtil.createObject(new THREE.Vector3(1, 20, 4), new THREE.Vector3(19.5, 10, 1.5), 0xbfbfbf));
 		            
 		            this.doors = new Door(new THREE.Vector3(-9.5, 19.4, 0), 0x0000ff);
 		            scene.add(this.doors);
 		            
 		            // farm floor
-		            scene.add(createObject(new THREE.Vector3(40, 20, 1), new THREE.Vector3(0, -10, -1), 0x44CD32));
+		            scene.add(GeometryUtil.createObject(new THREE.Vector3(40, 20, 1), new THREE.Vector3(0, -10, -1), 0x44CD32));
 		            
 		            this.register = new Register();
         			this.register.position.x = -16;
