@@ -40,6 +40,7 @@
 		    
 			import * as GeometryUtil from "./scripts/GeometryUtility.js";
 
+			import { RigidBodyCube } from "./scripts/RigidBodyCube.js";
 		    import { DynamicMesh } from "./scripts/DynamicMesh.js";
 		    import { Interactable } from "./scripts/InteractableMesh.js";
 			import { Carryable } from "./scripts/Carryable.js";
@@ -391,8 +392,16 @@
 		        {
 		            super();
 		            
+					const shopFloor = GeometryUtil.createRigidBodyCube(new THREE.Vector3(40, 20, 1), new THREE.Vector3(0, 10, 5), 0xE0E0E0, 0);
+					shopFloor.setRestitution(0.125);
+                    shopFloor.setFriction(1);
+                    shopFloor.setRollingFriction(5);
+
 		            // shop floor
-		            scene.add(GeometryUtil.createObject(new THREE.Vector3(40, 20, 1), new THREE.Vector3(0, 10, -1), 0xE0E0E0));
+					physicsBodies.push(shopFloor);
+					physicsWorld.addRigidBody(shopFloor);
+		            scene.add(shopFloor);
+
 		            // shop north wall
 		            scene.add(GeometryUtil.createObject(new THREE.Vector3(40, 1, 4), new THREE.Vector3(0, 19.5, 1.5), 0xbfbfbf));
 		            // west wall
@@ -599,7 +608,10 @@
 			window.dispatcher_ 			   = null;
 			window.broadphase_             = null;
 			window.solver_				   = null;
-			window.physicsWorld_           = null;
+			window.physicsWorld            = null;
+
+			window.physicsBodies 		   = new Array();
+			window.tmpTransform 		   = null;
 
 			function prepareAmmo()
 			{
@@ -607,8 +619,10 @@
 				dispatcher_ = new Ammo.btCollisionDispatcher(collisionConfiguration_);
 				broadphase_ = new Ammo.btDbvtBroadphase();
 				solver_ = new Ammo.btSequentialImpulseConstraintSolver();
-				physicsWorld_ = new Ammo.btDiscreteDynamicsWorld(dispatcher_, broadphase_, solver_, collisionConfiguration_);
-				physicsWorld_.setGravity(new Ammo.btVector3(0, -100, 0));
+				physicsWorld = new Ammo.btDiscreteDynamicsWorld(dispatcher_, broadphase_, solver_, collisionConfiguration_);
+				physicsWorld.setGravity(new Ammo.btVector3(0, -100, 0));
+
+				tmpTransform = new Ammo.btTransform();
 			}
 
 			function registerEventListeners()
@@ -690,6 +704,15 @@
 	
 				player = new Player();
 				scene.add(player);
+
+				const box = GeometryUtil.createRigidBodyCube(new THREE.Vector3(1, 1, 1), new THREE.Vector3(0, 0, 2), 0xE0E0E0, 1);
+				box.setRestitution(0.125);
+				box.setFriction(1);
+				box.setRollingFriction(5);
+
+				physicsBodies.push(box.body);
+				physicsWorld.addRigidBody(box.body);
+				scene.add(box);
 			}
 			
 			function animate()
@@ -736,6 +759,24 @@
                         else if (object.triggered)
                             object.onStopTrigger(player);
                 });
+
+				physicsWorld.stepSimulation(deltaTime, 10);
+
+				for (const object of physicsBodies)
+				{
+					if (object instanceof RigidBodyCube)
+					{
+						object.motionState.getWorldTransform(tmpTransform);
+
+						const pos = tmpTransform.getOrigin();
+						const quat = tmpTransform.getRotation();
+						const pos3 = new THREE.Vector3(pos.x(), pos.y(), pos.z());
+						const quat3 = new THREE.Quaternion(quat.x(), quat.y(), quat.z(), quat.w());
+
+						object.position.copy(pos3);
+						object.quaternion.copy(quat3);
+					}
+				}
                 
 				renderer.render(scene, camera);
 				htmlRenderer.render(scene, camera);

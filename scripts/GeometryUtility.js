@@ -1,4 +1,6 @@
-import { BoxGeometry, MeshBasicMaterial, Mesh } from "https://kerrishaus.com/assets/threejs/build/three.module.js";
+import { BoxGeometry, MeshBasicMaterial, Mesh, Quaternion } from "https://kerrishaus.com/assets/threejs/build/three.module.js";
+
+import { RigidBodyCube } from "./RigidBodyCube.js";
 
 export function createCube(color)
 {
@@ -25,4 +27,9 @@ export function createScaledCube(width, height, thickness, color)
     const material = new MeshBasicMaterial({ color: color });
     
     return new Mesh(geometry, material);
+}
+
+export function createRigidBodyCube(size, position, color, mass = 10)
+{
+    return new RigidBodyCube(mass, position, new Quaternion(0, 0, 0, 1), size, color);
 }
