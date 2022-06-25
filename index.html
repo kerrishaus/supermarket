@@ -79,10 +79,17 @@
 	        </div>
 	    </div>
 	    
+	    <script src="https://kerrishaus.com/assets/ammojs/ammo.wasm.js"></script>
+	    
 		<script type='module'>
 		    import * as THREE from "https://kerrishaus.com/assets/threejs/build/three.module.js";
 		    import { CSS2DObject, CSS2DRenderer } from "https://kerrishaus.com/assets/threejs/examples/jsm/renderers/CSS2DRenderer.js";
 		    import { TransformControls } from 'https://kerrishaus.com/assets/threejs/examples/jsm/controls/TransformControls.js';
+		    
+		    import { DynamicMesh } from "./scripts/DynamicMesh.js";
+		    import { Interactable } from "./scripts/InteractableMesh.js";
+		    import { RecycleBin } from "./scripts/RecycleBin.js";
+		    import { Player } from "./scripts/Player.js";
 
 		    function createCube(color)
 		    {
@@ -110,69 +117,6 @@
 		        
 		        return new THREE.Mesh(geometry, material);
 		    }
-		    
-		    class DynamicMesh extends THREE.Mesh
-		    {
-		        constructor(geometry, material)
-		        {
-		            super(geometry, material);
-		        }
-		        
-		        update()
-		        {
-		            
-		        }
-		    };
-		    
-		    class Interactable extends DynamicMesh
-		    {
-		        constructor(width, length, triggerWidth, triggerLength, color)
-		        {
-		            const geometry = new THREE.BoxGeometry(width, length, 1);
-		            const material = new THREE.MeshBasicMaterial({ color: color });
-		            
-		            super(geometry, material);
-		            
-		            const triggerGeometry = new THREE.BoxGeometry(triggerWidth, triggerLength, 0.1);
-		            const triggerMaterial = new THREE.MeshBasicMaterial({ color: 0xff0000, transparent: true, opacity: 0.2 });
-		            
-		            this.triggerObject = new THREE.Mesh(triggerGeometry, triggerMaterial);
-		            this.triggerObject.geometry.computeBoundingBox();
-		            this.attach(this.triggerObject);
-		            this.triggerObject.position.z -= 0.4;
-		            
-		            this.trigger = new THREE.Box3();
-		            
-		            this.triggered = false;
-		            this.triggeringObject = null;
-		        }
-		        
-		        update(deltaTime)
-		        {
-		            super.update(deltaTime);
-		            
-		            this.trigger.copy(this.triggerObject.geometry.boundingBox).applyMatrix4(this.triggerObject.matrixWorld);
-		        }
-		        
-		        onTrigger(object)
-		        {
-		            this.triggered = true;
-		            this.triggeringObject = object;
-		            
-		            this.triggerObject.material.color.setHex(0x00ff00);
-		        }
-		        
-		        onStopTrigger(object)
-		        {
-		            if (!this.triggered)
-		                return;
-		                
-	                this.triggered = false;
-	                this.triggeringObject = null;
-	                
-	                this.triggerObject.material.color.setHex(0xff0000);
-		        }
-		    };
 		    
 		    class Carryable extends DynamicMesh
 		    {
@@ -237,65 +181,6 @@
                     this.position.lerpVectors(this.startPosition, this.targetPosition, this.elapsedTime / this.moveTime);
 		        }
 		    };
-		    
-		    class RecycleBin extends Interactable
-		    {
-		        constructor(xPos, yPos)
-		        {
-		            super(1, 1, 2, 2, 0x00ff00);
-		            
-		            this.position.x = xPos;
-		            this.position.y = yPos;
-		            
-		            this.timeSinceLastRecycle = 0;
-		            this.recycleInterval = 0.2;
-		            
-		            this.carriedItems = new Array();
-		        }
-		        
-		        update(deltaTime)
-		        {
-		            super.update(deltaTime);
-		            
-		            this.timeSinceLastRecycle += deltaTime;
-		            
-		            for (const item of this.carriedItems)
-		                if (item.elapsedTime > item.moveTime)
-		                {
-		                    this.carriedItems.splice(this.carriedItems.indexOf(item), 1);
-		                    scene.remove(item);
-		                }
-		        }
-		        
-		        recycleItem(holder)
-		        {
-		            if (holder.carriedItems.length <= 0)
-		                return;
-		                
-                    const item = holder.carriedItems[holder.carriedItems.length - 1]
-                    holder.carriedItems.splice(holder.carriedItems.indexOf(holder), 1);
-                    this.carriedItems.push(item);
-                    item.setTarget(this.position, new THREE.Vector3(0, 0, 0));
-		        }
-		        
-		        onTrigger(object)
-		        {
-		            super.onTrigger(object);
-		            
-		            if (object instanceof Player)
-	                    if (this.timeSinceLastRecycle > this.recycleInterval)   
-                        {
-                            this.recycleItem(player);
-                            this.timeSinceLastRecycle = 0;
-                        }
-	                    
-		        }
-		        
-		        onStopTrigger(object)
-		        {
-		            super.onStopTrigger(object);
-		        }
-		    }
 		    
 		    class BuyableTile extends Interactable
 		    {
@@ -600,6 +485,8 @@
 		            this.moneyLength = 0.3;
                     this.moneyWidth = 0.2;
                     this.moneyThickness = 0.2;
+                    
+                    this.moneyTexture = new THREE.TextureLoader().load('textures/dollar.jpeg');
 		        }
 		        
 		        update(deltaTime)
@@ -620,8 +507,12 @@
                     this.calculateGrid();
                     
                     const money = new Carryable(this.moneyLength, this.moneyWidth, this.moneyThickness, 0x48c942);
+                    
+    				const material = new THREE.MeshBasicMaterial({ map: this.moneyTexture });
+    				money.material = material;
+                    
                     money.position.copy(this.position);
-                    money.setTarget(this.position, new THREE.Vector3(this.column_ * this.moneyLength,
+                    money.setTarget(this.position, new THREE.Vector3(this.column_ * this.moneyLength - 0.4,
                                                                      this.row_ * this.moneyWidth,
                                                                      (this.scale.z / 2) + (this.layer_ * this.moneyThickness)));
                     
@@ -846,77 +737,46 @@
                 }
 		    };
 		    
-		    class Player extends DynamicMesh
+		    let renderer, htmlRenderer, scene, camera;
+		    
+		    function prepareThree()
 		    {
-		        constructor()
-		        {
-		            const geometry = new THREE.BoxGeometry(1, 1, 1);
-		            const material = new THREE.MeshBasicMaterial({ color: 0x0000ff });
-		            
-		            super(geometry, material);
-		            
-		            this.geometry.computeBoundingBox();
-		            
-		            this.box = new THREE.Box3();
-		            
-		            this.money = 0;
-		            
-		            this.carriedItems = new Array();
-		            this.carriedMoney = new Array();
-		        }
+		        renderer = new THREE.WebGLRenderer({
+		            antialias: true,
+		            shadowMap: true
+		        });
+		        renderer.setSize(window.innerWidth, window.innerHeight);
+		        document.body.appendChild(renderer.domElement);
 		        
-		        update(deltaTime)
-		        {
-		            this.box.copy(this.geometry.boundingBox).applyMatrix4(this.matrixWorld);
-		            
-		            for (const item of this.carriedItems)
-		            {
-		                const carryPos = 1 + (item.scale.z * item.carryPos);
-		                
-		                if (item.elapsedTime > item.moveTime)
-	                    {
-	                        item.position.copy(this.position);
-	                        item.position.z += carryPos;
-	                        continue;
-	                    }
-	                    
-	                    item.updateTarget(this.position, new THREE.Vector3(0, 0, carryPos));
-		            }
-
-	                for (const money of this.carriedMoney)
-	                {
-	                    if (money.elapsedTime > money.moveTime)
-	                    {
-	                        scene.remove(money);
-	                        this.carriedMoney.splice(this.carriedMoney.indexOf(money), 1);
-	                        continue;
-	                    }
-	                    
-	                    money.updateTarget(player.position, new THREE.Vector3(0, 0, 0));
-	                }
-		        }
-		    };
-
-			const scene = new THREE.Scene();
-
-			const renderer = new THREE.WebGLRenderer({
-			    antialias: true
-			});
-			renderer.setSize(window.innerWidth, window.innerHeight);
-			document.body.appendChild(renderer.domElement);
-
-			const htmlRenderer = new CSS2DRenderer();
-			htmlRenderer.setSize(window.innerWidth, window.innerHeight);
-			htmlRenderer.domElement.style.position = 'absolute';
-			htmlRenderer.domElement.style.top = '0px';
-			document.body.appendChild(htmlRenderer.domElement).style.pointerEvents = "none";
-			
-			const shop = new Shop();
+    			htmlRenderer = new CSS2DRenderer();
+    			htmlRenderer.setSize(window.innerWidth, window.innerHeight);
+    			htmlRenderer.domElement.style.position = 'absolute';
+    			htmlRenderer.domElement.style.top = '0px';
+    			document.body.appendChild(htmlRenderer.domElement).style.pointerEvents = "none";
+		        
+		        scene = new THREE.Scene();
+		        window.scene = scene;
+		        // TODO; FIXME: I don't really feel great about this, but it works, so it stays.
+		        
+		        camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+		        
+                window.addEventListener('resize', (event) =>
+                {
+					camera.aspect = window.innerWidth / window.innerHeight;
+                    camera.updateProjectionMatrix();
+                    renderer.setSize( window.innerWidth, window.innerHeight );
+					console.log("Window resized.");
+                });
+		    }
+		    
+		    prepareThree();
+		    
+		    let shop, player;
+		    
+			shop = new Shop();
 			scene.add(shop);
 
-            const player = new Player();
-            
-            const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+            player = new Player();
             scene.add(player);
             
             window.oncontextmenu = function(event)
@@ -926,13 +786,6 @@
                  return false;
             };
             
-            $(document).resize((event) =>
-            {
-                camera.aspect = window.innerWidth / window.innerHeight;
-                camera.updateProjectionMatrix();
-                renderer.setSize( window.innerWidth, window.innerHeight );
-            });
-
             let keys = new Array();
 
             $(document).keydown(function(event)
