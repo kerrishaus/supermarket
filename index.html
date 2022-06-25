@@ -79,9 +79,8 @@
 	        </div>
 	    </div>
 	    
-	    <script src="https://kerrishaus.com/assets/ammojs/ammo.wasm.js"></script>
-	    
 		<script type='module'>
+			import * as Ammo from "https://kerrishaus.com/assets/ammojs/ammo.wasm.js";
 		    import * as THREE from "https://kerrishaus.com/assets/threejs/build/three.module.js";
 		    import { CSS2DObject, CSS2DRenderer } from "https://kerrishaus.com/assets/threejs/examples/jsm/renderers/CSS2DRenderer.js";
 		    import { TransformControls } from 'https://kerrishaus.com/assets/threejs/examples/jsm/controls/TransformControls.js';
@@ -208,7 +207,7 @@
 		            this.onFullyPaid = function() {};
 		        }
 		        
-                transferMoney(player)
+                takeMoneyFrom(player)
 		        {
 		            if (player.money <= 0)
 		                return;
@@ -255,7 +254,7 @@
 		            super.onTrigger(object);
 		            
 		            if (object instanceof Player)
-		                this.transferMoney(object);
+		                this.takeMoneyFrom(object);
 		        }
 		    };
 		    
@@ -768,8 +767,62 @@
 					console.log("Window resized.");
                 });
 		    }
-		    
+
+			function registerEventListeners()
+			{
+				window.oncontextmenu = function(event)
+				{
+					event.preventDefault();
+					event.stopPropagation();
+					return false;
+				};
+
+				window.addEventListener("mousemove", (event) =>
+				{
+					mouse.x = ( event.clientX / window.innerWidth ) * 2 - 1;
+					mouse.y = - ( event.clientY / window.innerHeight ) * 2 + 1;
+
+					event.preventDefault();
+				});
+				
+				window.addEventListener("touchmove", (event) =>
+				{
+					mouse.x = ( event.touches[0].clientX / window.innerWidth ) * 2 - 1;
+					mouse.y = - ( event.touches[0].clientY / window.innerHeight ) * 2 + 1;
+					
+					event.preventDefault();
+				});
+
+				function moveStart(event)
+				{
+					moving = true;
+					scene.add(moveTarget);
+				}
+
+				function moveEnd(event)
+				{
+					moving = false;
+					scene.remove(moveTarget);
+				}
+
+				window.addEventListener("mousedown",  moveStart, event);
+				window.addEventListener("touchstart", moveStart, event);
+				window.addEventListener("mouseup",  moveEnd, event);
+				window.addEventListener("touchend", moveEnd, event);
+
+				window.addEventListener("keydown", (event) =>
+				{
+					keys[event.code] = true;
+				});
+				
+				window.addEventListener("keyup", (event) =>
+				{
+					keys[event.code] = false;
+				});
+			}
+
 		    prepareThree();
+			registerEventListeners();
 		    
 		    let shop, player;
 		    
@@ -779,40 +832,9 @@
             player = new Player();
             scene.add(player);
             
-            window.oncontextmenu = function(event)
-            {
-                 event.preventDefault();
-                 event.stopPropagation();
-                 return false;
-            };
-            
             let keys = new Array();
-
-            $(document).keydown(function(event)
-            {
-                keys[event.code] = true;
-            });
-            
-            $(document).keyup(function(event)
-            {
-                keys[event.code] = false;
-            });
             
             let moving = false;
-            
-            $(document).on('mousedown touchstart', (event) =>
-            {
-                moving = true;
-                
-                scene.add(moveTarget);
-            });
-            
-            $(document).on('mouseup touchend', (event) =>
-            {
-                moving = false;
-                
-                scene.remove(moveTarget);
-            });
             
             let moveTarget = new THREE.Mesh(new THREE.SphereGeometry(0.25, 24, 8), new THREE.MeshPhongMaterial({ color: 0x00ffff, 
                                                                                                                  flatShading: true,
@@ -825,20 +847,6 @@
             let mouse = new THREE.Vector2();
             let raycaster = new THREE.Raycaster();
             let intersects = new THREE.Vector3();
-            
-            $(document).on('mousemove', (event) =>
-            {
-                mouse.x = ( event.clientX / window.innerWidth ) * 2 - 1;
-                mouse.y = - ( event.clientY / window.innerHeight ) * 2 + 1;
-            });
-            
-            $(document).on('touchmove', (event) =>
-            {
-                mouse.x = ( event.touches[0].clientX / window.innerWidth ) * 2 - 1;
-                mouse.y = - ( event.touches[0].clientY / window.innerHeight ) * 2 + 1;
-                
-                event.preventDefault();
-            });
             
             const clock = new THREE.Clock();
             
