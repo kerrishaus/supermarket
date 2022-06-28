@@ -29,7 +29,12 @@ export function createScaledCube(width, height, thickness, color)
     return new Mesh(geometry, material);
 }
 
-export function createRigidBodyCube(size, position, color, mass = 10)
+export function createPhysCube(size, position, color, mass = 10)
 {
     return new RigidBodyCube(size, color, position, new Quaternion(), mass);
+}
+
+export function createPhysSphere(radius, position, color, mass = 10)
+{
+    return new RigidBodyCube(radius, color, position, new Quaternion(), mass);
 }

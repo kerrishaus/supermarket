@@ -40,7 +40,8 @@
 		    
 			import * as GeometryUtil from "./scripts/GeometryUtility.js";
 
-			//import { RigidBodyCube } from "./scripts/RigidBodyCube.js";
+			import { RigidBodyCube } from "./scripts/RigidBodyCube.js";
+			import { RigidBodySphere } from "./scripts/RigidBodySphere.js";
 		    import { DynamicMesh } from "./scripts/DynamicMesh.js";
 		    import { Interactable } from "./scripts/InteractableMesh.js";
 			import { Carryable } from "./scripts/Carryable.js";
@@ -571,61 +572,13 @@
                     this.elapsedTime += deltaTime;
                 }
 		    };
-		    
-			class RigidBodyCube extends DynamicMesh
-			{
-				constructor(size, color, pos, quat, mass)
-				{
-					const geometry = new THREE.BoxGeometry(size.x, size.y, size.z);
-					const material = new THREE.MeshBasicMaterial({ color: color });
-					
-					super(geometry, material);
-
-					this.position.copy(pos);
-					
-					this.castShadow = true;
-					this.receiveShadow = true;
-					
-					this.transform = new Ammo.btTransform();
-					this.transform.setIdentity();
-					this.transform.setOrigin(new Ammo.btVector3(pos.x, pos.y, pos.z));
-					this.transform.setRotation(new Ammo.btQuaternion(quat.x, quat.y, quat.z, quat.w));
-					this.motionState = new Ammo.btDefaultMotionState(this.transform);
-				
-					const btSize = new Ammo.btVector3(size.x / 2, size.y / 2, size.z / 2);
-					this.shape = new Ammo.btBoxShape(btSize);
-					this.shape.setMargin(0.05);
-				
-					this.inertia = new Ammo.btVector3(0, 0, 0);
-					if (mass > 0)
-						this.shape.calculateLocalInertia(mass, this.inertia);
-				
-					this.info = new Ammo.btRigidBodyConstructionInfo(mass, this.motionState, this.shape, this.inertia);
-					this.body = new Ammo.btRigidBody(this.info);
-				
-					Ammo.destroy(btSize);
-				}
-				
-				setRestitution(restitution)
-				{
-					this.body.setRestitution(restitution);
-				}
-
-				setFriction(friction)
-				{
-					this.body.setFriction(friction);
-				}
-
-				setRollingFriction(rollingFriction)
-				{
-					this.body.setRollingFriction(rollingFriction);
-				}
-			}
 
 		    let renderer, htmlRenderer, scene, camera;
 		    
 		    function prepareThree()
 		    {
+				console.log("Preparing Three.");
+
 		        renderer = new THREE.WebGLRenderer({
 		            antialias: true,
 		            shadowMap: true
@@ -641,7 +594,7 @@
 		        
 		        scene = new THREE.Scene();
 		        window.scene = scene;
-		        // TODO; FIXME: I don't really feel great about this, but it works, so it stays.
+		        // TODO: FIXME: I don't really feel great about this, but it works, so it stays.
 		        
 		        camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
 		        
@@ -652,6 +605,8 @@
                     renderer.setSize( window.innerWidth, window.innerHeight );
 					console.log("Window resized.");
                 });
+
+				console.log("Three is ready.");
 		    }
 
 			window.collisionConfiguration_ = null;
@@ -662,8 +617,13 @@
 			window.physicsBodies 		   = new Array();
 			window.tmpTransform 		   = null;
 
-			function prepareAmmo()
+			function prepareAmmo(lib)
 			{
+				console.log("Preparing Ammo.");
+
+				Ammo = lib;
+				window.Ammo = lib;
+
 				collisionConfiguration_ = new Ammo.btDefaultCollisionConfiguration();
 				dispatcher_  			= new Ammo.btCollisionDispatcher(collisionConfiguration_);
 				broadphase_  			= new Ammo.btDbvtBroadphase();
@@ -672,6 +632,8 @@
 				physicsWorld.setGravity(new Ammo.btVector3(0, 0, -100));
 
 				tmpTransform = new Ammo.btTransform();
+
+				console.log("Ammo is ready.");
 			}
 
 			function registerEventListeners()
@@ -748,17 +710,15 @@
 
 			function prepareGame()
 			{
+				console.log("Preparing game.");
+
 				shop = new Shop();
 				scene.add(shop);
 	
 				player = new Player();
 				scene.add(player);
 
-				const box = new RigidBodyCube(new THREE.Vector3(1, 1, 1), 0xaa0000, new THREE.Vector3(-6, 6, 3), new THREE.Quaternion(), 10);
-
-				physicsBodies.push(box);
-				physicsWorld.addRigidBody(box.body);
-				scene.add(box);
+				console.log("Game is ready.");
 			}
 
 			function physicsStep(deltaTime)
@@ -848,10 +808,8 @@
             {
                 AmmoLib().then((lib) =>
                 {
-                    Ammo = lib;
-
 					prepareThree();
-					prepareAmmo();
+					prepareAmmo(lib);
 					registerEventListeners();
 					prepareGame();
 		
