@@ -40,7 +40,7 @@
 		    
 			import * as GeometryUtil from "./scripts/GeometryUtility.js";
 
-			import { RigidBodyCube } from "./scripts/RigidBodyCube.js";
+			//import { RigidBodyCube } from "./scripts/RigidBodyCube.js";
 		    import { DynamicMesh } from "./scripts/DynamicMesh.js";
 		    import { Interactable } from "./scripts/InteractableMesh.js";
 			import { Carryable } from "./scripts/Carryable.js";
@@ -392,14 +392,14 @@
 		        {
 		            super();
 		            
-					const shopFloor = GeometryUtil.createRigidBodyCube(new THREE.Vector3(40, 20, 1), new THREE.Vector3(0, 10, 5), 0xE0E0E0, 0);
+					const shopFloor = new RigidBodyCube(new THREE.Vector3(40, 20, 1), 0xE0E0E0, new THREE.Vector3(0, 10, -1), new THREE.Quaternion(), 0);
 					shopFloor.setRestitution(0.125);
                     shopFloor.setFriction(1);
                     shopFloor.setRollingFriction(5);
 
 		            // shop floor
 					physicsBodies.push(shopFloor);
-					physicsWorld.addRigidBody(shopFloor);
+					physicsWorld.addRigidBody(shopFloor.body);
 		            scene.add(shopFloor);
 
 		            // shop north wall
@@ -572,6 +572,56 @@
                 }
 		    };
 		    
+			class RigidBodyCube extends DynamicMesh
+			{
+				constructor(size, color, pos, quat, mass)
+				{
+					const geometry = new THREE.BoxGeometry(size.x, size.y, size.z);
+					const material = new THREE.MeshBasicMaterial({ color: color });
+					
+					super(geometry, material);
+
+					this.position.copy(pos);
+					
+					this.castShadow = true;
+					this.receiveShadow = true;
+					
+					this.transform = new Ammo.btTransform();
+					this.transform.setIdentity();
+					this.transform.setOrigin(new Ammo.btVector3(pos.x, pos.y, pos.z));
+					this.transform.setRotation(new Ammo.btQuaternion(quat.x, quat.y, quat.z, quat.w));
+					this.motionState = new Ammo.btDefaultMotionState(this.transform);
+				
+					const btSize = new Ammo.btVector3(size.x / 2, size.y / 2, size.z / 2);
+					this.shape = new Ammo.btBoxShape(btSize);
+					this.shape.setMargin(0.05);
+				
+					this.inertia = new Ammo.btVector3(0, 0, 0);
+					if (mass > 0)
+						this.shape.calculateLocalInertia(mass, this.inertia);
+				
+					this.info = new Ammo.btRigidBodyConstructionInfo(mass, this.motionState, this.shape, this.inertia);
+					this.body = new Ammo.btRigidBody(this.info);
+				
+					Ammo.destroy(btSize);
+				}
+				
+				setRestitution(restitution)
+				{
+					this.body.setRestitution(restitution);
+				}
+
+				setFriction(friction)
+				{
+					this.body.setFriction(friction);
+				}
+
+				setRollingFriction(rollingFriction)
+				{
+					this.body.setRollingFriction(rollingFriction);
+				}
+			}
+
 		    let renderer, htmlRenderer, scene, camera;
 		    
 		    function prepareThree()
@@ -609,18 +659,17 @@
 			window.broadphase_             = null;
 			window.solver_				   = null;
 			window.physicsWorld            = null;
-
 			window.physicsBodies 		   = new Array();
 			window.tmpTransform 		   = null;
 
 			function prepareAmmo()
 			{
 				collisionConfiguration_ = new Ammo.btDefaultCollisionConfiguration();
-				dispatcher_ = new Ammo.btCollisionDispatcher(collisionConfiguration_);
-				broadphase_ = new Ammo.btDbvtBroadphase();
-				solver_ = new Ammo.btSequentialImpulseConstraintSolver();
-				physicsWorld = new Ammo.btDiscreteDynamicsWorld(dispatcher_, broadphase_, solver_, collisionConfiguration_);
-				physicsWorld.setGravity(new Ammo.btVector3(0, -100, 0));
+				dispatcher_  			= new Ammo.btCollisionDispatcher(collisionConfiguration_);
+				broadphase_  			= new Ammo.btDbvtBroadphase();
+				solver_      			= new Ammo.btSequentialImpulseConstraintSolver();
+				physicsWorld 			= new Ammo.btDiscreteDynamicsWorld(dispatcher_, broadphase_, solver_, collisionConfiguration_);
+				physicsWorld.setGravity(new Ammo.btVector3(0, 0, -100));
 
 				tmpTransform = new Ammo.btTransform();
 			}
@@ -705,14 +754,29 @@
 				player = new Player();
 				scene.add(player);
 
-				const box = GeometryUtil.createRigidBodyCube(new THREE.Vector3(1, 1, 1), new THREE.Vector3(0, 0, 2), 0xE0E0E0, 1);
-				box.setRestitution(0.125);
-				box.setFriction(1);
-				box.setRollingFriction(5);
+				const box = new RigidBodyCube(new THREE.Vector3(1, 1, 1), 0xaa0000, new THREE.Vector3(-6, 6, 3), new THREE.Quaternion(), 10);
 
-				physicsBodies.push(box.body);
+				physicsBodies.push(box);
 				physicsWorld.addRigidBody(box.body);
 				scene.add(box);
+			}
+
+			function physicsStep(deltaTime)
+			{
+				physicsWorld.stepSimulation(deltaTime, 10);
+
+				for (const object of physicsBodies)
+				{
+					object.motionState.getWorldTransform(tmpTransform);
+					
+					const pos = tmpTransform.getOrigin();
+					const quat = tmpTransform.getRotation();
+					const pos3 = new THREE.Vector3(pos.x(), pos.y(), pos.z());
+					const quat3 = new THREE.Quaternion(quat.x(), quat.y(), quat.z(), quat.w());
+					
+					object.position.copy(pos3);
+					object.quaternion.copy(quat3);
+				}
 			}
 			
 			function animate()
@@ -720,7 +784,7 @@
 				requestAnimationFrame(animate);
 				
 				const deltaTime = clock.getDelta();
-				
+
 				if (!moving)
 				{
     				if (keys["KeyW"] || keys["ArrowUp"])
@@ -752,31 +816,17 @@
                 {
                     if (object instanceof DynamicMesh)
                         object.update(deltaTime);
-                        
+                    
+					/*
                     if (object instanceof Interactable)
                         if (player.box.intersectsBox(object.trigger))
                             object.onTrigger(player);
                         else if (object.triggered)
                             object.onStopTrigger(player);
+					*/
                 });
 
-				physicsWorld.stepSimulation(deltaTime, 10);
-
-				for (const object of physicsBodies)
-				{
-					if (object instanceof RigidBodyCube)
-					{
-						object.motionState.getWorldTransform(tmpTransform);
-
-						const pos = tmpTransform.getOrigin();
-						const quat = tmpTransform.getRotation();
-						const pos3 = new THREE.Vector3(pos.x(), pos.y(), pos.z());
-						const quat3 = new THREE.Quaternion(quat.x(), quat.y(), quat.z(), quat.w());
-
-						object.position.copy(pos3);
-						object.quaternion.copy(quat3);
-					}
-				}
+				physicsStep(deltaTime);
                 
 				renderer.render(scene, camera);
 				htmlRenderer.render(scene, camera);

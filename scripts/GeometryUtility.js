@@ -31,5 +31,5 @@ export function createScaledCube(width, height, thickness, color)
 
 export function createRigidBodyCube(size, position, color, mass = 10)
 {
-    return new RigidBodyCube(mass, position, new Quaternion(0, 0, 0, 1), size, color);
+    return new RigidBodyCube(size, color, position, new Quaternion(), mass);
 }
