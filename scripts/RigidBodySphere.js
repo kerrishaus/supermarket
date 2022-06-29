@@ -1,8 +1,8 @@
 import { SphereGeometry, MeshStandardMaterial } from "https://kerrishaus.com/assets/threejs/build/three.module.js";
 
-import { DynamicMesh } from "./DynamicMesh.js";
+import { PhysicsMesh } from "./PhysicsMesh.js";
 
-export class RigidBodySphere extends DynamicMesh
+export class RigidBodySphere extends PhysicsMesh
 {
     constructor(radius, color, pos, quat, mass)
     {
