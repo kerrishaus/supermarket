@@ -300,6 +300,7 @@
                     this.moneyThickness = 0.2;
                     
                     this.moneyTexture = new THREE.TextureLoader().load('textures/dollar.jpeg');
+					this.moneyMaterial = new THREE.MeshBasicMaterial({ map: this.moneyTexture });
 
 					window.addEventListener("keydown", (event) =>
 					{
@@ -326,9 +327,7 @@
                     this.calculateGrid();
                     
                     const money = new Carryable(this.moneyLength, this.moneyWidth, this.moneyThickness, 0x48c942);
-                    
-    				const material = new THREE.MeshBasicMaterial({ map: this.moneyTexture });
-    				money.material = material;
+    				money.material = this.moneyMaterial;
                     
                     money.position.copy(this.position);
                     money.setTarget(this.position, new THREE.Vector3(this.column_ * this.moneyLength - 0.4,
@@ -401,12 +400,13 @@
 				{
 					console.log("Floppa money!");
 
-					const physDesk = new RigidBodyCube(new THREE.Vector3(2, 4, 1), 0xaaaa00, new THREE.Vector3(this.position.x, this.position.y, this.position.z), new THREE.Quaternion(), 0);
+					const physDesk = new RigidBodyCube(new THREE.Vector3(2, 4, 1), 0xad723e, new THREE.Vector3(this.position.x, this.position.y, this.position.z), new THREE.Quaternion(), 0);
 					scene.add(physDesk);
 
 					for (const money of this.money)
 					{
 						const physMoney = new RigidBodyCube(new THREE.Vector3(this.moneyLength, this.moneyWidth, this.moneyThickness), 0x00ff00, new THREE.Vector3(money.position.x, money.position.y, money.position.z), new THREE.Quaternion(), 10);
+						physMoney.material = this.moneyMaterial;
 
 						scene.remove(money);
 						scene.add(physMoney);
