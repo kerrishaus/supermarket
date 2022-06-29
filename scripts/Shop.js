@@ -23,7 +23,6 @@ export class Shop extends DynamicMesh
         shopFloor.setFriction(1);
         shopFloor.setRollingFriction(5);
 
-        // shop floor
         scene.add(shopFloor);
 
         // shop north wall
@@ -36,12 +35,15 @@ export class Shop extends DynamicMesh
         this.doors = new Door(new Vector3(-9.5, 19.4, 0), 0x0000ff);
         scene.add(this.doors);
         
-        // farm floor
-        scene.add(GeometryUtil.createObject(new Vector3(40, 20, 1), new Vector3(0, -10, -1), 0x44CD32));
+        const farmFloor = new RigidBodyCube(new Vector3(40, 20, 1), 0x44CD32, new Vector3(0, -10, -1), new Quaternion(), 0);
+        farmFloor.setRestitution(0.125);
+        farmFloor.setFriction(1);
+        farmFloor.setRollingFriction(5);
+
+        scene.add(farmFloor);
         
         this.register = new Register();
-        this.register.position.x = -16;
-        this.register.position.y = 15;
+        this.register.setPosition(new Vector3(-16, 15, 0));
         for (let i = 0; i < 100; i++)
             this.register.addMoney();
         scene.add(this.register);

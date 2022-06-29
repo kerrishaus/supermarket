@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html>
 	<head>
+		<!-- https://html2app.dev/ saved for later -->
 		<title>let's go shoppin</title>
 
 		<meta charset="utf-8">
@@ -188,7 +189,7 @@
                                                                                                                  opacity: 0.7,
                                                                                                                 }));
             
-																												let plane = new THREE.Plane(new THREE.Vector3(0, 0, 1), 0);
+			let plane = new THREE.Plane(new THREE.Vector3(0, 0, 1), 0);
 
             let mouse = new THREE.Vector2();
             let raycaster = new THREE.Raycaster();
@@ -217,22 +218,13 @@
 				{
 					object.motionState.getWorldTransform(tmpTransform);
 
-					if (object.isKinematic())
-					{
-						//object.transform.setOrigin(new Ammo.btVector3(object.position.x, object.position.y, object.position.z));
-        				//object.transform.setRotation(new Ammo.btQuaternion(object.quaternion.x, object.quaternion.y, object.quaternion.z, object.quaternion.w));
-						continue;
-					}
-					else
-					{
-						const pos = tmpTransform.getOrigin();
-						const quat = tmpTransform.getRotation();
-						const pos3 = new THREE.Vector3(pos.x(), pos.y(), pos.z());
-						const quat3 = new THREE.Quaternion(quat.x(), quat.y(), quat.z(), quat.w());
-						
-						object.position.copy(pos3);
-						object.quaternion.copy(quat3);
-					}
+					const pos = tmpTransform.getOrigin();
+					const quat = tmpTransform.getRotation();
+					const pos3 = new THREE.Vector3(pos.x(), pos.y(), pos.z());
+					const quat3 = new THREE.Quaternion(quat.x(), quat.y(), quat.z(), quat.w());
+					
+					object.position.copy(pos3);
+					object.quaternion.copy(quat3);
 				}
 
 				//detectCollision();
@@ -271,14 +263,19 @@
 				{
 					let moveDirection = { left: 0, right: 0, forward: 0, back: 0 };
 
+					let force = new THREE.Vector3(0, 100, 100);
+					let direction = new THREE.Vector3(100, 0, 0);
+
+					player.body.setActivationState(1);
+
 					if (keys["KeyW"] || keys["ArrowUp"])
-						player.position.y += 0.15;
+						player.body.setLinearVelocity(new Ammo.btVector3(0, 3, 0));
 					if (keys["KeyA"] || keys["ArrowLeft"])
-						player.position.x -= 0.15;
+						player.body.setLinearVelocity(new Ammo.btVector3(-3, 0, 0));
 					if (keys["KeyS"] || keys["ArrowDown"])
-						player.position.y -= 0.15;
+						player.body.setLinearVelocity(new Ammo.btVector3(0, -3, 0));
 					if (keys["KeyD"] || keys["ArrowRight"])
-						player.position.x += 0.15;
+						player.body.setLinearVelocity(new Ammo.btVector3(3, 0, 0));
 				}
 			    else
 			    {
@@ -286,15 +283,24 @@
                     raycaster.ray.intersectPlane(plane, intersects);
                     moveTarget.position.set(intersects.x, intersects.y, intersects.z);
     			    
-                    player.lookAt(moveTarget.position);
+					/*
+					let y2 = moveTarget.position.y, y1 = player.position.y;
+					let x2 = moveTarget.position.x, x1 = player.position.x;
+					let angle = Math.atan2( y2 - y1, x2 - x1 ) - 1.5708;
+					player.rotation.z = angle;
+
     			    player.position.lerp(moveTarget.position, 0.03);
+					player.position.z = 0.5;
+					*/
 			    }
-				
+
 				camera.position.copy(player.position);
 				camera.position.z = 10;
 				camera.position.y -= 8;
     			camera.lookAt(player.position);
     			camera.position.y += 5;
+
+				//camera.position.z = 30;
 
                 scene.children.forEach( (object) =>
                 {

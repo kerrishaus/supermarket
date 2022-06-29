@@ -1,14 +1,17 @@
 import { Vector3, Quaternion, TextureLoader, MeshBasicMaterial } from "https://kerrishaus.com/assets/threejs/build/three.module.js";
 
 import { Carryable } from "./Carryable.js";
-import { KinematicCube } from "./KinematicCube.js";
 import { RigidBodyCube } from "./RigidBodyCube.js";
 
-export class Register extends KinematicCube
+export class Register extends RigidBodyCube
 {
     constructor()
     {
-        super(new Vector3(2, 4, 1), 0xad723e, new Vector3(0, 0, 0), new Quaternion());
+        super(new Vector3(2, 4, 1), 0xad723e, new Vector3(0, 0, 0), new Quaternion(), 0);
+
+        this.setRestitution(0.125);
+        this.setFriction(1);
+        this.setRollingFriction(5);
         
         this.name = "register";
         
@@ -131,6 +134,9 @@ export class Register extends KinematicCube
         {
             const physMoney = new RigidBodyCube(new Vector3(this.moneyLength, this.moneyWidth, this.moneyThickness), 0x00ff00, new Vector3(money.position.x, money.position.y, money.position.z), new Quaternion(), 10);
             physMoney.material = this.moneyMaterial;
+            physMoney.setRestitution(0);
+            physMoney.setFriction(1);
+            physMoney.setRollingFriction(0.125);
 
             scene.remove(money);
             scene.add(physMoney);

@@ -1,12 +1,21 @@
 import { Vector3, Quaternion } from "https://kerrishaus.com/assets/threejs/build/three.module.js";
 
-import { KinematicCube } from "./KinematicCube.js";
+import * as GeometryUtil from "./GeometryUtility.js";
 
-export class Player extends KinematicCube
+import { RigidBodyCube } from "./RigidBodyCube.js";
+
+export class Player extends RigidBodyCube
 {
     constructor()
     {
-        super(new Vector3(1, 1, 2), 0x0000ff, new Vector3(0, 0, 0.5), new Quaternion());
+        super(new Vector3(1, 1, 2), 0x0000ff, new Vector3(0, 0, 5), new Quaternion(), 10);
+
+        this.set
+
+        this.nose = GeometryUtil.createScaledCube(0.4, 1, 0.2, 0x0000aa);
+        this.nose.position.z = 0.8;
+        this.nose.position.y = 0.5;
+        this.add(this.nose);
         
         this.money = 0;
         

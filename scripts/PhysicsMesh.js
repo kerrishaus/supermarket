@@ -30,4 +30,38 @@ export class PhysicsMesh extends DynamicMesh
     {
         return this.body.isStaticOrKinematicObject();
     }
+
+    setRestitution(restitution)
+    {
+        this.body.setRestitution(restitution);
+    }
+
+    setBounciness(factor)
+    {
+        this.body.setRestitution(factor);
+    }
+
+    setFriction(friction)
+    {
+        this.body.setFriction(friction);
+    }
+
+    setRollingFriction(rollingFriction)
+    {
+        this.body.setRollingFriction(rollingFriction);
+    }
+
+    setPosition(position)
+    {
+        let transform = new Ammo.btTransform();
+        transform.setIdentity();
+        transform.setOrigin(new Ammo.btVector3(position.x, position.y, position.z));
+        transform.setRotation(new Ammo.btQuaternion(0, 0, 0, 1));
+        this.motionState.setWorldTransform(transform);
+        this.body.setWorldTransform(transform);
+
+        this.position.copy(position);
+
+        console.log("sff");
+    }
 }

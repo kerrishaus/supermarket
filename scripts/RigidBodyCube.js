@@ -35,19 +35,4 @@ export class RigidBodyCube extends PhysicsMesh
     
         Ammo.destroy(btSize);
     }
-    
-    setRestitution(restitution)
-    {
-        this.body.setRestitution(restitution);
-    }
-
-    setFriction(friction)
-    {
-        this.body.setFriction(friction);
-    }
-
-    setRollingFriction(rollingFriction)
-    {
-        this.body.setRollingFriction(rollingFriction);
-    }
 }
