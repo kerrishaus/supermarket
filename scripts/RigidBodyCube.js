@@ -16,8 +16,6 @@ export class RigidBodyCube extends PhysicsMesh
         this.castShadow = true;
         this.receiveShadow = true;
 
-        console.log(window);
-        
         this.transform = new Ammo.btTransform();
         this.transform.setIdentity();
         this.transform.setOrigin(new Ammo.btVector3(pos.x, pos.y, pos.z));

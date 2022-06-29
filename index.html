@@ -300,6 +300,12 @@
                     this.moneyThickness = 0.2;
                     
                     this.moneyTexture = new THREE.TextureLoader().load('textures/dollar.jpeg');
+
+					window.addEventListener("keydown", (event) =>
+					{
+						if (event.code == "KeyP")
+							this.floppyMoney();
+					});
 		        }
 		        
 		        update(deltaTime)
@@ -390,6 +396,24 @@
 		        {
 		            super.onStopTrigger(object);
 		        }
+
+				floppyMoney()
+				{
+					console.log("Floppa money!");
+
+					const physDesk = new RigidBodyCube(new THREE.Vector3(2, 4, 1), 0xaaaa00, new THREE.Vector3(this.position.x, this.position.y, this.position.z), new THREE.Quaternion(), 0);
+					scene.add(physDesk);
+
+					for (const money of this.money)
+					{
+						const physMoney = new RigidBodyCube(new THREE.Vector3(this.moneyLength, this.moneyWidth, this.moneyThickness), 0x00ff00, new THREE.Vector3(money.position.x, money.position.y, money.position.z), new THREE.Quaternion(), 10);
+
+						scene.remove(money);
+						scene.add(physMoney);
+					}
+
+					this.money.length = 0;
+				}
 		    };
 		    
 		    class Shop extends DynamicMesh
@@ -404,8 +428,6 @@
                     shopFloor.setRollingFriction(5);
 
 		            // shop floor
-					physicsBodies.push(shopFloor);
-					physicsWorld.addRigidBody(shopFloor.body);
 		            scene.add(shopFloor);
 
 		            // shop north wall
@@ -755,7 +777,6 @@
 				player = new Player();
 				scene.add(player);
 
-
 				console.log("Game is ready.");
 			}
 
@@ -776,7 +797,7 @@
 					object.quaternion.copy(quat3);
 				}
 
-				detectCollision();
+				//detectCollision();
 			}
 
 			function detectCollision()
