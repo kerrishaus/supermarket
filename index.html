@@ -277,11 +277,11 @@
 		        }
 		    };
 
-		    class Register extends Interactable
+		    class Register extends KinematicCube
 		    {
 		        constructor()
 		        {
-		            super(2, 4, 4, 6, 0xad723e);
+					super(new THREE.Vector3(2, 4, 1), 0xad723e, new THREE.Vector3(0, 0, 0), new THREE.Quaternion());
 		            
 		            this.name = "register";
 		            
@@ -295,9 +295,9 @@
                     this.gridRows = 9;
                     this.gridColumns = 4;
 		            
-		            this.moneyLength = 0.3;
+		            this.moneyLength = 0.4;
                     this.moneyWidth = 0.2;
-                    this.moneyThickness = 0.2;
+                    this.moneyThickness = 0.1;
                     
                     this.moneyTexture = new THREE.TextureLoader().load('textures/dollar.jpeg');
 					this.moneyMaterial = new THREE.MeshBasicMaterial({ map: this.moneyTexture });
@@ -330,9 +330,9 @@
     				money.material = this.moneyMaterial;
                     
                     money.position.copy(this.position);
-                    money.setTarget(this.position, new THREE.Vector3(this.column_ * this.moneyLength - 0.4,
+                    money.setTarget(this.position, new THREE.Vector3(this.column_ * this.moneyLength - 0.6,
                                                                      this.row_ * this.moneyWidth,
-                                                                     (this.scale.z / 2) + (this.layer_ * this.moneyThickness)));
+                                                                     (this.scale.z / 2) + (this.layer_ * this.moneyThickness) + this.moneyThickness / 2));
                     
                     scene.add(money);
                     this.money.push(money);
@@ -399,9 +399,6 @@
 				floppyMoney()
 				{
 					console.log("Floppa money!");
-
-					const physDesk = new RigidBodyCube(new THREE.Vector3(2, 4, 1), 0xad723e, new THREE.Vector3(this.position.x, this.position.y, this.position.z), new THREE.Quaternion(), 0);
-					scene.add(physDesk);
 
 					for (const money of this.money)
 					{
@@ -787,14 +784,23 @@
 				for (const object of physicsBodies)
 				{
 					object.motionState.getWorldTransform(tmpTransform);
-					
-					const pos = tmpTransform.getOrigin();
-					const quat = tmpTransform.getRotation();
-					const pos3 = new THREE.Vector3(pos.x(), pos.y(), pos.z());
-					const quat3 = new THREE.Quaternion(quat.x(), quat.y(), quat.z(), quat.w());
-					
-					object.position.copy(pos3);
-					object.quaternion.copy(quat3);
+
+					if (object.isKinematic())
+					{
+						//object.transform.setOrigin(new Ammo.btVector3(object.position.x, object.position.y, object.position.z));
+        				//object.transform.setRotation(new Ammo.btQuaternion(object.quaternion.x, object.quaternion.y, object.quaternion.z, object.quaternion.w));
+						continue;
+					}
+					else
+					{
+						const pos = tmpTransform.getOrigin();
+						const quat = tmpTransform.getRotation();
+						const pos3 = new THREE.Vector3(pos.x(), pos.y(), pos.z());
+						const quat3 = new THREE.Quaternion(quat.x(), quat.y(), quat.z(), quat.w());
+						
+						object.position.copy(pos3);
+						object.quaternion.copy(quat3);
+					}
 				}
 
 				//detectCollision();
@@ -831,15 +837,17 @@
 
 				if (!moving)
 				{
-    				if (keys["KeyW"] || keys["ArrowUp"])
-    				    player.position.y += 0.15;
-    			    if (keys["KeyA"] || keys["ArrowLeft"])
-    			        player.position.x -= 0.15;
-    		        if (keys["KeyS"] || keys["ArrowDown"])
-    				    player.position.y -= 0.15;
-    				if (keys["KeyD"] || keys["ArrowRight"])
-    				    player.position.x += 0.15;
-			    }
+					let moveDirection = { left: 0, right: 0, forward: 0, back: 0 };
+
+					if (keys["KeyW"] || keys["ArrowUp"])
+						player.position.y += 0.15;
+					if (keys["KeyA"] || keys["ArrowLeft"])
+						player.position.x -= 0.15;
+					if (keys["KeyS"] || keys["ArrowDown"])
+						player.position.y -= 0.15;
+					if (keys["KeyD"] || keys["ArrowRight"])
+						player.position.x += 0.15;
+				}
 			    else
 			    {
     			    raycaster.setFromCamera(mouse, camera);
@@ -855,7 +863,7 @@
 				camera.position.y -= 8;
     			camera.lookAt(player.position);
     			camera.position.y += 5;
-    			
+
                 scene.children.forEach( (object) =>
                 {
                     if (object instanceof DynamicMesh)

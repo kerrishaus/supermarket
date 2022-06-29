@@ -1,4 +1,4 @@
-import { BoxGeometry, MeshStandardMaterial } from "https://kerrishaus.com/assets/threejs/build/three.module.js";
+import { BoxGeometry, MeshBasicMaterial } from "https://kerrishaus.com/assets/threejs/build/three.module.js";
 
 import { PhysicsMesh } from "./PhysicsMesh.js";
 
@@ -7,16 +7,11 @@ export class KinematicCube extends PhysicsMesh
     constructor(size, color, pos, quat)
     {
         const geometry = new BoxGeometry(size.x, size.y, size.z);
-        const material = new MeshStandardMaterial({ color: color });
+        const material = new MeshBasicMaterial({ color: color });
         
         super(geometry, material);
 
         this.position.copy(pos);
-        
-        this.castShadow = true;
-        this.receiveShadow = true;
-
-        console.log(window);
         
         this.transform = new Ammo.btTransform();
         this.transform.setIdentity();
@@ -28,11 +23,10 @@ export class KinematicCube extends PhysicsMesh
         this.shape = new Ammo.btBoxShape(btSize);
         this.shape.setMargin(0.05);
     
-        this.info = new Ammo.btRigidBodyConstructionInfo(mass, this.motionState, this.shape, this.inertia);
+        this.info = new Ammo.btRigidBodyConstructionInfo(1, this.motionState, this.shape, this.inertia);
         this.body = new Ammo.btRigidBody(this.info);
 
-        this.body.setActivationState(4); // disable deactivation
-        this.body.setCollisionFlags(2); // kinematic object
+        //this.setKinematic(true);
     
         Ammo.destroy(btSize);
     }
