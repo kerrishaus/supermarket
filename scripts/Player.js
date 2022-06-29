@@ -1,19 +1,12 @@
-import { BoxGeometry, MeshBasicMaterial, Box3, Vector3 } from "https://kerrishaus.com/assets/threejs/build/three.module.js";
+import { Vector3, Quaternion } from "https://kerrishaus.com/assets/threejs/build/three.module.js";
 
-import { DynamicMesh } from "./DynamicMesh.js";
+import { KinematicCube } from "./KinematicCube.js";
 
-export class Player extends DynamicMesh
+export class Player extends KinematicCube
 {
     constructor()
     {
-        const geometry = new BoxGeometry(1, 1, 1);
-        const material = new MeshBasicMaterial({ color: 0x0000ff });
-        
-        super(geometry, material);
-        
-        this.geometry.computeBoundingBox();
-        
-        this.box = new Box3();
+        super(new Vector3(1, 1, 2), 0x0000ff, new Vector3(0, 0, 0.5), new Quaternion());
         
         this.money = 0;
         
@@ -23,8 +16,6 @@ export class Player extends DynamicMesh
     
     update(deltaTime)
     {
-        this.box.copy(this.geometry.boundingBox).applyMatrix4(this.matrixWorld);
-        
         // keeps all carried items in their proper position
         for (const item of this.carriedItems)
         {
