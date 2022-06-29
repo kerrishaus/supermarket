@@ -23,7 +23,7 @@ export class KinematicCube extends PhysicsMesh
         this.shape = new Ammo.btBoxShape(btSize);
         this.shape.setMargin(0.05);
     
-        this.info = new Ammo.btRigidBodyConstructionInfo(1, this.motionState, this.shape, this.inertia);
+        this.info = new Ammo.btRigidBodyConstructionInfo(0, this.motionState, this.shape, this.inertia);
         this.body = new Ammo.btRigidBody(this.info);
 
         //this.setKinematic(true);
