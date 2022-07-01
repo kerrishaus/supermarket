@@ -16,21 +16,23 @@
 	</head>
 
 	<body>
-	    <div class='banner'>
-	        <div>
-	            $<span id='money'>0</span>
-	        </div>
-	        <div id='reputation'>
-	            rep <span>0</span>
-	        </div>
+		<div id='interface' class="gameInterfaceContainer">
+			<div class='banner'>
+				<div>
+					$<span id='money'>0</span>
+				</div>
+				<div id='reputation'>
+					rep <span>0</span>
+				</div>
+			</div>
+			
+			<div class='buttons'>
+				<div class='upgrades'>
+					
+				</div>
+			</div>
 	    </div>
-	    
-	    <div class='buttons'>
-	        <div class='upgrades'>
-	            
-	        </div>
-	    </div>
-	    
+
 		<script type='module'>
 			import AmmoLib from "https://kerrishaus.com/assets/ammojs/ammo.module.js";
 			let Ammo;
@@ -38,6 +40,12 @@
 		    import * as THREE from "https://kerrishaus.com/assets/threejs/build/three.module.js";
 		    import { CSS2DObject, CSS2DRenderer } from "https://kerrishaus.com/assets/threejs/examples/jsm/renderers/CSS2DRenderer.js";
 		    import { TransformControls } from 'https://kerrishaus.com/assets/threejs/examples/jsm/controls/TransformControls.js';
+			import { OrbitControls } from 'https://kerrishaus.com/assets/threejs/examples/jsm/controls/OrbitControls.js';
+			import { GLTFLoader } from 'https://kerrishaus.com/assets/threejs/examples/jsm/loaders/GLTFLoader.js';
+			import { DRACOLoader } from 'https://kerrishaus.com/assets/threejs/examples/jsm/loaders/DRACOLoader.js';
+			import { RoomEnvironment } from 'https://kerrishaus.com/assets/threejs/examples/jsm/environments/RoomEnvironment.js';
+
+			import Stats from 'https://kerrishaus.com/assets/threejs/examples/jsm/libs/stats.module.js';
 		    
 			import * as GeometryUtil from "./scripts/GeometryUtility.js";
 
@@ -62,7 +70,9 @@
 			import { TomatoStand } from "./scripts/TomatoStand.js";
 			import { BuyableTile } from "./scripts/BuyableTile.js";
 		    
-		    let renderer, htmlRenderer, scene, camera;
+		    let renderer, stats, htmlRenderer, scene, camera, freeControls;
+
+			let dracoLoader, loader, mixer;
 		    
 		    function prepareThree()
 		    {
@@ -74,6 +84,9 @@
 		        });
 		        renderer.setSize(window.innerWidth, window.innerHeight);
 		        document.body.appendChild(renderer.domElement);
+
+				stats = new Stats();
+				document.getElementById('interface').appendChild(stats.dom);
 		        
     			htmlRenderer = new CSS2DRenderer();
     			htmlRenderer.setSize(window.innerWidth, window.innerHeight);
@@ -82,18 +95,52 @@
     			document.body.appendChild(htmlRenderer.domElement).style.pointerEvents = "none";
 		        
 		        scene = new PhysicsScene();
-		        window.scene = scene;
-		        // TODO: FIXME: I don't really feel great about this, but it works, so it stays.
+		        window.scene = scene; // TODO: FIXME: I don't really feel great about this, but it works, so it stays.
+				scene.background = new THREE.Color(0xbfe3dd);
+
+				const pmremGenerator = new THREE.PMREMGenerator(renderer);
+				scene.environment = pmremGenerator.fromScene(new RoomEnvironment(), 0.04).texture;
 		        
-		        camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+		        camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 200);
 		        
                 window.addEventListener('resize', (event) =>
                 {
 					camera.aspect = window.innerWidth / window.innerHeight;
                     camera.updateProjectionMatrix();
-                    renderer.setSize( window.innerWidth, window.innerHeight );
+                    renderer.setSize(window.innerWidth, window.innerHeight);
 					console.log("Window resized.");
                 });
+
+				camera.position.z = 15;
+				camera.position.y = -10;
+				camera.lookAt(new THREE.Vector3(0, 0, 0));
+				
+				freeControls = new OrbitControls(camera, renderer.domElement);
+				freeControls.target.set(0, 0, 0);
+				freeControls.update();
+
+				dracoLoader = new DRACOLoader();
+				dracoLoader.setDecoderPath('https://kerrishaus.com/assets/threejs/examples/js/libs/draco/gltf/');
+
+				loader = new GLTFLoader();
+				loader.setDRACOLoader(dracoLoader);
+				loader.load( 'models/LittlestTokyo.glb', function (gltf)
+				{
+					const model = gltf.scene;
+					model.position.set(10, 34, 13);
+					model.rotation.x = 1.5708;
+					model.rotation.y = 1.5708;
+					model.scale.set(0.06, 0.06, 0.06);
+					scene.add(model);
+
+					mixer = new THREE.AnimationMixer(model);
+					mixer.clipAction(gltf.animations[0]).play();
+
+					animate();
+				}, undefined, function(e)
+				{
+					console.error( e );
+				} );
 
 				console.log("Three is ready.");
 		    }
@@ -152,14 +199,10 @@
 
 				function moveStart(event)
 				{
-					moving = true;
-					scene.add(moveTarget);
 				}
 
 				function moveEnd(event)
 				{
-					moving = false;
-					scene.remove(moveTarget);
 				}
 
 				window.addEventListener("mousedown",  moveStart, event);
@@ -170,6 +213,11 @@
 				window.addEventListener("keydown", (event) =>
 				{
 					keys[event.code] = true;
+
+					if (event.code == "KeyO")
+					{
+						console.log("freecam time");
+					}
 				});
 				
 				window.addEventListener("keyup", (event) =>
@@ -178,16 +226,9 @@
 				});
 			}
 		    
-		    let shop, player;
+		    let shop;
 		    
             let keys = new Array();
-            let moving = false;
-            
-            let moveTarget = new THREE.Mesh(new THREE.SphereGeometry(0.25, 24, 8), new THREE.MeshPhongMaterial({ color: 0x00ffff, 
-                                                                                                                 flatShading: true,
-                                                                                                                 transparent: true,
-                                                                                                                 opacity: 0.7,
-                                                                                                                }));
             
 			let plane = new THREE.Plane(new THREE.Vector3(0, 0, 1), 0);
 
@@ -204,9 +245,6 @@
 				shop = new Shop();
 				scene.add(shop);
 	
-				player = new Player();
-				scene.add(player);
-
 				console.log("Game is ready.");
 			}
 
@@ -259,49 +297,6 @@
 				
 				const deltaTime = clock.getDelta();
 
-				if (!moving)
-				{
-					let moveDirection = { left: 0, right: 0, forward: 0, back: 0 };
-
-					let force = new THREE.Vector3(0, 100, 100);
-					let direction = new THREE.Vector3(100, 0, 0);
-
-					player.body.setActivationState(1);
-
-					if (keys["KeyW"] || keys["ArrowUp"])
-						player.body.setLinearVelocity(new Ammo.btVector3(0, 3, 0));
-					if (keys["KeyA"] || keys["ArrowLeft"])
-						player.body.setLinearVelocity(new Ammo.btVector3(-3, 0, 0));
-					if (keys["KeyS"] || keys["ArrowDown"])
-						player.body.setLinearVelocity(new Ammo.btVector3(0, -3, 0));
-					if (keys["KeyD"] || keys["ArrowRight"])
-						player.body.setLinearVelocity(new Ammo.btVector3(3, 0, 0));
-				}
-			    else
-			    {
-    			    raycaster.setFromCamera(mouse, camera);
-                    raycaster.ray.intersectPlane(plane, intersects);
-                    moveTarget.position.set(intersects.x, intersects.y, intersects.z);
-    			    
-					/*
-					let y2 = moveTarget.position.y, y1 = player.position.y;
-					let x2 = moveTarget.position.x, x1 = player.position.x;
-					let angle = Math.atan2( y2 - y1, x2 - x1 ) - 1.5708;
-					player.rotation.z = angle;
-
-    			    player.position.lerp(moveTarget.position, 0.03);
-					player.position.z = 0.5;
-					*/
-			    }
-
-				camera.position.copy(player.position);
-				camera.position.z = 10;
-				camera.position.y -= 8;
-    			camera.lookAt(player.position);
-    			camera.position.y += 5;
-
-				//camera.position.z = 30;
-
                 scene.children.forEach( (object) =>
                 {
                     if (object instanceof DynamicMesh)
@@ -317,6 +312,12 @@
                 });
 
 				physicsStep(deltaTime);
+
+				freeControls.update();
+
+				stats.update();
+
+				mixer.update(deltaTime);
                 
 				renderer.render(scene, camera);
 				htmlRenderer.render(scene, camera);
@@ -342,8 +343,6 @@
 					prepareAmmo(lib);
 					registerEventListeners();
 					prepareGame();
-		
-					animate();
                 });
             });
 		</script>

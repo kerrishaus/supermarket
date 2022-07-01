@@ -1,12 +1,19 @@
 *
 {
-    pointer-events: none;
     user-select: none;
     -webkit-user-select: none;
 }
 
 html, body
 {
+    margin: 0;
+    background-color: black;
+}
+
+.gameInterfaceContainer
+{
+    pointer-events: none;
+
     margin: 0;
     background-color: black;
     overflow-x: hidden;
@@ -16,9 +23,4 @@ html, body
     
     overflow-x: hidden;
     overflow-y: hidden;
-}
-
-body
-{
-    position: relative;
 }

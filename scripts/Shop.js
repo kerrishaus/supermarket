@@ -1,4 +1,4 @@
-import { Vector3, Quaternion } from "https://kerrishaus.com/assets/threejs/build/three.module.js";
+import { Vector3, Quaternion, TextureLoader, MeshBasicMaterial, RepeatWrapping } from "https://kerrishaus.com/assets/threejs/build/three.module.js";
 
 import * as GeometryUtil from "./GeometryUtility.js";
 
@@ -17,8 +17,12 @@ export class Shop extends DynamicMesh
     constructor()
     {
         super();
+
+        const shopWidth  = 20;
+        const shopLength = 20;
+        const wallThickness = 1;
         
-        const shopFloor = new RigidBodyCube(new Vector3(40, 20, 1), 0xE0E0E0, new Vector3(0, 10, -1), new Quaternion(), 0);
+        const shopFloor = new RigidBodyCube(new Vector3(shopWidth, shopLength, wallThickness), 0xE0E0E0, new Vector3(0, 0, -1), new Quaternion(), 0);
         shopFloor.setRestitution(0.125);
         shopFloor.setFriction(1);
         shopFloor.setRollingFriction(5);
@@ -26,34 +30,22 @@ export class Shop extends DynamicMesh
         scene.add(shopFloor);
 
         // shop north wall
-        scene.add(GeometryUtil.createObject(new Vector3(40, 1, 4), new Vector3(0, 19.5, 1.5), 0xbfbfbf));
+        scene.add(GeometryUtil.createObject(new Vector3(shopLength, wallThickness, 4), new Vector3(0, shopWidth / 2 - wallThickness / 2 + 1, 1.5), 0xbfbfbf));
         // west wall
-        scene.add(GeometryUtil.createObject(new Vector3(1, 20, 4), new Vector3(-19.5, 10, 1.5), 0xbfbfbf));
+        scene.add(GeometryUtil.createObject(new Vector3(wallThickness, shopWidth, 4), new Vector3(shopWidth / 2 - wallThickness / 2 + 1, 0, 1.5), 0xbfbfbf));
         // east wall
-        scene.add(GeometryUtil.createObject(new Vector3(1, 20, 4), new Vector3(19.5, 10, 1.5), 0xbfbfbf));
+        scene.add(GeometryUtil.createObject(new Vector3(wallThickness, shopWidth, 4), new Vector3(-shopWidth / 2 - wallThickness / 2, 0, 1.5), 0xbfbfbf));
         
-        this.doors = new Door(new Vector3(-9.5, 19.4, 0), 0x0000ff);
+        this.doors = new Door(new Vector3(-2.5, 4.74, 0.5), 0x0000ff);
         scene.add(this.doors);
         
-        const farmFloor = new RigidBodyCube(new Vector3(40, 20, 1), 0x44CD32, new Vector3(0, -10, -1), new Quaternion(), 0);
-        farmFloor.setRestitution(0.125);
-        farmFloor.setFriction(1);
-        farmFloor.setRollingFriction(5);
-
-        scene.add(farmFloor);
-        
         this.register = new Register();
-        this.register.setPosition(new Vector3(-16, 15, 0));
+        this.register.setPosition(new Vector3(-8, -6, 0));
         for (let i = 0; i < 100; i++)
             this.register.addMoney();
         scene.add(this.register);
         
-        this.recycleBin = new RecycleBin(6, 4);
-        this.recycleBin.position.x = -4;
-        this.recycleBin.position.y = 17;
-        scene.add(this.recycleBin);
-        
-        let tomatoStandBuyTile = new BuyableTile(1, 1, 1, 4, 100, "Tomato Stand");
+        let tomatoStandBuyTile = new BuyableTile(1, 1, 7, 7, 100, "Buy \"Soft drink cooler\"");
         tomatoStandBuyTile.onFullyPaid = function()
         {
             console.log("i'm done!");
@@ -64,19 +56,9 @@ export class Shop extends DynamicMesh
         };
         scene.add(tomatoStandBuyTile);
         
-        const tomatoPlant1 = new TomatoPlant();
-        tomatoPlant1.position.x = -10;
-        tomatoPlant1.position.y = -3;
-        scene.add(tomatoPlant1);
-        
-        const tomatoPlant2 = new TomatoPlant();
-        tomatoPlant2.position.x = -10;
-        tomatoPlant2.position.y = -6;
-        scene.add(tomatoPlant2);
-        
         this.customers = new Array();
-        this.customerTimer = 10;
-        this.timeSinceLastCustomer = 0;
+        this.customerTimer = 6;
+        this.timeSinceLastCustomer = this.customerTimer;
     }
     
     update(deltaTime)

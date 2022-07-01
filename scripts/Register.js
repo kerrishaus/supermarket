@@ -7,7 +7,7 @@ export class Register extends RigidBodyCube
 {
     constructor()
     {
-        super(new Vector3(2, 4, 1), 0xad723e, new Vector3(0, 0, 0), new Quaternion(), 0);
+        super(new Vector3(4, 2, 1), 0xad723e, new Vector3(0, 0, 0), new Quaternion(), 0);
 
         this.setRestitution(0.125);
         this.setFriction(1);
@@ -22,21 +22,15 @@ export class Register extends RigidBodyCube
         this.row_ = 0;
         this.layer_ = 0;
         
-        this.gridRows = 9;
-        this.gridColumns = 4;
+        this.gridRows = 6;
+        this.gridColumns = 6;
         
         this.moneyLength = 0.4;
         this.moneyWidth = 0.2;
         this.moneyThickness = 0.1;
         
-        this.moneyTexture = new TextureLoader().load('textures/dollar.jpeg');
+        this.moneyTexture = new TextureLoader().load('textures/dollar_placeholder.jpeg');
         this.moneyMaterial = new MeshBasicMaterial({ map: this.moneyTexture });
-
-        window.addEventListener("keydown", (event) =>
-        {
-            if (event.code == "KeyP")
-                this.floppyMoney();
-        });
     }
     
     update(deltaTime)
@@ -60,8 +54,8 @@ export class Register extends RigidBodyCube
         money.material = this.moneyMaterial;
         
         money.position.copy(this.position);
-        money.setTarget(this.position, new Vector3(this.column_ * this.moneyLength - 0.6,
-                                                         this.row_ * this.moneyWidth,
+        money.setTarget(this.position, new Vector3(this.column_ * this.moneyLength - 0.6 - 1,
+                                                         this.row_ * this.moneyWidth - 0.5,
                                                          (this.scale.z / 2) + (this.layer_ * this.moneyThickness) + this.moneyThickness / 2));
         
         scene.add(money);
@@ -124,24 +118,5 @@ export class Register extends RigidBodyCube
     onStopTrigger(object)
     {
         super.onStopTrigger(object);
-    }
-
-    floppyMoney()
-    {
-        console.log("Floppa money!");
-
-        for (const money of this.money)
-        {
-            const physMoney = new RigidBodyCube(new Vector3(this.moneyLength, this.moneyWidth, this.moneyThickness), 0x00ff00, new Vector3(money.position.x, money.position.y, money.position.z), new Quaternion(), 10);
-            physMoney.material = this.moneyMaterial;
-            physMoney.setRestitution(0);
-            physMoney.setFriction(1);
-            physMoney.setRollingFriction(0.125);
-
-            scene.remove(money);
-            scene.add(physMoney);
-        }
-
-        this.money.length = 0;
     }
 };

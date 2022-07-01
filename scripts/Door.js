@@ -19,7 +19,9 @@ export class Door extends Interactable
         this.material.opacity = 0;
         
         this.leftDoor = new Carryable(2, 1, 4, 0x00d1e8);
-        this.leftDoor.position.copy(new Vector3(-8.5, 19.4, 1));
+        this.leftDoor.position.copy(position);
+        this.leftDoor.position.x -= 1;
+        this.leftDoor.position.y -= 0.001;
         this.leftDoor.setTarget(this.leftDoor.position, new Vector3(0, 0, 0));
         
         this.leftDoor.add(createObject(new Vector3(0.2, 0.1, 4), new Vector3(-0.9, -0.55, 0), 0x919191));
@@ -30,7 +32,9 @@ export class Door extends Interactable
         this.leftDoor.add(createObject(new Vector3(1.6, 0.1, 0.2), new Vector3(0, -0.55, -1.4), 0x919191));
         
         this.rightDoor = new Carryable(2, 1, 4, 0x00d1e8)
-        this.rightDoor.position.copy(new Vector3(-10.5, 19.4, 1));
+        this.rightDoor.position.copy(position);
+        this.rightDoor.position.x += 1;
+        this.rightDoor.position.y -= 0.001;
         this.rightDoor.setTarget(this.rightDoor.position, new Vector3(0, 0, 0));
 
         this.rightDoor.add(createObject(new Vector3(0.2, 0.1, 4), new Vector3(-0.9, -0.55, 0), 0x919191));
@@ -41,10 +45,10 @@ export class Door extends Interactable
         this.rightDoor.add(createObject(new Vector3(1.6, 0.1, 0.2), new Vector3(0, -0.55, -1.4), 0x919191));
         
         // the black "void" behind the doors
-        scene.add(createObject(new Vector3(4, 1, 4), new Vector3(-9.5, 19.45, 0.99), 0x000000));
+        this.add(createObject(new Vector3(4, 1, 4), position, 0x000000));
         
-        scene.add(this.leftDoor);
-        scene.add(this.rightDoor);
+        this.add(this.leftDoor);
+        this.add(this.rightDoor);
     }
     
     update(deltaTime)

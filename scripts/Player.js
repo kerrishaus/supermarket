@@ -10,7 +10,8 @@ export class Player extends RigidBodyCube
     {
         super(new Vector3(1, 1, 2), 0x0000ff, new Vector3(0, 0, 5), new Quaternion(), 10);
 
-        this.set
+        //this.setFriction(0);
+        //this.setDamping(1); // <-- this doesn't exist yet!
 
         this.nose = GeometryUtil.createScaledCube(0.4, 1, 0.2, 0x0000aa);
         this.nose.position.z = 0.8;
