@@ -1,4 +1,4 @@
-import { BoxGeometry, MeshBasicMaterial, Vector3 } from "https://kerrishaus.com/assets/threejs/build/three.module.js";
+import { BoxGeometry, MeshStandardMaterial, Vector3 } from "https://kerrishaus.com/assets/threejs/build/three.module.js";
 
 import { DynamicMesh } from "./DynamicMesh.js";
 
@@ -7,7 +7,7 @@ export class Carryable extends DynamicMesh
     constructor(width, height, thickness, color)
     {
         const geometry = new BoxGeometry(width, height, thickness);
-        const material = new MeshBasicMaterial({color: color});
+        const material = new MeshStandardMaterial({color: color});
         
         super(geometry, material);
         

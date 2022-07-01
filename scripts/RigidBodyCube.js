@@ -1,4 +1,4 @@
-import { BoxGeometry, MeshStandardMaterial, MeshBasicMaterial } from "https://kerrishaus.com/assets/threejs/build/three.module.js";
+import { BoxGeometry, MeshStandardMaterial } from "https://kerrishaus.com/assets/threejs/build/three.module.js";
 
 import { PhysicsMesh } from "./PhysicsMesh.js";
 
@@ -7,7 +7,7 @@ export class RigidBodyCube extends PhysicsMesh
     constructor(size, color, pos, quat, mass)
     {
         const geometry = new BoxGeometry(size.x, size.y, size.z);
-        const material = new MeshBasicMaterial({ color: color });
+        const material = new MeshStandardMaterial({ color: color });
         
         super(geometry, material);
 

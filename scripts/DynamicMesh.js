@@ -6,6 +6,9 @@ export class DynamicMesh extends Mesh
     {
         super(geometry, material);
 
+        this.castShadow = true;
+        this.receiveShadow = true;
+
         this.geometry.computeBoundingBox();
 
         this.box = new Box3();

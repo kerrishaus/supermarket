@@ -1,4 +1,4 @@
-import { BoxGeometry, MeshBasicMaterial, Mesh, Box3 } from "https://kerrishaus.com/assets/threejs/build/three.module.js";
+import { BoxGeometry, MeshStandardMaterial, Mesh, Box3 } from "https://kerrishaus.com/assets/threejs/build/three.module.js";
 
 import { DynamicMesh } from "./DynamicMesh.js";
 
@@ -7,12 +7,12 @@ export class Interactable extends DynamicMesh
     constructor(width, length, triggerWidth, triggerLength, color)
     {
         const geometry = new BoxGeometry(width, length, 1);
-        const material = new MeshBasicMaterial({ color: color });
+        const material = new MeshStandardMaterial({ color: color });
         
         super(geometry, material);
         
         const triggerGeometry = new BoxGeometry(triggerWidth, triggerLength, 0.1);
-        const triggerMaterial = new MeshBasicMaterial({ color: 0xff0000, transparent: true, opacity: 0.2 });
+        const triggerMaterial = new MeshStandardMaterial({ color: 0xff0000, transparent: true, opacity: 0.2 });
         
         this.triggerObject = new Mesh(triggerGeometry, triggerMaterial);
         this.triggerObject.geometry.computeBoundingBox();

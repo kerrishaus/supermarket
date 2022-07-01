@@ -1,4 +1,4 @@
-import { Vector3, Quaternion, BoxGeometry, MeshBasicMaterial } from "https://kerrishaus.com/assets/threejs/build/three.module.js";
+import { Vector3, Quaternion, BoxGeometry, MeshStandardMaterial } from "https://kerrishaus.com/assets/threejs/build/three.module.js";
 
 import { DynamicMesh } from "./DynamicMesh.js";
 
@@ -9,7 +9,7 @@ export class Player extends DynamicMesh
     constructor()
     {
         const geometry = new BoxGeometry(1, 1, 2);
-        const material = new MeshBasicMaterial({ color: 0x0000ff });
+        const material = new MeshStandardMaterial({ color: 0x0000ff });
         
         super(geometry, material);
 

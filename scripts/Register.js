@@ -1,4 +1,4 @@
-import { Vector3, Quaternion, TextureLoader, MeshBasicMaterial } from "https://kerrishaus.com/assets/threejs/build/three.module.js";
+import { Vector3, Quaternion, TextureLoader, MeshStandardMaterial } from "https://kerrishaus.com/assets/threejs/build/three.module.js";
 
 import { Carryable } from "./Carryable.js";
 import { Interactable } from "./InteractableMesh.js";
@@ -27,7 +27,7 @@ export class Register extends Interactable
         this.moneyThickness = 0.1;
         
         this.moneyTexture = new TextureLoader().load('textures/dollar_placeholder.jpeg');
-        this.moneyMaterial = new MeshBasicMaterial({ map: this.moneyTexture });
+        this.moneyMaterial = new MeshStandardMaterial({ map: this.moneyTexture });
     }
     
     update(deltaTime)

@@ -1,4 +1,4 @@
-import { BoxGeometry, MeshBasicMaterial, Vector3, Box3 } from "https://kerrishaus.com/assets/threejs/build/three.module.js";
+import { BoxGeometry, MeshStandardMaterial, Vector3, Box3 } from "https://kerrishaus.com/assets/threejs/build/three.module.js";
 
 import { DynamicMesh } from "./DynamicMesh.js";
 
@@ -7,7 +7,7 @@ export class Customer extends DynamicMesh
     constructor()
     {
         const geometry = new BoxGeometry(1, 1, 1);
-        const material = new MeshBasicMaterial({color: 0xaabbcc});
+        const material = new MeshStandardMaterial({color: 0xaabbcc});
         
         super(geometry, material);
         

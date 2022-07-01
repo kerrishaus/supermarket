@@ -24,9 +24,6 @@ export class Shop extends DynamicMesh
         const wallThickness = 1;
         
         const shopFloor = new RigidBodyCube(new Vector3(shopWidth, shopLength, wallThickness), 0xE0E0E0, new Vector3(0, 0, -1), new Quaternion(), 0);
-        shopFloor.setRestitution(0.125);
-        shopFloor.setFriction(1);
-        shopFloor.setRollingFriction(5);
 
         scene.add(shopFloor);
 
