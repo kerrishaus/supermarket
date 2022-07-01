@@ -1,18 +1,15 @@
 import { Vector3, Quaternion, TextureLoader, MeshBasicMaterial } from "https://kerrishaus.com/assets/threejs/build/three.module.js";
 
 import { Carryable } from "./Carryable.js";
-import { RigidBodyCube } from "./RigidBodyCube.js";
+import { Interactable } from "./InteractableMesh.js";
+import { Player } from "./Player.js";
 
-export class Register extends RigidBodyCube
+export class Register extends Interactable
 {
     constructor()
     {
-        super(new Vector3(4, 2, 1), 0xad723e, new Vector3(0, 0, 0), new Quaternion(), 0);
+        super(4, 2, 6, 4, 0xad723e);
 
-        this.setRestitution(0.125);
-        this.setFriction(1);
-        this.setRollingFriction(5);
-        
         this.name = "register";
         
         this.money = new Array();

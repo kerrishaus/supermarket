@@ -10,6 +10,7 @@ import { Register } from "./Register.js";
 import { RecycleBin } from "./RecycleBin.js";
 import { BuyableTile } from "./BuyableTile.js";
 import { TomatoPlant } from "./TomatoPlant.js";
+import { TomatoStand } from "./TomatoStand.js";
 import { Customer } from "./Customer.js";
 
 export class Shop extends DynamicMesh
@@ -42,7 +43,8 @@ export class Shop extends DynamicMesh
         this.storageTiles = new Array();
         
         this.register = new Register();
-        this.register.setPosition(new Vector3(-8, -7, 0));
+        this.register.position.x = -8;
+        this.register.position.y = -7;
         for (let i = 0; i < 100; i++)
             this.register.addMoney();
         scene.add(this.register);
@@ -53,9 +55,10 @@ export class Shop extends DynamicMesh
             console.log("i'm done!");
             
             const tomatoStand = new TomatoStand(1, 4);
+            tomatoStand.position.copy(tomatoStandBuyTile.position);
 
             scene.add(tomatoStand);
-            scene.remove(tomatoStandBuyTile.label);
+            tomatoStandBuyTile.remove(tomatoStandBuyTile.label);
             scene.remove(tomatoStandBuyTile);
             this.storageTiles.push(tomatoStand);
         };

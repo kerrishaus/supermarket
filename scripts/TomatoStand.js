@@ -1,4 +1,9 @@
+import { Vector3 } from "https://kerrishaus.com/assets/threejs/build/three.module.js";
+
 import { Interactable } from "./InteractableMesh.js";
+
+import { Tomato } from "./Tomato.js";
+import { Player } from "./Player.js";
 
 export class TomatoStand extends Interactable
 {
@@ -36,7 +41,7 @@ export class TomatoStand extends Interactable
                 let row = Math.floor(currentStack / rows);
                 let column = currentStack - (row * columns);
                 
-                item.setTarget(this.position, new THREE.Vector3(column - 1, row - 1, 1));
+                item.setTarget(this.position, new Vector3(column - 1, row - 1, 1));
                 item.autoPositionAfterAnimation = true;
             }
         }
@@ -47,7 +52,7 @@ export class TomatoStand extends Interactable
         super.onTrigger(object);
         
         if (object instanceof Player)
-            this.captureHeldTomato(player);
+            this.captureHeldTomato(object);
     }
     
     onStopTrigger(object)

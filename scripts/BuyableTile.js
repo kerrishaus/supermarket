@@ -1,7 +1,10 @@
+import { Vector3 } from "https://kerrishaus.com/assets/threejs/build/three.module.js";
+
 import { CSS2DObject } from "https://kerrishaus.com/assets/threejs/examples/jsm/renderers/CSS2DRenderer.js";
 
 import { Interactable } from "./InteractableMesh.js";
 import { Player } from "./Player.js";
+import { Carryable } from "./Carryable.js";
 
 export class BuyableTile extends Interactable
 {
@@ -39,7 +42,7 @@ export class BuyableTile extends Interactable
             
         const money = new Carryable(0.3, 0.2, 0.02, 0x48c942);
         money.position.copy(this.position);
-        money.setTarget(this.position, new THREE.Vector3(0, 0, 0));
+        money.setTarget(this.position, new Vector3(0, 0, 0));
         money.startPosition.copy(player.position);
         scene.add(money);
         
@@ -70,7 +73,7 @@ export class BuyableTile extends Interactable
                 continue;
             }
             
-            money.startPosition.copy(player.position);
+            //money.startPosition.copy(player.position);
         }
     }
     

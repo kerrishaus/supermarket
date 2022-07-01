@@ -140,8 +140,6 @@
 
 					mixer = new THREE.AnimationMixer(model);
 					mixer.clipAction(gltf.animations[0]).play();
-
-					animate();
 				}, undefined, function(e)
 				{
 					console.error(e);
@@ -267,6 +265,8 @@
 				scene.add(player);
 	
 				console.log("Game is ready.");
+
+				animate();
 			}
 
 			function physicsStep(deltaTime)
@@ -363,15 +363,10 @@
 					if (object instanceof Interactable)
 					{
 						if (player.box.intersectsBox(object.trigger))
-						{
-							if (!object.triggeringObjects.includes(player))
-                        	    object.onTrigger(player);
-						}
+							object.onTrigger(player);
                         else if (object.triggered)
-						{
 							if (object.triggeringObjects.includes(player))
                             	object.onStopTrigger(player);
-						}
 
 						scene.children.forEach((customer) =>
 						{
