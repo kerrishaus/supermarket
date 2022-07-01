@@ -65,6 +65,7 @@
 			import { Carryable } from "./scripts/Carryable.js";
 
 			import { Shop } from "./scripts/Shop.js";
+			import { Customer } from "./scripts/Customer.js";
 		    import { RecycleBin } from "./scripts/RecycleBin.js";
 			import { Door } from "./scripts/Door.js";
 		    import { Player } from "./scripts/Player.js";
@@ -127,7 +128,7 @@
 
 				loader = new GLTFLoader();
 				loader.setDRACOLoader(dracoLoader);
-				loader.load( 'models/LittlestTokyo.glb', function (gltf)
+				loader.load( 'models/LittlestTokyo_placeholder.glb', function (gltf)
 				{
 					const model = gltf.scene;
 					//model.position.set(5, 26, 11.45); // for right out front
@@ -301,11 +302,37 @@
 				
 				const deltaTime = clock.getDelta();
 
-                scene.children.forEach( (object) =>
+                scene.children.forEach((object) =>
                 {
                     if (object instanceof DynamicMesh)
-                        object.update(deltaTime);
-                    
+					{
+                       object.update(deltaTime);
+					}
+
+					if (object instanceof Interactable)
+					{
+						scene.children.forEach((customer) =>
+						{
+							if (customer instanceof Customer)
+							{
+								// customer intersects with interactable's trigger
+								if (customer.box.intersectsBox(object.box))
+								{
+									// object is not currently triggered by the customer
+									if (!object.triggeringObjects.includes(customer))
+										object.onTrigger(customer);
+								}
+								// customer is not intersecting with this trigger
+								else
+								{
+									// if this trigger is triggered by the customer, stop triggering
+									if (object.triggeringObjects.includes(customer))
+										object.onStopTrigger(customer);
+								}
+							}
+						});
+					}
+						
 					/*
                     if (object instanceof Interactable)
                         if (player.box.intersectsBox(object.trigger))

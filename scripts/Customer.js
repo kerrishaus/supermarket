@@ -11,9 +11,6 @@ export class Customer extends DynamicMesh
         
         super(geometry, material);
         
-        this.geometry.computeBoundingBox();
-        this.box = new Box3();
-        
         this.elapsedTime = 0;
         this.actionTime = 3;
         this.startPosition = new Vector3(0, 0, 0);
@@ -63,6 +60,8 @@ export class Customer extends DynamicMesh
     
     update(deltaTime)
     {
+        super.update(deltaTime);
+
         if (this.elapsedTime > this.actionTime)
         {
             if (this.actions.length > 0)

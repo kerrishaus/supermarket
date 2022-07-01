@@ -16,7 +16,6 @@ export class Register extends RigidBodyCube
         this.name = "register";
         
         this.money = new Array();
-        this.timeSinceLastMoney = 0;
         
         this.column_ = 0;
         this.row_ = 0;
@@ -36,14 +35,6 @@ export class Register extends RigidBodyCube
     update(deltaTime)
     {
         super.update(deltaTime);
-        
-        if (this.timeSinceLastMoney >= 0.1)
-        {
-            this.addMoney();
-            this.timeSinceLastMoney = 0;
-        }
-        
-        this.timeSinceLastMoney += deltaTime
     }
     
     addMoney()
@@ -69,8 +60,6 @@ export class Register extends RigidBodyCube
             
         const money = this.money[this.money.length - 1];
         
-        //money.parent.remove(money);
-        //money.matrixWorld.decompose(money.position, money.quaternion, money.scale);
         money.setTarget(player.position, new Vector3(0, 0, 0));
         
         player.carriedMoney.push(money);

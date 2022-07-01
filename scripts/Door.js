@@ -45,10 +45,10 @@ export class Door extends Interactable
         this.rightDoor.add(createObject(new Vector3(1.6, 0.1, 0.2), new Vector3(0, -0.55, -1.4), 0x919191));
         
         // the black "void" behind the doors
-        this.add(createObject(new Vector3(4, 1, 4), position, 0x000000));
+        this.attach(createObject(new Vector3(4, 1, 4), position, 0x000000));
         
-        this.add(this.leftDoor);
-        this.add(this.rightDoor);
+        scene.add(this.leftDoor);
+        scene.add(this.rightDoor);
     }
     
     update(deltaTime)
@@ -58,20 +58,32 @@ export class Door extends Interactable
     
     onTrigger(object)
     {
+        // if the door is triggered, add the triggering object
+        // to the list, but don't set a target for the doors again.
+        if (this.triggered)
+        {
+            super.onTrigger(object);
+            return;
+        }
+
         super.onTrigger(object);
-        
-        this.rightDoor.setTarget(new Vector3(-12.5, 19.4, 1), new Vector3(0, 0, 0));
-        this.leftDoor.setTarget(new Vector3(-6.5, 19.4, 1), new Vector3(0, 0, 0));
+
+        this.rightDoor.setTarget(new Vector3(3, 0, 0.5), this.position);
+        this.leftDoor.setTarget(new Vector3(-3, 0, 0.5), this.position);
+
+        console.log("opening door");
     }
     
     onStopTrigger(object)
     {
         super.onStopTrigger(object);
 
-        if (this.triggeringObjects.length <= 0)
-        {
-            this.rightDoor.setTarget(new Vector3(-10.5, 19.4, 1), new Vector3(0, 0, 0));
-            this.leftDoor.setTarget(new Vector3(-8.5, 19.4, 1), new Vector3(0, 0, 0));
-        }
+        if (this.triggered)
+            return;
+
+            this.rightDoor.setTarget(new Vector3(1, 0, 0.5), this.position);
+            this.leftDoor.setTarget(new Vector3(-1, 0, 0.5), this.position);
+
+        console.log("closing door");
     }
 }

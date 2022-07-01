@@ -1,14 +1,18 @@
-import { Mesh } from "https://kerrishaus.com/assets/threejs/build/three.module.js";
+import { Mesh, Box3 } from "https://kerrishaus.com/assets/threejs/build/three.module.js";
 
 export class DynamicMesh extends Mesh
 {
     constructor(geometry, material)
     {
         super(geometry, material);
+
+        this.geometry.computeBoundingBox();
+
+        this.box = new Box3();
     }
     
     update()
     {
-        
+        this.box.copy(this.geometry.boundingBox).applyMatrix4(this.matrixWorld);
     }
 };
