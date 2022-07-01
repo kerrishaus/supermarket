@@ -65,10 +65,9 @@
 			import { Carryable } from "./scripts/Carryable.js";
 
 			import { Shop } from "./scripts/Shop.js";
+		    import { Player } from "./scripts/Player.js";
 			import { Customer } from "./scripts/Customer.js";
 		    import { RecycleBin } from "./scripts/RecycleBin.js";
-			import { Door } from "./scripts/Door.js";
-		    import { Player } from "./scripts/Player.js";
 			import { Tomato } from "./scripts/Tomato.js";
 			import { TomatoPlant } from "./scripts/TomatoPlant.js";
 			import { TomatoStand } from "./scripts/TomatoStand.js";
@@ -122,6 +121,7 @@
 				freeControls = new OrbitControls(camera, renderer.domElement);
 				freeControls.target.set(0, 0, 0);
 				freeControls.update();
+				freeControls.enabled = false;
 
 				dracoLoader = new DRACOLoader();
 				dracoLoader.setDecoderPath('https://kerrishaus.com/assets/threejs/examples/js/libs/draco/gltf/');
@@ -204,10 +204,14 @@
 
 				function moveStart(event)
 				{
+					moving = true;
+					scene.add(moveTarget);
 				}
 
 				function moveEnd(event)
 				{
+					moving = false;
+					scene.remove(moveTarget);
 				}
 
 				window.addEventListener("mousedown",  moveStart, event);
@@ -221,7 +225,9 @@
 
 					if (event.code == "KeyO")
 					{
-						console.log("freecam time");
+						freeCam = !freeCam;
+						freeControls.enabled = freeCam;
+						console.log("freecam toggled");
 					}
 				});
 				
@@ -231,9 +237,16 @@
 				});
 			}
 		    
-		    let shop;
+		    let shop, player;
 		    
             let keys = new Array();
+            let moving = false, freeCam = false;
+            
+            let moveTarget = new THREE.Mesh(new THREE.SphereGeometry(0.25, 24, 8), new THREE.MeshPhongMaterial({ color: 0x00ffff, 
+                                                                                                                 flatShading: true,
+                                                                                                                 transparent: true,
+                                                                                                                 opacity: 0.7,
+                                                                                                                }));
             
 			let plane = new THREE.Plane(new THREE.Vector3(0, 0, 1), 0);
 
@@ -249,6 +262,9 @@
 
 				shop = new Shop();
 				scene.add(shop);
+
+				player = new Player();
+				scene.add(player);
 	
 				console.log("Game is ready.");
 			}
@@ -302,6 +318,41 @@
 				
 				const deltaTime = clock.getDelta();
 
+				if (!moving)
+				{
+					if (keys["KeyW"] || keys["ArrowUp"])
+						player.position.y += 0.15;
+					if (keys["KeyA"] || keys["ArrowLeft"])
+						player.position.x -= 0.15;
+					if (keys["KeyS"] || keys["ArrowDown"])
+						player.position.y -= 0.15;
+					if (keys["KeyD"] || keys["ArrowRight"])
+						player.position.x += 0.15;
+				}
+			    else
+			    {
+    			    raycaster.setFromCamera(mouse, camera);
+                    raycaster.ray.intersectPlane(plane, intersects);
+                    moveTarget.position.set(intersects.x, intersects.y, intersects.z);
+    			    
+					/*
+					let y2 = moveTarget.position.y, y1 = player.position.y;
+					let x2 = moveTarget.position.x, x1 = player.position.x;
+					let angle = Math.atan2( y2 - y1, x2 - x1 ) - 1.5708;
+					player.rotation.z = angle;
+    			    player.position.lerp(moveTarget.position, 0.03);
+					player.position.z = 0.5;
+					*/
+			    }
+
+				if (!freeCam)
+				{
+					camera.position.copy(player.position);
+					camera.position.z = 10;
+					camera.position.y -= 6;
+					camera.lookAt(player.position);
+				}
+
                 scene.children.forEach((object) =>
                 {
                     if (object instanceof DynamicMesh)
@@ -311,6 +362,17 @@
 
 					if (object instanceof Interactable)
 					{
+						if (player.box.intersectsBox(object.trigger))
+						{
+							if (!object.triggeringObjects.includes(player))
+                        	    object.onTrigger(player);
+						}
+                        else if (object.triggered)
+						{
+							if (object.triggeringObjects.includes(player))
+                            	object.onStopTrigger(player);
+						}
+
 						scene.children.forEach((customer) =>
 						{
 							if (customer instanceof Customer)
@@ -332,19 +394,12 @@
 							}
 						});
 					}
-						
-					/*
-                    if (object instanceof Interactable)
-                        if (player.box.intersectsBox(object.trigger))
-                            object.onTrigger(player);
-                        else if (object.triggered)
-                            object.onStopTrigger(player);
-					*/
                 });
 
 				physicsStep(deltaTime);
 
-				freeControls.update();
+				if (freeCam)
+					freeControls.update();
 
 				stats.update();
 

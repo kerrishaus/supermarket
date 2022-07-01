@@ -38,6 +38,8 @@ export class Shop extends DynamicMesh
         
         this.doors = new Door(new Vector3(-4, 10.491, 0.5), 0x0000ff);
         scene.add(this.doors);
+
+        this.storageTiles = new Array();
         
         this.register = new Register();
         this.register.setPosition(new Vector3(-8, -7, 0));
@@ -46,13 +48,16 @@ export class Shop extends DynamicMesh
         scene.add(this.register);
         
         let tomatoStandBuyTile = new BuyableTile(1, 1, 7, 7, 100, "Buy \"Soft drink cooler\"");
-        tomatoStandBuyTile.onFullyPaid = function()
+        tomatoStandBuyTile.onFullyPaid = () =>
         {
             console.log("i'm done!");
             
-            scene.add(new TomatoStand(1, 4));
+            const tomatoStand = new TomatoStand(1, 4);
+
+            scene.add(tomatoStand);
             scene.remove(tomatoStandBuyTile.label);
             scene.remove(tomatoStandBuyTile);
+            this.storageTiles.push(tomatoStand);
         };
         scene.add(tomatoStandBuyTile);
         

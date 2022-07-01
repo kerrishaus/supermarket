@@ -1,17 +1,17 @@
-import { Vector3, Quaternion } from "https://kerrishaus.com/assets/threejs/build/three.module.js";
+import { Vector3, Quaternion, BoxGeometry, MeshBasicMaterial } from "https://kerrishaus.com/assets/threejs/build/three.module.js";
+
+import { DynamicMesh } from "./DynamicMesh.js";
 
 import * as GeometryUtil from "./GeometryUtility.js";
 
-import { RigidBodyCube } from "./RigidBodyCube.js";
-
-export class Player extends RigidBodyCube
+export class Player extends DynamicMesh
 {
     constructor()
     {
-        super(new Vector3(1, 1, 2), 0x0000ff, new Vector3(0, 0, 5), new Quaternion(), 10);
-
-        //this.setFriction(0);
-        //this.setDamping(1); // <-- this doesn't exist yet!
+        const geometry = new BoxGeometry(1, 1, 1);
+        const material = new MeshBasicMaterial({ color: 0x0000ff });
+        
+        super(geometry, material);
 
         this.nose = GeometryUtil.createScaledCube(0.4, 1, 0.2, 0x0000aa);
         this.nose.position.z = 0.8;
@@ -26,6 +26,8 @@ export class Player extends RigidBodyCube
     
     update(deltaTime)
     {
+        super.update(deltaTime);
+
         // keeps all carried items in their proper position
         for (const item of this.carriedItems)
         {

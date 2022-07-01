@@ -1,6 +1,7 @@
 import { CSS2DObject } from "https://kerrishaus.com/assets/threejs/examples/jsm/renderers/CSS2DRenderer.js";
 
 import { Interactable } from "./InteractableMesh.js";
+import { Player } from "./Player.js";
 
 export class BuyableTile extends Interactable
 {
