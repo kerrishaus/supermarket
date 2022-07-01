@@ -9,7 +9,7 @@ export class Register extends Interactable
 {
     constructor()
     {
-        super(4, 2, 6, 4, 0xad723e);
+        super(6, 2, 8, 4, 0xad723e);
 
         this.name = "register";
         
@@ -102,7 +102,12 @@ export class Register extends Interactable
             this.transferMoney(object);
 
         if (object instanceof Customer)
+        {
             this.addMoney();
+            this.addMoney();
+            this.addMoney();
+            this.addMoney();
+        }
     }
     
     onStopTrigger(object)

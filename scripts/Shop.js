@@ -34,6 +34,8 @@ export class Shop extends DynamicMesh
         // east wall
         scene.add(GeometryUtil.createObject(new Vector3(wallThickness, shopWidth, 4), new Vector3(-shopWidth / 2 - wallThickness / 2, 0, 1.5), 0xbfbfbf));
         
+        scene.add(GeometryUtil.createObject(new Vector3(shopLength, shopWidth, 1), new Vector3(0, -shopWidth, -1), 0xbfbfbf));
+
         this.doors = new Door(new Vector3(-4, 10.491, 0.5), 0x0000ff);
         scene.add(this.doors);
 
@@ -45,6 +47,11 @@ export class Shop extends DynamicMesh
         for (let i = 0; i < 100; i++)
             this.register.addMoney();
         scene.add(this.register);
+
+        this.recycleBin = new RecycleBin(6, 4);
+        this.recycleBin.position.x = -9;
+        this.recycleBin.position.y = 9;
+        scene.add(this.recycleBin);
         
         let tomatoStandBuyTile = new BuyableTile(1, 1, 7, 7, 100, "Buy \"Soft drink cooler\"");
         tomatoStandBuyTile.onFullyPaid = () =>
@@ -60,6 +67,16 @@ export class Shop extends DynamicMesh
             this.storageTiles.push(tomatoStand);
         };
         scene.add(tomatoStandBuyTile);
+
+        const tomatoPlant1 = new TomatoPlant();
+        tomatoPlant1.position.x = -7;
+        tomatoPlant1.position.y = -14;
+        scene.add(tomatoPlant1);
+        
+        const tomatoPlant2 = new TomatoPlant();
+        tomatoPlant2.position.x = -7;
+        tomatoPlant2.position.y = -18;
+        scene.add(tomatoPlant2);
         
         this.customers = new Array();
         this.customerTimer = 6;
