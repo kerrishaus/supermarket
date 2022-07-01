@@ -3,6 +3,7 @@ import { Vector3, Quaternion, TextureLoader, MeshBasicMaterial } from "https://k
 import { Carryable } from "./Carryable.js";
 import { Interactable } from "./InteractableMesh.js";
 import { Player } from "./Player.js";
+import { Customer } from "./Customer.js";
 
 export class Register extends Interactable
 {
@@ -96,9 +97,12 @@ export class Register extends Interactable
     onTrigger(object)
     {
         super.onTrigger(object);
-        
+
         if (object instanceof Player)
             this.transferMoney(object);
+
+        if (object instanceof Customer)
+            this.addMoney();
     }
     
     onStopTrigger(object)

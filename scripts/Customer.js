@@ -1,4 +1,4 @@
-import { BoxGeometry, MeshBasicMaterial, Vector3, Quaternion, Box3 } from "https://kerrishaus.com/assets/threejs/build/three.module.js";
+import { BoxGeometry, MeshBasicMaterial, Vector3, Box3 } from "https://kerrishaus.com/assets/threejs/build/three.module.js";
 
 import { DynamicMesh } from "./DynamicMesh.js";
 
@@ -6,7 +6,7 @@ export class Customer extends DynamicMesh
 {
     constructor()
     {
-        const geometry = new BoxGeometry(0.8, 0.8, 0.8);
+        const geometry = new BoxGeometry(1, 1, 1);
         const material = new MeshBasicMaterial({color: 0xaabbcc});
         
         super(geometry, material);
@@ -19,8 +19,6 @@ export class Customer extends DynamicMesh
         this.carriedItems = new Array();
         
         this.actions = new Array();
-        
-        return this;
     }
     
     pushAction(action)
@@ -49,7 +47,7 @@ export class Customer extends DynamicMesh
         if (!(endPosition instanceof Vector3))
         {
             console.error("endPosition must be a Vector3");
-            return
+            return;
         }
         
         this.elapsedTime = 0;
@@ -60,8 +58,6 @@ export class Customer extends DynamicMesh
     
     update(deltaTime)
     {
-        super.update(deltaTime);
-
         if (this.elapsedTime > this.actionTime)
         {
             if (this.actions.length > 0)
@@ -83,9 +79,9 @@ export class Customer extends DynamicMesh
         
         this.position.lerpVectors(this.startPosition, this.targetPosition, this.elapsedTime / this.actionTime);
         
-        this.box.copy(this.geometry.boundingBox).applyMatrix4(this.matrixWorld);
-        
         this.elapsedTime += deltaTime;
+
+        super.update(deltaTime);
     }
 };
 

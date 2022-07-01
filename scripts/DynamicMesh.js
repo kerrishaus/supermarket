@@ -11,7 +11,7 @@ export class DynamicMesh extends Mesh
         this.box = new Box3();
     }
     
-    update()
+    update(deltaTime)
     {
         this.box.copy(this.geometry.boundingBox).applyMatrix4(this.matrixWorld);
     }

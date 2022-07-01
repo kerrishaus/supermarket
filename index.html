@@ -286,7 +286,7 @@
 					object.quaternion.copy(quat3);
 				}
 
-				//detectCollision();
+				detectCollision();
 			}
 
 			function detectCollision()
@@ -334,17 +334,15 @@
     			    raycaster.setFromCamera(mouse, camera);
                     raycaster.ray.intersectPlane(plane, intersects);
                     moveTarget.position.set(intersects.x, intersects.y, intersects.z);
-    			    
-					/*
+					
 					let y2 = moveTarget.position.y, y1 = player.position.y;
 					let x2 = moveTarget.position.x, x1 = player.position.x;
 					let angle = Math.atan2( y2 - y1, x2 - x1 ) - 1.5708;
 					player.rotation.z = angle;
     			    player.position.lerp(moveTarget.position, 0.03);
 					player.position.z = 0.5;
-					*/
 			    }
-
+				
 				if (!freeCam)
 				{
 					camera.position.copy(player.position);
@@ -355,50 +353,45 @@
 
                 scene.children.forEach((object) =>
                 {
-                    if (object instanceof DynamicMesh)
-					{
-                       object.update(deltaTime);
-					}
+					if ('update' in object)
+						object.update(deltaTime);
 
 					if (object instanceof Interactable)
 					{
 						if (player.box.intersectsBox(object.trigger))
 							object.onTrigger(player);
-                        else if (object.triggered)
-							if (object.triggeringObjects.includes(player))
-                            	object.onStopTrigger(player);
+						else if (object.triggeringObjects.includes(player))
+							object.onStopTrigger(player);
 
-						scene.children.forEach((customer) =>
+						for (const customer of shop.customers)
 						{
-							if (customer instanceof Customer)
+							// customer intersects with interactable's trigger
+							if (object.trigger.intersectsBox(customer.box))
 							{
-								// customer intersects with interactable's trigger
-								if (customer.box.intersectsBox(object.box))
-								{
-									// object is not currently triggered by the customer
-									if (!object.triggeringObjects.includes(customer))
-										object.onTrigger(customer);
-								}
-								// customer is not intersecting with this trigger
-								else
-								{
-									// if this trigger is triggered by the customer, stop triggering
-									if (object.triggeringObjects.includes(customer))
-										object.onStopTrigger(customer);
-								}
+								// object is not currently triggered by the customer
+								if (!object.triggeringObjects.includes(customer))
+									object.onTrigger(customer);
 							}
-						});
+							// customer is not intersecting with this trigger
+							else
+							{
+								// if this trigger is triggered by the customer, stop triggering
+								if (object.triggeringObjects.includes(customer))
+									object.onStopTrigger(customer);
+							}
+						}
 					}
                 });
 
-				physicsStep(deltaTime);
+				//physicsStep(deltaTime);
 
 				if (freeCam)
 					freeControls.update();
 
 				stats.update();
 
-				mixer.update(deltaTime);
+				if (mixer)
+					mixer.update(deltaTime);
                 
 				renderer.render(scene, camera);
 				htmlRenderer.render(scene, camera);

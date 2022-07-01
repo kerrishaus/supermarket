@@ -67,24 +67,32 @@ export class Shop extends DynamicMesh
         this.customers = new Array();
         this.customerTimer = 6;
         this.timeSinceLastCustomer = this.customerTimer;
+
+        this.spawnPosition = new Vector3(-4, 15, 0);
+        this.readyPosition = new Vector3(-4, 7, 0);
+        this.registerPosition = new Vector3(-7.5, -5, 0);
     }
     
     update(deltaTime)
     {
         if (this.timeSinceLastCustomer > this.customerTimer)
         {
-            let customer = new Customer(this);
-            customer.position.copy(new Vector3(-9.5, 22, 0));
-            customer.pushAction({type: "move", position: new Vector3(-9.5, 16, 0)});
-            customer.pushAction({type: "move", position: new Vector3(0, 0, 0)});
-            customer.pushAction({type: "move", position: new Vector3(-14, 15, 0)});
-            customer.pushAction({type: "move", position: new Vector3(-9.5, 16, 0)});
-            customer.pushAction({type: "move", position: new Vector3(-9.5, 22, 0)});
-            this.customers.push(customer);
-            scene.add(customer);
+            if (this.storageTiles.length > 0)
+            {
+                let customer = new Customer(this);
+                customer.position.copy(this.spawnPosition);
+                customer.pushAction({type: "move", position: this.readyPosition});
+                customer.pushAction({type: "move", position: new Vector3(0, 0, 0)});
+                customer.pushAction({type: "move", position: new Vector3(2, 2, 0)});
+                customer.pushAction({type: "move", position: this.registerPosition});
+                customer.pushAction({type: "move", position: this.readyPosition});
+                customer.pushAction({type: "move", position: this.spawnPosition});
+                this.customers.push(customer);
+                scene.add(customer);
 
-            this.timeSinceLastCustomer = 0;
-            console.log("added customer");
+                this.timeSinceLastCustomer = 0;
+                console.log("added customer");
+            }
         }
         else
             this.timeSinceLastCustomer += deltaTime;

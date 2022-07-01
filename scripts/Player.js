@@ -8,7 +8,7 @@ export class Player extends DynamicMesh
 {
     constructor()
     {
-        const geometry = new BoxGeometry(1, 1, 1);
+        const geometry = new BoxGeometry(1, 1, 2);
         const material = new MeshBasicMaterial({ color: 0x0000ff });
         
         super(geometry, material);

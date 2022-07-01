@@ -45,7 +45,7 @@ export class Door extends Interactable
         this.rightDoor.add(createObject(new Vector3(1.6, 0.1, 0.2), new Vector3(0, -0.55, -1.4), 0x919191));
         
         // the black "void" behind the doors
-        this.attach(createObject(new Vector3(4, 1, 4), position, 0x000000));
+        this.attach(createObject(new Vector3(4, 1, 5), position, 0x000000));
         
         scene.add(this.leftDoor);
         scene.add(this.rightDoor);
