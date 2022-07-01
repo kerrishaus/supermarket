@@ -36,7 +36,7 @@ export class Shop extends DynamicMesh
         // east wall
         scene.add(GeometryUtil.createObject(new Vector3(wallThickness, shopWidth, 4), new Vector3(-shopWidth / 2 - wallThickness / 2, 0, 1.5), 0xbfbfbf));
         
-        this.doors = new Door(new Vector3(-2.5, 5.25, 0.5), 0x0000ff);
+        this.doors = new Door(new Vector3(-4, 10.491, 0.5), 0x0000ff);
         scene.add(this.doors);
         
         this.register = new Register();
