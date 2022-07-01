@@ -19,6 +19,9 @@
 		<div id='interface' class="gameInterfaceContainer">
 			<div class='banner'>
 				<div>
+					i'm blocked by the fps counter
+				</div>
+				<div>
 					$<span id='money'>0</span>
 				</div>
 				<div id='reputation'>
@@ -111,8 +114,8 @@
 					console.log("Window resized.");
                 });
 
-				camera.position.z = 15;
-				camera.position.y = -10;
+				camera.position.z = 10;
+				camera.position.y = -12;
 				camera.lookAt(new THREE.Vector3(0, 0, 0));
 				
 				freeControls = new OrbitControls(camera, renderer.domElement);
@@ -127,9 +130,10 @@
 				loader.load( 'models/LittlestTokyo.glb', function (gltf)
 				{
 					const model = gltf.scene;
-					model.position.set(10, 34, 13);
+					//model.position.set(5, 26, 11.45); // for right out front
+					model.position.set(5, 30, 11.45);
 					model.rotation.x = 1.5708;
-					model.rotation.y = 1.5708;
+					//model.rotation.y = 1.5708;
 					model.scale.set(0.06, 0.06, 0.06);
 					scene.add(model);
 
@@ -139,7 +143,7 @@
 					animate();
 				}, undefined, function(e)
 				{
-					console.error( e );
+					console.error(e);
 				} );
 
 				console.log("Three is ready.");

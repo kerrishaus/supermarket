@@ -36,11 +36,11 @@ export class Shop extends DynamicMesh
         // east wall
         scene.add(GeometryUtil.createObject(new Vector3(wallThickness, shopWidth, 4), new Vector3(-shopWidth / 2 - wallThickness / 2, 0, 1.5), 0xbfbfbf));
         
-        this.doors = new Door(new Vector3(-2.5, 4.74, 0.5), 0x0000ff);
+        this.doors = new Door(new Vector3(-2.5, 5.25, 0.5), 0x0000ff);
         scene.add(this.doors);
         
         this.register = new Register();
-        this.register.setPosition(new Vector3(-8, -6, 0));
+        this.register.setPosition(new Vector3(-8, -7, 0));
         for (let i = 0; i < 100; i++)
             this.register.addMoney();
         scene.add(this.register);
