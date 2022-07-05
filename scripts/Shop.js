@@ -55,11 +55,9 @@ export class Shop extends Group
         this.recycleBin.position.y = 9;
         scene.add(this.recycleBin);
         
-        let tomatoStandBuyTile = new BuyableTile(1, 1, 7, 7, 100, "Buy \"Soft drink cooler\"");
+        let tomatoStandBuyTile = new BuyableTile(1, 1, 7, 7, 100, "Buy \"Tomato Stand\"");
         tomatoStandBuyTile.onFullyPaid = () =>
         {
-            console.log("i'm done!");
-            
             const tomatoStand = new TomatoStand(1, 4);
             tomatoStand.position.copy(tomatoStandBuyTile.position);
 
@@ -70,8 +68,33 @@ export class Shop extends Group
         };
         scene.add(tomatoStandBuyTile);
 
-        tomatoStandBuyTile.onFullyPaid();
-        
+        let tomatoPlant2BuyTile = new BuyableTile(0.2, 0.2, -8, -14, 100, "Buy \"Tomato Plant\"");
+        tomatoPlant2BuyTile.onFullyPaid = () =>
+        {
+            // create tomatoPlant
+            const tomatoPlant2 = new TomatoPlant();
+            tomatoPlant2.position.copy(tomatoPlant2BuyTile.position);
+
+            scene.add(tomatoPlant2);
+            tomatoPlant2BuyTile.remove(tomatoPlant2BuyTile.label);
+            scene.remove(tomatoPlant2BuyTile);
+            
+            let tomatoPlant3BuyTile = new BuyableTile(0.2, 0.2, -8, -16, 100, "Buy \"Tomato Plant\"");
+            tomatoPlant3BuyTile.onFullyPaid = () =>
+            {
+                const tomatoPlant3 = new TomatoPlant();
+                tomatoPlant3.position.copy(tomatoPlant3BuyTile.position);
+
+                scene.add(tomatoPlant3);
+                tomatoPlant3BuyTile.remove(tomatoPlant3BuyTile.label);
+                scene.remove(tomatoPlant3BuyTile);
+
+                console.log("all tomato plants have been constructed");
+            };
+            scene.add(tomatoPlant3BuyTile);
+        };
+        scene.add(tomatoPlant2BuyTile);
+
         const tomatoPlant1 = new TomatoPlant();
         tomatoPlant1.position.x = -8;
         tomatoPlant1.position.y = -12;

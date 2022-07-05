@@ -68,7 +68,7 @@ export class Register extends Interactable
         
         this.calculateGrid();
         
-        player.money += 1;
+        player.money += 5;
         $("#money").html(player.money);
     }
     
