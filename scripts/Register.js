@@ -28,6 +28,8 @@ export class Register extends Interactable
         
         this.moneyTexture = new TextureLoader().load('textures/dollar_placeholder.jpeg');
         this.moneyMaterial = new MeshStandardMaterial({ map: this.moneyTexture });
+
+        return this;
     }
     
     update(deltaTime)
@@ -44,8 +46,8 @@ export class Register extends Interactable
         
         money.position.copy(this.position);
         money.setTarget(this.position, new Vector3(this.column_ * this.moneyLength - 0.6 - 1,
-                                                         this.row_ * this.moneyWidth - 0.5,
-                                                         (this.scale.z / 2) + (this.layer_ * this.moneyThickness) + this.moneyThickness / 2));
+                                                   this.row_ * this.moneyWidth - 0.5,
+                                                  (this.scale.z / 2) + (this.layer_ * this.moneyThickness) + this.moneyThickness / 2));
         
         scene.add(money);
         this.money.push(money);
@@ -102,7 +104,12 @@ export class Register extends Interactable
             this.transferMoney(object);
 
         if (object instanceof Customer)
-            this.addMoney();
+        {
+            console.log("selling " + object.carriedItems.length + " items");
+
+            for (let i = 0; i < object.carriedItems.length; i++)
+                this.addMoney();
+        }
     }
     
     onStopTrigger(object)

@@ -1,6 +1,7 @@
-import { Vector3, Quaternion, TextureLoader, MeshBasicMaterial, RepeatWrapping } from "https://kerrishaus.com/assets/threejs/build/three.module.js";
+import { Vector3, Quaternion, TextureLoader, MeshBasicMaterial, RepeatWrapping, Group } from "https://kerrishaus.com/assets/threejs/build/three.module.js";
 
 import * as GeometryUtil from "./GeometryUtility.js";
+import * as MathUtility from "./MathUtility.js";
 
 import { DynamicMesh } from "./DynamicMesh.js";
 import { RigidBodyCube } from "./RigidBodyCube.js";
@@ -13,7 +14,7 @@ import { TomatoPlant } from "./TomatoPlant.js";
 import { TomatoStand } from "./TomatoStand.js";
 import { Customer } from "./Customer.js";
 
-export class Shop extends DynamicMesh
+export class Shop extends Group
 {
     constructor()
     {
@@ -34,10 +35,13 @@ export class Shop extends DynamicMesh
         // east wall
         scene.add(GeometryUtil.createObject(new Vector3(wallThickness, shopWidth, 4), new Vector3(-shopWidth / 2 - wallThickness / 2, 0, 1.5), 0xbfbfbf));
         
+        const farmFloor = new RigidBodyCube(new Vector3(shopWidth, shopLength, wallThickness), 0x449c5d, new Vector3(0, -shopLength, -1), new Quaternion(), 0);
+        scene.add(farmFloor);
+
         this.doors = new Door(new Vector3(-4, 10.491, 0.5), 0x0000ff);
         scene.add(this.doors);
 
-        this.storageTiles = new Array();
+        this.containerTiles = new Array();
         
         this.register = new Register();
         this.register.position.x = -8;
@@ -57,9 +61,21 @@ export class Shop extends DynamicMesh
             scene.add(tomatoStand);
             tomatoStandBuyTile.remove(tomatoStandBuyTile.label);
             scene.remove(tomatoStandBuyTile);
-            this.storageTiles.push(tomatoStand);
+            this.containerTiles.push(tomatoStand);
         };
         scene.add(tomatoStandBuyTile);
+
+        tomatoStandBuyTile.onFullyPaid();
+        
+        const tomatoPlant1 = new TomatoPlant();
+        tomatoPlant1.position.x = -8;
+        tomatoPlant1.position.y = -12;
+        scene.add(tomatoPlant1);
+
+        const recycleBin = new RecycleBin();
+        recycleBin.position.x = -9;
+        recycleBin.position.y = 9;
+        scene.add(recycleBin);
         
         this.customers = new Array();
         this.customerTimer = 6;
@@ -68,19 +84,34 @@ export class Shop extends DynamicMesh
         this.spawnPosition = new Vector3(-4, 15, 0);
         this.readyPosition = new Vector3(-4, 7, 0);
         this.registerPosition = new Vector3(-7.5, -5, 0);
+
+        return this;
     }
     
     update(deltaTime)
     {
         if (this.timeSinceLastCustomer > this.customerTimer)
         {
-            if (this.storageTiles.length > 0)
+            if (this.containerTiles.length > 0)
             {
                 let customer = new Customer(this);
                 customer.position.copy(this.spawnPosition);
                 customer.pushAction({type: "move", position: this.readyPosition});
-                customer.pushAction({type: "move", position: new Vector3(0, 0, 0)});
-                customer.pushAction({type: "move", position: new Vector3(2, 2, 0)});
+
+                for (const containerTile of this.containerTiles)
+                {
+                    const chance = MathUtility.getRandomInt(100);
+
+                    if (chance > 50)
+                    {
+                        const amount = MathUtility.getRandomInt(containerTile.maxItems / 2) + 1;
+
+                        console.log("buying from " + containerTile.name + " amount " + amount);
+
+                        customer.pushAction({type: "buy", container: containerTile, amount: amount})
+                    }
+                }
+                
                 customer.pushAction({type: "move", position: this.registerPosition});
                 customer.pushAction({type: "move", position: this.readyPosition});
                 customer.pushAction({type: "move", position: this.spawnPosition});
@@ -98,6 +129,9 @@ export class Shop extends DynamicMesh
         {
             if (customer.actions.length <= 0)
             {
+                for (const carriedItem of customer.carriedItems)
+                    scene.remove(carriedItem);
+
                 this.customers.splice(this.customers.indexOf(customer), 1);
                 scene.remove(customer);
             }

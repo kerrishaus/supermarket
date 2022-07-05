@@ -6,7 +6,7 @@ export class Customer extends DynamicMesh
 {
     constructor()
     {
-        const geometry = new BoxGeometry(1, 1, 1);
+        const geometry = new BoxGeometry(1, 1, 2);
         const material = new MeshStandardMaterial({color: 0xaabbcc});
         
         super(geometry, material);
@@ -19,6 +19,8 @@ export class Customer extends DynamicMesh
         this.carriedItems = new Array();
         
         this.actions = new Array();
+
+        return this;
     }
     
     pushAction(action)
@@ -38,8 +40,25 @@ export class Customer extends DynamicMesh
             console.log("moving to", action.position);
             this.setTarget(action.position, this.actionTime);
         }
+        else if (action.type == "buy")
+        {
+            this.setTarget(action.container.position, this.actionTime);
+        }
             
         console.log("focused action");
+    }
+
+    nextAction()
+    {
+        console.log("action complete");
+
+        this.actions.shift();
+                
+        if (this.actions.length > 0)
+        {
+            this.focusAction(this.actions[0]);
+            return; // prevents jumping to endPosition and then doing the movement
+        }
     }
     
     setTarget(endPosition, actionTime)
@@ -61,15 +80,26 @@ export class Customer extends DynamicMesh
         if (this.elapsedTime > this.actionTime)
         {
             if (this.actions.length > 0)
-            {
-                console.log("action complete");
-                
-                this.actions.shift();
-            
-                if (this.actions.length > 0)
+            {                
+                if (this.actions[0].type == "move")
                 {
-                    this.focusAction(this.actions[0]);
-                    return; // prevents jumping to endPosition and then doing the movement
+                    this.nextAction();
+                    return;
+                }
+                else if (this.actions[0].type == "buy")
+                {
+                    if (this.actions[0].container.carriedItems.length > 0)
+                    {
+                        this.actions[0].container.transferToCarrier(this);
+
+                        console.log("taking item from container. " + this.actions[0].amount + " " + this.carriedItems.length);
+
+                        if (this.carriedItems.length >= this.actions[0].amount)
+                        {
+                            this.nextAction();
+                            return;
+                        }
+                    } // else, keep waiting for enough items to become available
                 }
             }
             
@@ -79,9 +109,29 @@ export class Customer extends DynamicMesh
         
         this.position.lerpVectors(this.startPosition, this.targetPosition, this.elapsedTime / this.actionTime);
         
-        this.elapsedTime += deltaTime;
+        let y2 = this.targetPosition.y, y1 = this.position.y;
+        let x2 = this.targetPosition.x, x1 = this.position.x;
+        let angle = Math.atan2( y2 - y1, x2 - x1 ) - 1.5708;
+        this.rotation.z = angle;
 
+        let iterations = 0;
+        for (const item of this.carriedItems)
+        {
+            const carryPos = this.scale.z + (item.scale.z * iterations);
+            
+            if (item.elapsedTime > item.moveTime)
+            {
+                item.position.copy(this.position);
+                item.position.z += carryPos;
+                continue;
+            }
+            
+            item.updateTarget(this.position, new Vector3(0, 0, carryPos));
+        }
+        
         super.update(deltaTime);
+
+        this.elapsedTime += deltaTime;
     }
 };
 

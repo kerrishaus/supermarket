@@ -1,11 +1,12 @@
 import { Vector3 } from "https://kerrishaus.com/assets/threejs/build/three.module.js";
 
-import { Interactable } from "./InteractableMesh.js";
+import { ContainerTile } from "./ContainerTile.js";
 
 import { Tomato } from "./Tomato.js";
+import { Customer } from "./Customer.js";
 import { Player } from "./Player.js";
 
-export class TomatoStand extends Interactable
+export class TomatoStand extends ContainerTile
 {
     constructor(xPos, yPos)
     {
@@ -15,12 +16,18 @@ export class TomatoStand extends Interactable
         
         this.position.x = xPos;
         this.position.y = yPos;
+
+        this.column_ = 0;
+        this.row_ = 0;
+        this.layer_ = 0;
         
-        this.carriedItems = new Array();
-        this.maxItems = 9;
+        this.gridRows = 3;
+        this.gridColumns = 3;
+
+        return this;
     }
     
-    captureHeldTomato(holder)
+    transferFromCarrier(holder)
     {
         if (this.carriedItems.length >= this.maxItems)
             return;
@@ -32,18 +39,51 @@ export class TomatoStand extends Interactable
                 holder.carriedItems.splice(holder.carriedItems.indexOf(item), 1);
                 this.carriedItems.push(item);
                 
-                const rows = 3;
-                const columns = 3;
-                const totalPerStack = rows * columns;
+                this.calculateGrid();
                 
-                let stacks = Math.floor(this.carriedItems.length / totalPerStack);
-                let currentStack = this.carriedItems.length - (stacks * totalPerStack);
-                let row = Math.floor(currentStack / rows);
-                let column = currentStack - (row * columns);
-                
-                item.setTarget(this.position, new Vector3(column - 1, row - 1, 1));
+                //item.setTarget(this.position, new Vector3(this.column_ - 1, this.row_ - 1, this.layer_ + 1));
                 item.autoPositionAfterAnimation = true;
             }
+        }
+    }
+
+    transferToCarrier(object)
+    {
+        if (this.carriedItems.length <= 0)
+            return;
+
+        if (object instanceof Customer)
+        {
+            this.carriedItems[0].setTarget(object.position, new Vector3(0, 0, 0));
+
+            object.carriedItems.push(this.carriedItems[0]);
+            this.carriedItems.shift();
+        }
+    }
+
+    calculateGrid()
+    {
+        this.column_ = 0;
+        this.row_    = 0;
+        this.layer_  = 0;
+        
+        for (let i = 0; i < this.carriedItems.length; i++)
+        {
+            this.column_ += 1;
+            
+            if (this.column_ >= this.gridColumns)
+            {
+                this.column_ = 0;
+                this.row_ += 1;
+            }
+            
+            if (this.row_ >= this.gridRows)
+            {
+                this.row_ = 0;
+                this.layer_ += 1;
+            }
+
+            this.carriedItems[i].setTarget(this.position, new Vector3(this.column_ - 1, this.row_ - 1, this.layer_ + 1));
         }
     }
     
@@ -52,7 +92,7 @@ export class TomatoStand extends Interactable
         super.onTrigger(object);
         
         if (object instanceof Player)
-            this.captureHeldTomato(object);
+            this.transferFromCarrier(object);
     }
     
     onStopTrigger(object)

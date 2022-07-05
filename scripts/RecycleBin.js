@@ -1,3 +1,5 @@
+import { Vector3 } from "https://kerrishaus.com/assets/threejs/build/three.module.js";
+
 import { Interactable } from "./InteractableMesh.js";
 import { Player } from "./Player.js";
 
@@ -14,6 +16,8 @@ export class RecycleBin extends Interactable
         this.recycleInterval = 0.2;
         
         this.carriedItems = new Array();
+
+        return this;
     }
     
     update(deltaTime)

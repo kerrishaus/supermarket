@@ -4,6 +4,7 @@ import { CSS2DObject } from "https://kerrishaus.com/assets/threejs/examples/jsm/
 
 import { Interactable } from "./InteractableMesh.js";
 import { Tomato } from "./Tomato.js";
+import { Player } from "./Player.js";
 
 export class TomatoPlant extends Interactable
 {
@@ -24,6 +25,12 @@ export class TomatoPlant extends Interactable
         this.label = new CSS2DObject(labelDiv);
         this.label.color = "white";
         this.add(this.label);
+
+        this.grow();
+        this.grow();
+        this.grow();
+
+        return this;
     }
     
     update(deltaTime)
