@@ -126,6 +126,7 @@ export class Shop extends Group
                 customer.position.copy(this.spawnPosition);
                 customer.pushAction({type: "move", position: this.readyPosition});
 
+                let atLeastOneTileSelected = false;
                 for (const containerTile of this.containerTiles)
                 {
                     const chance = MathUtility.getRandomInt(100);
@@ -134,11 +135,14 @@ export class Shop extends Group
                     {
                         const amount = MathUtility.getRandomInt(containerTile.maxItems / 2) + 1;
 
-                        console.log("buying from " + containerTile.name + " amount " + amount);
-
                         customer.pushAction({type: "buy", container: containerTile, amount: amount})
+
+                        atLeastOneTileSelected = true;
                     }
                 }
+
+                if (!atLeastOneTileSelected)
+                    customer.pushAction({type: "buy", container: this.containerTiles[0], amount: MathUtility.getRandomInt(this.containerTiles[0].maxItems / 2) + 1});
                 
                 customer.pushAction({type: "move", position: this.registerPosition});
                 customer.pushAction({type: "move", position: this.readyPosition});
@@ -148,6 +152,9 @@ export class Shop extends Group
 
                 this.timeSinceLastCustomer = 0;
                 console.log("added customer");
+
+                this.customerTimer = MathUtility.getRandomInt(15) + 1;
+                console.log("Next customer will spawn in " + this.customerTimer + " seconds");
             }
         }
         else

@@ -26,6 +26,9 @@ export class Customer extends DynamicMesh
     pushAction(action)
     {
         this.actions.push(action);
+
+        if (action.type == "buy")
+            console.log("buying from " + action.container.name + " amount " + action.amount);
         
         console.log("added action");
         
