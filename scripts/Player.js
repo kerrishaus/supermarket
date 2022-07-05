@@ -52,7 +52,7 @@ export class Player extends DynamicMesh
                 continue;
             }
             
-            money.updateTarget(this.position, new Vector3(0, 0, 0));
+            money.updateTarget(this.position, new Vector3(0, 0, 0.5));
         }
     }
 };

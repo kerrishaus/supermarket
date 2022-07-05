@@ -9,7 +9,7 @@ export class Register extends Interactable
 {
     constructor()
     {
-        super(4, 2, 6, 4, 0xad723e);
+        super(6, 2, 8, 4, 0xad723e);
 
         this.name = "register";
         

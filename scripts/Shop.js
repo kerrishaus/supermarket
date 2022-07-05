@@ -49,6 +49,11 @@ export class Shop extends Group
         for (let i = 0; i < 100; i++)
             this.register.addMoney();
         scene.add(this.register);
+
+        this.recycleBin = new RecycleBin(6, 4);
+        this.recycleBin.position.x = -9;
+        this.recycleBin.position.y = 9;
+        scene.add(this.recycleBin);
         
         let tomatoStandBuyTile = new BuyableTile(1, 1, 7, 7, 100, "Buy \"Soft drink cooler\"");
         tomatoStandBuyTile.onFullyPaid = () =>
