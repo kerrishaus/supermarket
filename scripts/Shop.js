@@ -107,6 +107,7 @@ export class Shop extends Group
         
         this.customers = new Array();
         this.customerTimer = 6;
+        this.maxCustomers = 20;
         this.timeSinceLastCustomer = this.customerTimer;
 
         this.spawnPosition = new Vector3(-4, 15, 0);
@@ -120,7 +121,7 @@ export class Shop extends Group
     {
         if (this.timeSinceLastCustomer > this.customerTimer)
         {
-            if (this.containerTiles.length > 0)
+            if (this.containerTiles.length > 0 && this.customers.length < this.maxCustomers)
             {
                 let customer = new Customer(this);
                 customer.position.copy(this.spawnPosition);
