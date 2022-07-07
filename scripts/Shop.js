@@ -46,7 +46,7 @@ export class Shop extends Group
         this.register = new Register();
         this.register.position.x = -8;
         this.register.position.y = -7;
-        for (let i = 0; i < 100; i++)
+        for (let i = 0; i < 25; i++)
             this.register.addMoney();
         scene.add(this.register);
 
