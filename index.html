@@ -41,6 +41,13 @@
 			let Ammo;
 
 		    import * as THREE from "https://kerrishaus.com/assets/threejs/build/three.module.js";
+
+			import { EffectComposer } from "https://kerrishaus.com/assets/threejs/examples/jsm/postprocessing/EffectComposer.js";
+			import { RenderPass } from 'https://kerrishaus.com/assets/threejs/examples/jsm/postprocessing/RenderPass.js';
+			import { UnrealBloomPass } from 'https://kerrishaus.com/assets/threejs/examples/jsm/postprocessing/UnrealBloomPass.js';
+			import { RenderPixelatedPass } from "./scripts/shaders/pixel/RenderPixelatedPass.js";
+			import { PixelatePass } from "./scripts/shaders/pixel/PixelatePass.js";
+
 		    import { CSS2DObject, CSS2DRenderer } from "https://kerrishaus.com/assets/threejs/examples/jsm/renderers/CSS2DRenderer.js";
 		    import { TransformControls } from 'https://kerrishaus.com/assets/threejs/examples/jsm/controls/TransformControls.js';
 			import { OrbitControls } from 'https://kerrishaus.com/assets/threejs/examples/jsm/controls/OrbitControls.js';
@@ -73,13 +80,16 @@
 			import { TomatoStand } from "./scripts/TomatoStand.js";
 			import { BuyableTile } from "./scripts/BuyableTile.js";
 		    
-		    let renderer, stats, htmlRenderer, scene, camera, freeControls;
+		    let renderer, composer, stats, htmlRenderer, scene, camera, freeControls;
 
 			let dracoLoader, loader, mixer;
 		    
 		    function prepareThree()
 		    {
 				console.log("Preparing Three.");
+
+				let screenResolution = new THREE.Vector2(window.innerWidth, window.innerHeight);
+    			let renderResolution = screenResolution.clone().divideScalar(6);
 
 		        renderer = new THREE.WebGLRenderer({
 		            antialias: true,
@@ -98,10 +108,10 @@
     			htmlRenderer.domElement.style.position = 'absolute';
     			htmlRenderer.domElement.style.top = '0px';
     			document.body.appendChild(htmlRenderer.domElement).style.pointerEvents = "none";
-		        
+
 		        scene = new PhysicsScene();
 		        window.scene = scene; // TODO: FIXME: I don't really feel great about this, but it works, so it stays.
-				
+		        
 				//const pmremGenerator = new THREE.PMREMGenerator(renderer);
 				//scene.background = new THREE.Color(0xbfe3dd);
 				//scene.environment = pmremGenerator.fromScene(new RoomEnvironment(), 0.04).texture;
@@ -163,6 +173,13 @@
 				{
 					console.error(e);
 				} );
+
+				composer = new EffectComposer( renderer )
+				// composer.addPass( new RenderPass( scene, camera ) )
+				composer.addPass( new RenderPixelatedPass( renderResolution, scene, camera ) )
+				let bloomPass = new UnrealBloomPass( screenResolution, .4, .1, .9 )
+				composer.addPass( bloomPass )
+				composer.addPass( new PixelatePass( renderResolution ) )
 
 				console.log("Three is ready.");
 		    }
@@ -412,7 +429,7 @@
 				if (mixer)
 					mixer.update(deltaTime);
                 
-				renderer.render(scene, camera);
+				composer.render();
 				htmlRenderer.render(scene, camera);
 			};
 			
