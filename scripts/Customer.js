@@ -117,10 +117,12 @@ export class Customer extends DynamicMesh
         let angle = Math.atan2( y2 - y1, x2 - x1 ) - 1.5708;
         this.rotation.z = angle;
 
-        let iterations = 0;
-        for (const item of this.carriedItems)
+        // keeps all carried items in their proper position
+        for (let i = 0; i < this.carriedItems.length; i++)
         {
-            const carryPos = this.scale.z + (item.scale.z * iterations);
+            let item = this.carriedItems[i];
+
+            const carryPos = item.scale.z + (item.scale.z * i);
             
             if (item.elapsedTime > item.moveTime)
             {

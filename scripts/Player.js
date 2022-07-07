@@ -29,9 +29,11 @@ export class Player extends DynamicMesh
         super.update(deltaTime);
 
         // keeps all carried items in their proper position
-        for (const item of this.carriedItems)
+        for (let i = 0; i < this.carriedItems.length; i++)
         {
-            const carryPos = 1 + (item.scale.z * item.carryPos);
+            let item = this.carriedItems[i];
+
+            const carryPos = item.scale.z + (item.scale.z * i);
             
             if (item.elapsedTime > item.moveTime)
             {
