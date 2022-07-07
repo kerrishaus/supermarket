@@ -1,6 +1,8 @@
-import { Vector3 } from "https://kerrishaus.com/assets/threejs/build/three.module.js";
+import { Vector3, TextureLoader, MeshStandardMaterial } from "https://kerrishaus.com/assets/threejs/build/three.module.js";
 
 import { CSS2DObject } from "https://kerrishaus.com/assets/threejs/examples/jsm/renderers/CSS2DRenderer.js";
+
+import { pixelTex } from "./shaders/pixel/PixelUtility.js";
 
 import { Interactable } from "./InteractableMesh.js";
 import { Player } from "./Player.js";
@@ -30,6 +32,10 @@ export class BuyableTile extends Interactable
         this.pricePaid = 0;
         
         this.onFullyPaid = function() {};
+
+        // TODO: make this static and let everyone use it
+        this.moneyTexture = pixelTex(new TextureLoader().load('textures/dollar_placeholder.jpeg'));
+        this.moneyMaterial = new MeshStandardMaterial({ map: this.moneyTexture });
     }
     
     takeMoneyFrom(player)
@@ -41,6 +47,7 @@ export class BuyableTile extends Interactable
             return;
             
         const money = new Carryable(0.3, 0.2, 0.02, 0x48c942);
+        money.material = this.moneyMaterial;
         money.position.copy(this.position);
         money.setTarget(this.position, new Vector3(0, 0, 0));
         money.startPosition.copy(player.position);
