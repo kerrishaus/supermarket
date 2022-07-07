@@ -26,10 +26,6 @@ export class TomatoPlant extends Interactable
         this.label.color = "white";
         this.add(this.label);
 
-        this.grow();
-        this.grow();
-        this.grow();
-
         return this;
     }
     
