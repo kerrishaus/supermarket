@@ -57,6 +57,10 @@ export class TomatoPlant extends Interactable
     {
         if (this.tomatoes.length <= 0)
             return;
+
+        if (receiver instanceof Player)
+            if (receiver.carriedItems.length >= receiver.carryLimit)
+                return;
             
         const tomato = this.tomatoes[this.tomatoes.length - 1];
         tomato.carryPos = receiver.carriedItems.length + 1;

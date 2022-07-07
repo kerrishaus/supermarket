@@ -122,8 +122,10 @@ export class Customer extends DynamicMesh
         {
             let item = this.carriedItems[i];
 
-            const carryPos = item.scale.z + (item.scale.z * i);
+            const carryPos = ((item.scale.z / 2) * i) + 1.25;
             
+            item.quaternion.copy(this.quaternion);
+
             if (item.elapsedTime > item.moveTime)
             {
                 item.position.copy(this.position);

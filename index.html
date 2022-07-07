@@ -174,12 +174,12 @@
 					console.error(e);
 				} );
 
-				composer = new EffectComposer( renderer )
-				// composer.addPass( new RenderPass( scene, camera ) )
-				composer.addPass( new RenderPixelatedPass( renderResolution, scene, camera ) )
-				let bloomPass = new UnrealBloomPass( screenResolution, .4, .1, .9 )
-				composer.addPass( bloomPass )
-				composer.addPass( new PixelatePass( renderResolution ) )
+				composer = new EffectComposer(renderer);
+
+				//composer.addPass(new RenderPass(scene, camera));
+				composer.addPass(new RenderPixelatedPass(renderResolution, scene, camera));
+				composer.addPass(new UnrealBloomPass(screenResolution, .4, .1, .9));
+				composer.addPass(new PixelatePass(renderResolution));
 
 				console.log("Three is ready.");
 		    }
