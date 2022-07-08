@@ -44,9 +44,11 @@
 
 			import { EffectComposer } from "https://kerrishaus.com/assets/threejs/examples/jsm/postprocessing/EffectComposer.js";
 			import { RenderPass } from 'https://kerrishaus.com/assets/threejs/examples/jsm/postprocessing/RenderPass.js';
+
 			import { UnrealBloomPass } from 'https://kerrishaus.com/assets/threejs/examples/jsm/postprocessing/UnrealBloomPass.js';
-			import { RenderPixelatedPass } from "./scripts/shaders/pixel/RenderPixelatedPass.js";
-			import { PixelatePass } from "./scripts/shaders/pixel/PixelatePass.js";
+
+			import { ShaderPass } from "https://kerrishaus.com/assets/threejs/examples/jsm/postprocessing/ShaderPass.js";
+			import { PixelShader } from 'https://kerrishaus.com/assets/threejs/examples/jsm/shaders/PixelShader.js';
 
 		    import { CSS2DObject, CSS2DRenderer } from "https://kerrishaus.com/assets/threejs/examples/jsm/renderers/CSS2DRenderer.js";
 		    import { TransformControls } from 'https://kerrishaus.com/assets/threejs/examples/jsm/controls/TransformControls.js';
@@ -175,11 +177,15 @@
 				} );
 
 				composer = new EffectComposer(renderer);
+				composer.addPass(new RenderPass(scene, camera));
 
-				//composer.addPass(new RenderPass(scene, camera));
-				composer.addPass(new RenderPixelatedPass(renderResolution, scene, camera));
-				composer.addPass(new UnrealBloomPass(screenResolution, .4, .1, .9));
-				composer.addPass(new PixelatePass(renderResolution));
+				//composer.addPass(new UnrealBloomPass(new THREE.Vector2(2048, 2048), 1, 0.4, 0.8));
+				
+				const pixelPass = new ShaderPass(PixelShader);
+				pixelPass.uniforms['resolution'].value = new THREE.Vector2(window.innerWidth, window.innerHeight);
+				pixelPass.uniforms['resolution'].value.multiplyScalar(window.devicePixelRatio);
+				pixelPass.uniforms[ 'pixelSize' ].value = 6;
+				composer.addPass(pixelPass);
 
 				console.log("Three is ready.");
 		    }

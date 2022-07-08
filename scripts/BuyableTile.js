@@ -2,8 +2,6 @@ import { Vector3, TextureLoader, MeshStandardMaterial } from "https://kerrishaus
 
 import { CSS2DObject } from "https://kerrishaus.com/assets/threejs/examples/jsm/renderers/CSS2DRenderer.js";
 
-import { pixelTex } from "./shaders/pixel/PixelUtility.js";
-
 import { Interactable } from "./InteractableMesh.js";
 import { Player } from "./Player.js";
 import { Carryable } from "./Carryable.js";
@@ -34,7 +32,7 @@ export class BuyableTile extends Interactable
         this.onFullyPaid = function() {};
 
         // TODO: make this static and let everyone use it
-        this.moneyTexture = pixelTex(new TextureLoader().load('textures/dollar_placeholder.jpeg'));
+        this.moneyTexture = new TextureLoader().load('textures/dollar_placeholder.jpeg');
         this.moneyMaterial = new MeshStandardMaterial({ map: this.moneyTexture });
     }
     
