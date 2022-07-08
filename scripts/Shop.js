@@ -1,17 +1,16 @@
-import { Vector3, Quaternion, TextureLoader, MeshBasicMaterial, RepeatWrapping, Group } from "https://kerrishaus.com/assets/threejs/build/three.module.js";
+import { Vector3, Quaternion, MeshBasicMaterial, RepeatWrapping, Group } from "https://kerrishaus.com/assets/threejs/build/three.module.js";
 
-import * as GeometryUtil from "./GeometryUtility.js";
+import * as GeometryUtil from "./geometry/GeometryUtility.js";
 import * as MathUtility from "./MathUtility.js";
 
-import { DynamicMesh } from "./DynamicMesh.js";
-import { RigidBodyCube } from "./RigidBodyCube.js";
+import { RigidBodyCube } from "./geometry/RigidBodyCube.js";
 
 import { Door } from "./Door.js";
-import { Register } from "./Register.js";
-import { RecycleBin } from "./RecycleBin.js";
-import { BuyableTile } from "./BuyableTile.js";
-import { TomatoPlant } from "./TomatoPlant.js";
-import { TomatoStand } from "./TomatoStand.js";
+import { Register } from "./tiles/Register.js";
+import { RecycleBin } from "./tiles/RecycleBin.js";
+import { BuyableTile } from "./tiles/BuyableTile.js";
+import { TomatoPlant } from "./tiles/TomatoPlant.js";
+import { TomatoStand } from "./tiles/TomatoStand.js";
 import { Customer } from "./Customer.js";
 
 export class Shop extends Group
@@ -65,35 +64,35 @@ export class Shop extends Group
             tomatoStandBuyTile.remove(tomatoStandBuyTile.label);
             scene.remove(tomatoStandBuyTile);
             this.containerTiles.push(tomatoStand);
+
+            let tomatoPlant2BuyTile = new BuyableTile(0.2, 0.2, -8, -14, 100, "Buy \"Tomato Plant\"");
+            tomatoPlant2BuyTile.onFullyPaid = () =>
+            {
+                // create tomatoPlant
+                const tomatoPlant2 = new TomatoPlant();
+                tomatoPlant2.position.copy(tomatoPlant2BuyTile.position);
+
+                scene.add(tomatoPlant2);
+                tomatoPlant2BuyTile.remove(tomatoPlant2BuyTile.label);
+                scene.remove(tomatoPlant2BuyTile);
+                
+                let tomatoPlant3BuyTile = new BuyableTile(0.2, 0.2, -8, -16, 100, "Buy \"Tomato Plant\"");
+                tomatoPlant3BuyTile.onFullyPaid = () =>
+                {
+                    const tomatoPlant3 = new TomatoPlant();
+                    tomatoPlant3.position.copy(tomatoPlant3BuyTile.position);
+
+                    scene.add(tomatoPlant3);
+                    tomatoPlant3BuyTile.remove(tomatoPlant3BuyTile.label);
+                    scene.remove(tomatoPlant3BuyTile);
+
+                    console.log("all tomato plants have been constructed");
+                };
+                scene.add(tomatoPlant3BuyTile);
+            };
+            scene.add(tomatoPlant2BuyTile);
         };
         scene.add(tomatoStandBuyTile);
-
-        let tomatoPlant2BuyTile = new BuyableTile(0.2, 0.2, -8, -14, 100, "Buy \"Tomato Plant\"");
-        tomatoPlant2BuyTile.onFullyPaid = () =>
-        {
-            // create tomatoPlant
-            const tomatoPlant2 = new TomatoPlant();
-            tomatoPlant2.position.copy(tomatoPlant2BuyTile.position);
-
-            scene.add(tomatoPlant2);
-            tomatoPlant2BuyTile.remove(tomatoPlant2BuyTile.label);
-            scene.remove(tomatoPlant2BuyTile);
-            
-            let tomatoPlant3BuyTile = new BuyableTile(0.2, 0.2, -8, -16, 100, "Buy \"Tomato Plant\"");
-            tomatoPlant3BuyTile.onFullyPaid = () =>
-            {
-                const tomatoPlant3 = new TomatoPlant();
-                tomatoPlant3.position.copy(tomatoPlant3BuyTile.position);
-
-                scene.add(tomatoPlant3);
-                tomatoPlant3BuyTile.remove(tomatoPlant3BuyTile.label);
-                scene.remove(tomatoPlant3BuyTile);
-
-                console.log("all tomato plants have been constructed");
-            };
-            scene.add(tomatoPlant3BuyTile);
-        };
-        scene.add(tomatoPlant2BuyTile);
 
         const tomatoPlant1 = new TomatoPlant();
         tomatoPlant1.position.x = -8;

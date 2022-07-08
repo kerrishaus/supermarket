@@ -1,9 +1,9 @@
 
 import { Vector3 } from "https://kerrishaus.com/assets/threejs/build/three.module.js";
 
-import { createObject } from "./GeometryUtility.js";
+import { createObject } from "./geometry/GeometryUtility.js";
 
-import { Interactable } from "./InteractableMesh.js";
+import { Interactable } from "./geometry/InteractableMesh.js";
 import { Carryable } from "./Carryable.js";
 
 export class Door extends Interactable

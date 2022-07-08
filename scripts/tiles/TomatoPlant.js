@@ -2,9 +2,9 @@ import { Vector3 } from "https://kerrishaus.com/assets/threejs/build/three.modul
 
 import { CSS2DObject } from "https://kerrishaus.com/assets/threejs/examples/jsm/renderers/CSS2DRenderer.js";
 
-import { Interactable } from "./InteractableMesh.js";
-import { Tomato } from "./Tomato.js";
-import { Player } from "./Player.js";
+import { Interactable } from "../geometry/InteractableMesh.js";
+import { Tomato } from "../Tomato.js";
+import { Player } from "../Player.js";
 
 export class TomatoPlant extends Interactable
 {

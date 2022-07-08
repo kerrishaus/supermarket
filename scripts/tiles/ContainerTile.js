@@ -1,4 +1,4 @@
-import { Interactable } from "./InteractableMesh.js";
+import { Interactable } from "../geometry/InteractableMesh.js";
 
 export class ContainerTile extends Interactable
 {

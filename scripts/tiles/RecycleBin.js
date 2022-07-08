@@ -1,7 +1,7 @@
 import { Vector3 } from "https://kerrishaus.com/assets/threejs/build/three.module.js";
 
-import { Interactable } from "./InteractableMesh.js";
-import { Player } from "./Player.js";
+import { Interactable } from "../geometry/InteractableMesh.js";
+import { Player } from "../Player.js";
 
 export class RecycleBin extends Interactable
 {

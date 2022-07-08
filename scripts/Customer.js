@@ -1,6 +1,6 @@
 import { BoxGeometry, MeshStandardMaterial, Vector3, Box3 } from "https://kerrishaus.com/assets/threejs/build/three.module.js";
 
-import { DynamicMesh } from "./DynamicMesh.js";
+import { DynamicMesh } from "./geometry/DynamicMesh.js";
 
 export class Customer extends DynamicMesh
 {

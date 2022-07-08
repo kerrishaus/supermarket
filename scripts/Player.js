@@ -1,8 +1,8 @@
 import { Vector3, Quaternion, BoxGeometry, MeshStandardMaterial } from "https://kerrishaus.com/assets/threejs/build/three.module.js";
 
-import { DynamicMesh } from "./DynamicMesh.js";
+import { DynamicMesh } from "./geometry/DynamicMesh.js";
 
-import * as GeometryUtil from "./GeometryUtility.js";
+import * as GeometryUtil from "./geometry/GeometryUtility.js";
 
 export class Player extends DynamicMesh
 {

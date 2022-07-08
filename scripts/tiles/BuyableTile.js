@@ -2,9 +2,9 @@ import { Vector3, TextureLoader, MeshStandardMaterial } from "https://kerrishaus
 
 import { CSS2DObject } from "https://kerrishaus.com/assets/threejs/examples/jsm/renderers/CSS2DRenderer.js";
 
-import { Interactable } from "./InteractableMesh.js";
-import { Player } from "./Player.js";
-import { Carryable } from "./Carryable.js";
+import { Interactable } from "../geometry/InteractableMesh.js";
+import { Player } from "../Player.js";
+import { Carryable } from "../Carryable.js";
 
 export class BuyableTile extends Interactable
 {

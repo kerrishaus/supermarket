@@ -2,9 +2,9 @@ import { Vector3 } from "https://kerrishaus.com/assets/threejs/build/three.modul
 
 import { ContainerTile } from "./ContainerTile.js";
 
-import { Tomato } from "./Tomato.js";
-import { Customer } from "./Customer.js";
-import { Player } from "./Player.js";
+import { Tomato } from "../Tomato.js";
+import { Customer } from "../Customer.js";
+import { Player } from "../Player.js";
 
 export class TomatoStand extends ContainerTile
 {

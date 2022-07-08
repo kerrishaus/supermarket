@@ -1,6 +1,6 @@
 import { Scene } from "https://kerrishaus.com/assets/threejs/build/three.module.js";
 
-import { PhysicsMesh } from "./PhysicsMesh.js";
+import { PhysicsMesh } from "./geometry/PhysicsMesh.js";
 
 export class PhysicsScene extends Scene
 {

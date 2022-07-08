@@ -1,9 +1,9 @@
 import { Vector3, Quaternion, TextureLoader, MeshStandardMaterial } from "https://kerrishaus.com/assets/threejs/build/three.module.js";
 
-import { Carryable } from "./Carryable.js";
-import { Interactable } from "./InteractableMesh.js";
-import { Player } from "./Player.js";
-import { Customer } from "./Customer.js";
+import { Carryable } from "../Carryable.js";
+import { Interactable } from "../geometry/InteractableMesh.js";
+import { Player } from "../Player.js";
+import { Customer } from "../Customer.js";
 
 export class Register extends Interactable
 {
