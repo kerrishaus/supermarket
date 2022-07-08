@@ -9,8 +9,12 @@ import { Door } from "./Door.js";
 import { Register } from "./tiles/Register.js";
 import { RecycleBin } from "./tiles/RecycleBin.js";
 import { BuyableTile } from "./tiles/BuyableTile.js";
+
 import { TomatoPlant } from "./tiles/TomatoPlant.js";
 import { TomatoStand } from "./tiles/TomatoStand.js";
+
+import { SodaMachine } from "./Tiles/SodaMachine.js";
+
 import { Customer } from "./Customer.js";
 
 export class Shop extends Group
@@ -91,6 +95,21 @@ export class Shop extends Group
                 scene.add(tomatoPlant3BuyTile);
             };
             scene.add(tomatoPlant2BuyTile);
+
+            let sodaMachineBuyTile = new BuyableTile(0.2, 0.2, 7, 3, 100, "Buy \"Soda Machine\"");
+            sodaMachineBuyTile.onFullyPaid = () =>
+            {
+                const sodaMachine = new SodaMachine(1, 4);
+                sodaMachine.position.copy(sodaMachineBuyTile.position);
+    
+                scene.add(sodaMachine);
+                sodaMachineBuyTile.remove(sodaMachineBuyTile.label);
+                scene.remove(sodaMachineBuyTile);
+                this.containerTiles.push(sodaMachine);
+
+                console.log("Bought soda machine.");
+            };
+            scene.add(sodaMachineBuyTile);
         };
         scene.add(tomatoStandBuyTile);
 
@@ -109,56 +128,84 @@ export class Shop extends Group
         this.maxCustomers = 20;
         this.timeSinceLastCustomer = this.customerTimer;
 
+        //this.dayLength = 600; // in seconds
+        this.dayLength = 60;
+        this.dayTimer = 0;
+
+        this.daySales = 0;
+        this.dayCustomers = 0;
+        this.dayReputation = 0;
+
         this.spawnPosition = new Vector3(-4, 15, 0);
         this.readyPosition = new Vector3(-4, 7, 0);
         this.registerPosition = new Vector3(-7.5, -5, 0);
 
         return this;
     }
+
+    spawnCustomer()
+    {
+        let customer = new Customer(this);
+        customer.position.copy(this.spawnPosition);
+        customer.pushAction({type: "move", position: this.readyPosition});
+
+        let atLeastOneTileSelected = false;
+        for (const containerTile of this.containerTiles)
+        {
+            const chance = MathUtility.getRandomInt(100);
+
+            if (chance > 50)
+            {
+                const amount = MathUtility.getRandomInt(containerTile.maxItems / 2) + 1;
+
+                customer.pushAction({type: "buy", container: containerTile, amount: amount})
+
+                atLeastOneTileSelected = true;
+            }
+        }
+
+        if (!atLeastOneTileSelected)
+            customer.pushAction({type: "buy", container: this.containerTiles[0], amount: MathUtility.getRandomInt(this.containerTiles[0].maxItems / 2) + 1});
+        
+        customer.pushAction({type: "move", position: this.registerPosition});
+        customer.pushAction({type: "move", position: this.readyPosition});
+        customer.pushAction({type: "move", position: this.spawnPosition});
+        this.customers.push(customer);
+        scene.add(customer);
+
+        this.timeSinceLastCustomer = 0;
+        console.log("added customer");
+
+        this.customerTimer = MathUtility.getRandomInt(15) + 1;
+        console.log("Next customer will spawn in " + this.customerTimer + " seconds");
+    }
+
+    startDay()
+    {
+
+    }
     
     update(deltaTime)
     {
-        if (this.timeSinceLastCustomer > this.customerTimer)
+        if (this.dayTimer < this.dayLength)
         {
-            if (this.containerTiles.length > 0 && this.customers.length < this.maxCustomers)
+            if (this.timeSinceLastCustomer > this.customerTimer)
             {
-                let customer = new Customer(this);
-                customer.position.copy(this.spawnPosition);
-                customer.pushAction({type: "move", position: this.readyPosition});
+                if (this.containerTiles.length > 0 && this.customers.length < this.maxCustomers)
+                    this.spawnCustomer();
+            }
+            else
+                this.timeSinceLastCustomer += deltaTime;
 
-                let atLeastOneTileSelected = false;
-                for (const containerTile of this.containerTiles)
-                {
-                    const chance = MathUtility.getRandomInt(100);
-
-                    if (chance > 50)
-                    {
-                        const amount = MathUtility.getRandomInt(containerTile.maxItems / 2) + 1;
-
-                        customer.pushAction({type: "buy", container: containerTile, amount: amount})
-
-                        atLeastOneTileSelected = true;
-                    }
-                }
-
-                if (!atLeastOneTileSelected)
-                    customer.pushAction({type: "buy", container: this.containerTiles[0], amount: MathUtility.getRandomInt(this.containerTiles[0].maxItems / 2) + 1});
-                
-                customer.pushAction({type: "move", position: this.registerPosition});
-                customer.pushAction({type: "move", position: this.readyPosition});
-                customer.pushAction({type: "move", position: this.spawnPosition});
-                this.customers.push(customer);
-                scene.add(customer);
-
-                this.timeSinceLastCustomer = 0;
-                console.log("added customer");
-
-                this.customerTimer = MathUtility.getRandomInt(15) + 1;
-                console.log("Next customer will spawn in " + this.customerTimer + " seconds");
+            this.dayTimer += deltaTime;
+        }
+        else // day is over
+        {
+            if (this.customers.length <= 0)
+            {
+                console.log("day is over");
             }
         }
-        else
-            this.timeSinceLastCustomer += deltaTime;
 
         for (const customer of this.customers)
         {

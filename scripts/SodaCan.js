@@ -1,6 +1,6 @@
 import { Carryable } from "./Carryable.js";
 
-export class Tomato extends Carryable
+export class SodaCan extends Carryable
 {
     constructor(position)
     {
@@ -8,6 +8,6 @@ export class Tomato extends Carryable
         
         this.position.copy(position);
 
-        this.type = "tomato";
+        this.type = "sodaCan";
     }
 };
