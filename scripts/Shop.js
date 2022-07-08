@@ -13,7 +13,7 @@ import { BuyableTile } from "./tiles/BuyableTile.js";
 import { TomatoPlant } from "./tiles/TomatoPlant.js";
 import { TomatoStand } from "./tiles/TomatoStand.js";
 
-import { SodaMachine } from "./Tiles/SodaMachine.js";
+import { SodaMachine } from "./tiles/SodaMachine.js";
 
 import { Customer } from "./Customer.js";
 
