@@ -46,28 +46,35 @@
 				<div>
 					<h1>Day is over.</h1>
 
-					<table>
-						<thead>
-							<th>Fuck</th>
-							<th>Fuck</th>
-							<th>Fuck</th>
-							<th>Fuck</th>
-						</thead>
-						<tbody>
-							<tr>
-								<td>Wow</td>
-								<td>Wow</td>
-								<td>Wow</td>
-								<td>Wow</td>
-							</tr>
-							<tr>
-								<td>Wow2</td>
-								<td>Wow2</td>
-								<td>Wow2</td>
-								<td>Wow2</td>
-							</tr>
-						</tbody>
-					</table>
+					<div class='day-stats'>
+						<h2>Today's Sales</h2>
+						<table class="daySales">
+							<thead>
+								<th>Tomato Stand</th>
+								<th>Soda Machine</th>
+							</thead>
+							<tbody>
+								<tr>
+									<td>21</td>
+									<td>48</td>
+								</tr>
+							</tbody>
+						</table>
+
+						<h2>Lifetime Sales</h2>
+						<table class="lifeSales">
+							<thead>
+								<th>Tomato Stand</th>
+								<th>Soda Machine</th>
+							</thead>
+							<tbody>
+								<tr>
+									<td>56</td>
+									<td>124</td>
+								</tr>
+							</tbody>
+						</table>
+					</div>
 
 					<button id="nextDay">Begin next day.</button>
 				</div>
@@ -77,26 +84,25 @@
 				<div>
 					<h1>New day.</h1>
 					
-					<table>
-						<thead>
-							<th>Fuck</th>
-							<th>Fuck</th>
-						</thead>
-						<tbody>
-							<tr>
-								<td>Wow</td>
-								<td>Wow</td>
-							</tr>
-							<tr>
-								<td>
-									<input type="range" />
-								</td>
-								<td>
-									<input type="range" />
-								</td>
-							</tr>
-						</tbody>
-					</table>
+					<div class='day-order'>
+						<h2>Order new product</h2>
+						<table>
+							<thead>
+								<th>Tomato Stand</th>
+								<th>Soda Machine</th>
+							</thead>
+							<tbody>
+								<tr>
+									<td>
+										<input type="range" />
+									</td>
+									<td>
+										<input type="range" />
+									</td>
+								</tr>
+							</tbody>
+						</table>
+					</div>
 
 					<button id="startDay">Start Day</button>
 				</div>
@@ -354,7 +360,19 @@
 					$("#newDay").attr("data-visibility", "hidden");
 
 					shop.startDay();
+					
 					clock.start();
+
+					player.position.set(0, 0, 0);
+					player.quaternion.copy(new THREE.Quaternion());
+
+					if (player.carriedItems.length > 0)
+					{
+						for (const item of player.carriedItems)
+							scene.remove(item);
+
+						player.carriedItems.length = 0;
+					}
 				});
 			}
 		    

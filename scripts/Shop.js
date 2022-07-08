@@ -129,7 +129,7 @@ export class Shop extends Group
         this.timeSinceLastCustomer = this.customerTimer;
 
         //this.dayLength = 600; // in seconds
-        this.dayLength = 2;
+        this.dayLength = 60;
         this.dayTimer  = 0;
         this.dayOver = false;
 
@@ -210,11 +210,29 @@ export class Shop extends Group
 
         this.dayOver = true;
 
+        $(".endDay > div > .day-stats > .daySales > thead").empty();
+        $(".endDay > div > .day-stats > .daySales > tbody").empty();
+
+        $(".endDay > div > .day-stats > .lifeSales > thead").empty();
+        $(".endDay > div > .day-stats > .lifeSales > tbody").empty();
+
         for (const container of this.containerTiles)
         {
             this.lifeSales += this.daySales += container.daySales;
             this.lifeCustomers += this.dayCustomers += container.dayCustomers;
+
+            $(".endDay > div > .day-stats > .daySales > thead").append(`<th>${container.name}</th>`);
+            $(".endDay > div > .day-stats > .daySales > tbody").append(`<td>${container.daySales}</td>`);
+
+            $(".endDay > div > .day-stats > .lifeSales > thead").append(`<th>${container.name}</th>`);
+            $(".endDay > div > .day-stats > .lifeSales > tbody").append(`<td>${container.lifeSales}</td>`);
         }
+
+        $(".endDay > div > .day-stats > .daySales > thead").prepend("<th>Total</td>");
+        $(".endDay > div > .day-stats > .daySales > tbody").prepend(`<th>${this.daySales}</th>`);
+
+        $(".endDay > div > .day-stats > .lifeSales > thead").prepend("<th>Total</td>");
+        $(".endDay > div > .day-stats > .lifeSales > tbody").prepend(`<th>${this.lifeSales}</th>`);
 
         $("#endDay").attr("data-visibility", "shown");
 
