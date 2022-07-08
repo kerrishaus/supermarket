@@ -9,6 +9,8 @@
 		
 		<link rel='stylesheet' href='./styles/game.css'>
 		<link rel='stylesheet' href='./styles/interface.css'>
+		<link rel='stylesheet' href='./styles/banner.css'>
+		<link rel='stylesheet' href='./styles/dayMenu.css'>
 		
 		<script src="https://kerrishaus.com/assets/scripts/jquery-3.6.0.min.js"></script>
 		<script src="https://portal.kerrishaus.com/assets/javascript/messages.js"></script>
@@ -27,6 +29,9 @@
 				<div id='reputation'>
 					rep <span>0</span>
 				</div>
+				<div>
+					dayTimer <span id="dayTime">0</span>
+				</div>
 			</div>
 			
 			<div class='buttons'>
@@ -35,6 +40,68 @@
 				</div>
 			</div>
 	    </div>
+
+		<div class="interface">
+			<div id="endDay" class="endDay day" data-visibility="hidden">
+				<div>
+					<h1>Day is over.</h1>
+
+					<table>
+						<thead>
+							<th>Fuck</th>
+							<th>Fuck</th>
+							<th>Fuck</th>
+							<th>Fuck</th>
+						</thead>
+						<tbody>
+							<tr>
+								<td>Wow</td>
+								<td>Wow</td>
+								<td>Wow</td>
+								<td>Wow</td>
+							</tr>
+							<tr>
+								<td>Wow2</td>
+								<td>Wow2</td>
+								<td>Wow2</td>
+								<td>Wow2</td>
+							</tr>
+						</tbody>
+					</table>
+
+					<button id="nextDay">Begin next day.</button>
+				</div>
+			</div>
+
+			<div id="newDay" class="newDay day" data-visibility="hidden">
+				<div>
+					<h1>New day.</h1>
+					
+					<table>
+						<thead>
+							<th>Fuck</th>
+							<th>Fuck</th>
+						</thead>
+						<tbody>
+							<tr>
+								<td>Wow</td>
+								<td>Wow</td>
+							</tr>
+							<tr>
+								<td>
+									<input type="range" />
+								</td>
+								<td>
+									<input type="range" />
+								</td>
+							</tr>
+						</tbody>
+					</table>
+
+					<button id="startDay">Start Day</button>
+				</div>
+			</div>
+		</div>
 
 		<script type='module'>
 			import AmmoLib from "https://kerrishaus.com/assets/ammojs/ammo.module.js";
@@ -275,6 +342,20 @@
 				{
 					keys[event.code] = false;
 				});
+
+				$("#nextDay").click(() =>
+				{
+					$("#endDay").attr("data-visibility", "hidden");
+					$("#newDay").attr("data-visibility", "shown");
+				});
+
+				$("#startDay").click(() =>
+				{
+					$("#newDay").attr("data-visibility", "hidden");
+
+					shop.startDay();
+					clock.start();
+				});
 			}
 		    
 		    let shop, player;
@@ -358,99 +439,90 @@
 			{
 				requestAnimationFrame(animate);
 				
-				const deltaTime = clock.getDelta();
-
-				if (!freeCam)
+				if (!shop.dayOver)
 				{
-					if (!moving)
+					const deltaTime = clock.getDelta();
+
+					if (!freeCam)
 					{
-						if (keys["KeyW"] || keys["ArrowUp"])
-							player.position.y += 0.15;
-						if (keys["KeyA"] || keys["ArrowLeft"])
-							player.position.x -= 0.15;
-						if (keys["KeyS"] || keys["ArrowDown"])
-							player.position.y -= 0.15;
-						if (keys["KeyD"] || keys["ArrowRight"])
-							player.position.x += 0.15;
-					}
-					else
-					{
-						raycaster.setFromCamera(mouse, camera);
-						raycaster.ray.intersectPlane(plane, intersects);
-						moveTarget.position.set(intersects.x, intersects.y, intersects.z);
-						
-						let y2 = moveTarget.position.y, y1 = player.position.y;
-						let x2 = moveTarget.position.x, x1 = player.position.x;
-						let angle = Math.atan2( y2 - y1, x2 - x1 ) - 1.5708;
-						player.rotation.z = angle;
-						player.position.lerp(moveTarget.position, 0.03);
-						player.position.z = 0.5;
-					}
-
-					camera.position.copy(player.position);
-					camera.position.z = 10;
-					camera.position.y -= 6;
-					camera.lookAt(player.position);
-				}
-
-                scene.children.forEach((object) =>
-                {
-					if ('update' in object)
-						object.update(deltaTime);
-
-					if (object instanceof Interactable)
-					{
-						if (player.box.intersectsBox(object.trigger))
-							object.onTrigger(player);
-						else if (object.triggeringObjects.includes(player))
-							object.onStopTrigger(player);
-
-						for (const customer of shop.customers)
+						if (!moving)
 						{
-							// customer intersects with interactable's trigger
-							if (object.trigger.intersectsBox(customer.box))
+							if (keys["KeyW"] || keys["ArrowUp"])
+								player.position.y += 0.15;
+							if (keys["KeyA"] || keys["ArrowLeft"])
+								player.position.x -= 0.15;
+							if (keys["KeyS"] || keys["ArrowDown"])
+								player.position.y -= 0.15;
+							if (keys["KeyD"] || keys["ArrowRight"])
+								player.position.x += 0.15;
+						}
+						else
+						{
+							raycaster.setFromCamera(mouse, camera);
+							raycaster.ray.intersectPlane(plane, intersects);
+							moveTarget.position.set(intersects.x, intersects.y, intersects.z);
+							
+							let y2 = moveTarget.position.y, y1 = player.position.y;
+							let x2 = moveTarget.position.x, x1 = player.position.x;
+							let angle = Math.atan2( y2 - y1, x2 - x1 ) - 1.5708;
+							player.rotation.z = angle;
+							player.position.lerp(moveTarget.position, 0.03);
+							player.position.z = 0.5;
+						}
+
+						camera.position.copy(player.position);
+						camera.position.z = 10;
+						camera.position.y -= 6;
+						camera.lookAt(player.position);
+					}
+
+					scene.children.forEach((object) =>
+					{
+						if ('update' in object)
+							object.update(deltaTime);
+
+						if (object instanceof Interactable)
+						{
+							if (player.box.intersectsBox(object.trigger))
+								object.onTrigger(player);
+							else if (object.triggeringObjects.includes(player))
+								object.onStopTrigger(player);
+
+							for (const customer of shop.customers)
 							{
-								// object is not currently triggered by the customer
-								if (!object.triggeringObjects.includes(customer))
-									object.onTrigger(customer);
-							}
-							// customer is not intersecting with this trigger
-							else
-							{
-								// if this trigger is triggered by the customer, stop triggering
-								if (object.triggeringObjects.includes(customer))
-									object.onStopTrigger(customer);
+								// customer intersects with interactable's trigger
+								if (object.trigger.intersectsBox(customer.box))
+								{
+									// object is not currently triggered by the customer
+									if (!object.triggeringObjects.includes(customer))
+										object.onTrigger(customer);
+								}
+								// customer is not intersecting with this trigger
+								else
+								{
+									// if this trigger is triggered by the customer, stop triggering
+									if (object.triggeringObjects.includes(customer))
+										object.onStopTrigger(customer);
+								}
 							}
 						}
-					}
-                });
+					});
 
-				//physicsStep(deltaTime);
+					//physicsStep(deltaTime);
 
-				if (freeCam)
-					freeControls.update();
+					if (freeCam)
+						freeControls.update();
 
-				stats.update();
+					stats.update();
 
-				if (mixer)
-					mixer.update(deltaTime);
-                
-				composer.render();
-				htmlRenderer.render(scene, camera);
+					if (mixer)
+						mixer.update(deltaTime);
+					
+					composer.render();
+					htmlRenderer.render(scene, camera);
+				}
 			};
 			
-			/*
-			if (document.webkitFullscreenElement) 
-			{
-                document.webkitCancelFullScreen();
-            }
-            else
-            {
-                const el = document.documentElement;
-                el.webkitRequestFullscreen(Element.ALLOW_KEYBOARD_INPUT);
-            }
-            */
-
 			window.addEventListener('DOMContentLoaded', async () =>
             {
                 AmmoLib().then((lib) =>

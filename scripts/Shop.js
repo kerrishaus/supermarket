@@ -125,19 +125,23 @@ export class Shop extends Group
         
         this.customers = new Array();
         this.customerTimer = 6;
-        this.maxCustomers = 20;
+        this.maxCustomers  = 20;
         this.timeSinceLastCustomer = this.customerTimer;
 
         //this.dayLength = 600; // in seconds
-        this.dayLength = 60;
-        this.dayTimer = 0;
+        this.dayLength = 2;
+        this.dayTimer  = 0;
+        this.dayOver = false;
 
-        this.daySales = 0;
-        this.dayCustomers = 0;
-        this.dayReputation = 0;
+        this.daySales       = 0;
+        this.lifeSales      = 0;
+        this.dayCustomers   = 0;
+        this.lifeCustomers  = 0;
+        this.dayReputation  = 0;
+        this.lifeReputation = 0;
 
-        this.spawnPosition = new Vector3(-4, 15, 0);
-        this.readyPosition = new Vector3(-4, 7, 0);
+        this.spawnPosition    = new Vector3(-4, 15, 0);
+        this.readyPosition    = new Vector3(-4, 7, 0);
         this.registerPosition = new Vector3(-7.5, -5, 0);
 
         return this;
@@ -182,7 +186,39 @@ export class Shop extends Group
 
     startDay()
     {
+        console.log("Starting new day.");
 
+        this.dayTimer = 0;
+
+        this.dayCustomers = 0;
+        this.daySales     = 0;
+
+        for (const container of this.containerTiles)
+        {
+            container.dayCustomers = 0;
+            container.daySales     = 0;
+        }
+
+        this.dayOver = false;
+
+        console.log("Day started.");
+    }
+
+    endDay()
+    {
+        console.log("Ending day.");
+
+        this.dayOver = true;
+
+        for (const container of this.containerTiles)
+        {
+            this.lifeSales += this.daySales += container.daySales;
+            this.lifeCustomers += this.dayCustomers += container.dayCustomers;
+        }
+
+        $("#endDay").attr("data-visibility", "shown");
+
+        console.log("Ended day.");
     }
     
     update(deltaTime)
@@ -198,14 +234,12 @@ export class Shop extends Group
                 this.timeSinceLastCustomer += deltaTime;
 
             this.dayTimer += deltaTime;
+
+            $("#dayTime").text(Math.floor(this.dayTimer));
         }
         else // day is over
-        {
             if (this.customers.length <= 0)
-            {
-                console.log("day is over");
-            }
-        }
+                this.endDay();
 
         for (const customer of this.customers)
         {

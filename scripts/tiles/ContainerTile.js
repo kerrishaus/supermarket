@@ -15,16 +15,17 @@ export class ContainerTile extends Interactable
         this.carriedItems = new Array();
         this.maxItems = 9;
 
-        this.daySales = 0;
-        this.lifeSales = 0;
-
+        this.name     = null;
         this.itemType = null;
 
-        this.column_ = 0;
-        this.row_ = 0;
-        this.layer_ = 0;
+        this.daySales  = 0;
+        this.lifeSales = 0;
+
+        this.column_     = 0;
+        this.row_        = 0;
+        this.layer_      = 0;
         
-        this.gridRows = 3;
+        this.gridRows    = 3;
         this.gridColumns = 3;
     }
 

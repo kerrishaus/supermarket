@@ -1,0 +1,41 @@
+.day
+{
+    box-sizing: border-box;
+
+    position: absolute;
+    z-index: 9999999;
+    top: 0px;
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    
+    width: 80vw;
+    height: 80vh;
+
+    margin-left: 10vw;
+    margin-right: 10vw;
+    margin-top: 10vh;
+    margin-bottom: 10vh;
+
+    border-radius: 20px;
+    border: 3px solid black;
+
+    transition: top 1s;
+}
+
+.day[data-visibility="hidden"]
+{
+    top: -100vw;
+}
+
+#newDay
+{
+    background-color: skyblue;
+}
+
+#endDay
+{
+    background-color: lightgreen;
+}
