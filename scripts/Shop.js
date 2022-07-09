@@ -16,6 +16,7 @@ import { SodaMachine } from "./tiles/SodaMachine.js";
 
 import { Customer } from "./Customer.js";
 import { BackstockContainer } from "./tiles/BackstockContainer.js";
+import { TomatoContainer } from "./tiles/TomatoContainer.js";
 
 export class Shop extends Group
 {
@@ -45,6 +46,7 @@ export class Shop extends Group
         scene.add(this.doors);
 
         this.containerTiles = new Array();
+        this.backstockTiles = new Array();
         
         this.register = new Register();
         this.register.position.x = -8;
@@ -69,6 +71,13 @@ export class Shop extends Group
             scene.remove(tomatoStandBuyTile);
             this.containerTiles.push(tomatoStand);
 
+            this.tomatoContainer = new TomatoContainer();
+            this.tomatoContainer.position.x = -5;
+            this.tomatoContainer.position.y = -18;
+            this.tomatoContainer.addItem(25);
+            this.backstockTiles.push(this.tomatoContainer);
+            scene.add(this.tomatoContainer);
+
             let sodaMachineBuyTile = new BuyableTile(0.2, 0.2, 7, 3, 100, "Buy \"Soda Machine\"");
             sodaMachineBuyTile.onFullyPaid = () =>
             {
@@ -86,11 +95,6 @@ export class Shop extends Group
         };
         scene.add(tomatoStandBuyTile);
 
-        this.tomatoContainer = new BackstockContainer();
-        this.tomatoContainer.position.x = -5;
-        this.tomatoContainer.position.y = -18;
-        scene.add(this.tomatoContainer);
-
         this.customers = new Array();
         this.customerTimer = 6;
         this.maxCustomers  = 20;
@@ -98,8 +102,8 @@ export class Shop extends Group
 
         //this.dayLength = 600; // in seconds
         this.dayLength = 15;
-        this.dayTimer  = 0;
-        this.dayOver = false;
+        this.dayTimer  = this.dayLength;
+        this.dayOver = true;
 
         this.daySales       = 0;
         this.lifeSales      = 0;
@@ -110,9 +114,7 @@ export class Shop extends Group
 
         this.spawnPosition    = new Vector3(-4, 15, 0);
         this.readyPosition    = new Vector3(-4, 7, 0);
-        this.registerPosition = new Vector3(this.register.position.x, this.register.position.y - 2, 0);
-
-        return this;
+        this.registerPosition = new Vector3(this.register.position.x, this.register.position.y + 2, 0);
     }
 
     spawnCustomer()
@@ -148,8 +150,10 @@ export class Shop extends Group
         this.timeSinceLastCustomer = 0;
         console.log("added customer");
 
-        this.customerTimer = MathUtility.getRandomInt(15) + 1;
+        this.customerTimer = MathUtility.getRandomInt(7) + 1;
         console.log("Next customer will spawn in " + this.customerTimer + " seconds");
+
+        $("#customerCount").text(this.customers.length);
     }
 
     startDay()
@@ -167,9 +171,28 @@ export class Shop extends Group
             container.daySales     = 0;
         }
 
+        for (const container of this.backstockTiles)
+        {
+            container.addItem($(`input[name="${container.name}"]`).val());
+        }
+
         this.dayOver = false;
 
         console.log("Day started.");
+    }
+
+    prepNextDay()
+    {
+        console.log("prepping next day");
+
+        $(".newDay > div > .day-order > table > thead").empty();
+        $(".newDay > div > .day-order > table > tbody").empty();
+
+        for (const container of this.backstockTiles)
+        {
+            $(".newDay > div > .day-order > table > thead").append(`<th>${container.name}</th>`);
+            $(".newDay > div > .day-order > table > tbody").append(`<td><input type='number' name='${container.name}'/></td>`);
+        }
     }
 
     endDay()
@@ -236,6 +259,24 @@ export class Shop extends Group
 
                 this.customers.splice(this.customers.indexOf(customer), 1);
                 scene.remove(customer);
+
+                $("#customerCount").text(this.customers.length);
+            }
+            else if (customer.waitTime > customer.leaveTime)
+            {
+                customer.waitTime = 0;
+
+                console.log("Customer waited too long and is leaving.");
+
+                customer.actions.length = 0;
+
+                if (customer.carriedItems.length > 0)
+                    customer.pushAction({type: "move", position: this.registerPosition});
+
+                customer.pushAction({type: "move", position: this.readyPosition});
+                customer.pushAction({type: "move", position: this.spawnPosition});
+
+                this.dayReputation -= 1;
             }
         }
     }

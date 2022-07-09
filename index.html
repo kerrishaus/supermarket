@@ -21,9 +21,6 @@
 		<div id='interface' class="gameInterfaceContainer">
 			<div class='banner'>
 				<div>
-					i'm blocked by the fps counter
-				</div>
-				<div>
 					$<span id='money'>0</span>
 				</div>
 				<div id='reputation'>
@@ -31,6 +28,9 @@
 				</div>
 				<div>
 					dayTimer <span id="dayTime">0</span>
+				</div>
+				<div>
+					customers <span id="customerCount">0</span>
 				</div>
 			</div>
 			
@@ -80,7 +80,7 @@
 				</div>
 			</div>
 
-			<div id="newDay" class="newDay day" data-visibility="hidden">
+			<div id="newDay" class="newDay day" data-visibility="shown">
 				<div>
 					<h1>New day.</h1>
 					
@@ -88,18 +88,8 @@
 						<h2>Order new product</h2>
 						<table>
 							<thead>
-								<th>Tomato Stand</th>
-								<th>Soda Machine</th>
 							</thead>
 							<tbody>
-								<tr>
-									<td>
-										<input type="range" />
-									</td>
-									<td>
-										<input type="range" />
-									</td>
-								</tr>
 							</tbody>
 						</table>
 					</div>
@@ -352,6 +342,9 @@
 				$("#nextDay").click(() =>
 				{
 					$("#endDay").attr("data-visibility", "hidden");
+
+					shop.prepNextDay();
+
 					$("#newDay").attr("data-visibility", "shown");
 				});
 

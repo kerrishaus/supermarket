@@ -1,8 +1,8 @@
 import { BoxGeometry, MeshStandardMaterial, Vector3, Box3 } from "https://kerrishaus.com/assets/threejs/build/three.module.js";
 
-import { DynamicMesh } from "./geometry/DynamicMesh.js";
+import { ItemCarrier } from "./ItemCarrier.js";
 
-export class Customer extends DynamicMesh
+export class Customer extends ItemCarrier
 {
     constructor()
     {
@@ -15,12 +15,11 @@ export class Customer extends DynamicMesh
         this.actionTime = 3;
         this.startPosition = new Vector3(0, 0, 0);
         this.targetPosition = new Vector3(0, 0, 0);
-        
-        this.carriedItems = new Array();
+
+        this.waitTime = 0;
+        this.leaveTime = 20; // in seconds
         
         this.actions = new Array();
-
-        return this;
     }
     
     pushAction(action)
@@ -103,6 +102,8 @@ export class Customer extends DynamicMesh
                             return;
                         }
                     } // else, keep waiting for enough items to become available
+                    else
+                        this.waitTime += deltaTime;
                 }
             }
             
