@@ -16,8 +16,6 @@ export class RecycleBin extends Interactable
         this.recycleInterval = 0.2;
         
         this.carriedItems = new Array();
-
-        return this;
     }
     
     update(deltaTime)

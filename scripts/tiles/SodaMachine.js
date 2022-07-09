@@ -11,7 +11,5 @@ export class SodaMachine extends ContainerTile
         
         this.position.x = xPos;
         this.position.y = yPos;
-
-        return this;
     }
 };

@@ -28,8 +28,6 @@ export class Register extends Interactable
         
         this.moneyTexture = new TextureLoader().load('textures/dollar_placeholder.jpeg');
         this.moneyMaterial = new MeshStandardMaterial({ map: this.moneyTexture });
-
-        return this;
     }
     
     update(deltaTime)

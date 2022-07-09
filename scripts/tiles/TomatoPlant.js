@@ -25,8 +25,6 @@ export class TomatoPlant extends Interactable
         this.label = new CSS2DObject(labelDiv);
         this.label.color = "white";
         this.add(this.label);
-
-        return this;
     }
     
     update(deltaTime)

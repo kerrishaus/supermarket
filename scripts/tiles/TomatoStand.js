@@ -11,7 +11,5 @@ export class TomatoStand extends ContainerTile
         
         this.position.x = xPos;
         this.position.y = yPos;
-
-        return this;
     }
 };
