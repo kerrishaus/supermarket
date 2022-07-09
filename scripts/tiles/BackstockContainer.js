@@ -6,6 +6,7 @@ import { Carryable } from "../Carryable.js";
 import { Interactable } from "../geometry/InteractableMesh.js";
 import { Player } from "../Player.js";
 import { Customer } from "../Customer.js";
+import { Employee } from "../Employee.js";
 
 export class BackstockContainer extends Interactable
 {
@@ -16,7 +17,7 @@ export class BackstockContainer extends Interactable
         this.name = "backstockContainer";
         this.itemType = null;
         
-        this.money = new Array();
+        this.carriedItems = new Array();
         
         this.column_ = 0;
         this.row_ = 0;
@@ -25,9 +26,9 @@ export class BackstockContainer extends Interactable
         this.gridRows = 6;
         this.gridColumns = 6;
         
-        this.moneyLength = 0.4;
-        this.moneyWidth = 0.2;
-        this.moneyThickness = 0.1;
+        this.itemLength = 0.4;
+        this.itemWidth = 0.2;
+        this.itemThickness = 0.1;
 
         const labelDiv = document.createElement("div");
         labelDiv.id = this.uuid;
@@ -37,47 +38,66 @@ export class BackstockContainer extends Interactable
         this.label = new CSS2DObject(labelDiv);
         this.label.color = "white";
         this.add(this.label);
-        
-        return this;
     }
     
     update(deltaTime)
     {
         super.update(deltaTime);
     }
-    
-    addMoney()
+
+    // this can be overriden by derived classes
+    // as long as the returned item inherits Carryable
+    createItem()
     {
-        this.calculateGrid();
-        
-        const money = new Carryable(this.moneyLength, this.moneyWidth, this.moneyThickness, 0x48c942);
-        
-        money.position.copy(this.position);
-        money.setTarget(this.position, new Vector3(this.column_ * this.moneyLength - 0.6 - 1,
-                                                   this.row_ * this.moneyWidth - 0.5,
-                                                  (this.scale.z / 2) + (this.layer_ * this.moneyThickness) + this.moneyThickness / 2));
-        
-        scene.add(money);
-        this.money.push(money);
+        return new Carryable(this.itemLength, this.itemWidth, this.itemThickness, 0x48c942);
     }
     
-    transferMoney(player)
+    addItem(amount)
     {
-        if (this.money.length <= 0)
-            return;
+        for (let i = 0; i < amount; i++)
+        {
+            this.calculateGrid();
             
-        const money = this.money[this.money.length - 1];
+            const item = this.createItem();
+            
+            item.position.copy(this.position);
+            item.setTarget(this.position, new Vector3(this.column_ * this.itemLength - 0.6 - 1,
+                                                    this.row_ * this.itemWidth - 0.5,
+                                                    (this.scale.z / 2) + (this.layer_ * this.itemThickness) + this.itemThickness / 2));
+            
+            scene.add(item);
+            this.carriedItems.push(item);
+        }
+
+        this.label.element.textContent = this.carriedItems.length;
+    }
+    
+    transferItem(carrier)
+    {
+        if (this.carriedItems.length <= 0)
+            return;
+
+        if (carrier instanceof Player || carrier instanceof Employee)
+            if (carrier.carriedItems.length > carrier.carryLimit)
+                return;
+            
+        const item = this.carriedItems[this.carriedItems.length - 1];
+        item.carryPos = carrier.carriedItems.length + 1;
+        item.moveTime = 0.17;
         
-        money.setTarget(player.position, new Vector3(0, 0, 0));
+        // TODO: I want to set the offset vector here, in the future
+        // but right now it's really not required because it will set by
+        // updateTarget later in Player#update
+        item.setTarget(carrier.position, new Vector3(0, 0, 0));
+        item.autoPositionAfterAnimation = false;
         
-        player.carriedMoney.push(money);
+        carrier.carriedItems.push(item);
         
-        this.money.pop();
+        this.carriedItems.pop();
+        this.label.element.textContent = this.carriedItems.length;
         
+        // TODO: don't think this is necessary
         this.calculateGrid();
-        
-        player.money += 5;
-        $("#money").html(player.money);
     }
     
     calculateGrid()
@@ -86,7 +106,7 @@ export class BackstockContainer extends Interactable
         this.row_    = 0;
         this.layer_  = 0;
         
-        for (let i = 0; i < this.money.length; i++)
+        for (let i = 0; i < this.carriedItems.length; i++)
         {
             this.column_ += 1;
             
@@ -109,15 +129,7 @@ export class BackstockContainer extends Interactable
         super.onTrigger(object);
 
         if (object instanceof Player)
-            this.transferMoney(object);
-
-        if (object instanceof Customer)
-        {
-            console.log("selling " + object.carriedItems.length + " items");
-
-            for (let i = 0; i < object.carriedItems.length; i++)
-                this.addMoney();
-        }
+            this.transferItem(object);
     }
     
     onStopTrigger(object)
