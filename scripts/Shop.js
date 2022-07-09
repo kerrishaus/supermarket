@@ -100,8 +100,7 @@ export class Shop extends Group
         this.maxCustomers  = 20;
         this.timeSinceLastCustomer = this.customerTimer;
 
-        //this.dayLength = 600; // in seconds
-        this.dayLength = 15;
+        this.dayLength = 60;
         this.dayTimer  = this.dayLength;
         this.dayOver = true;
 
