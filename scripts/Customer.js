@@ -17,7 +17,7 @@ export class Customer extends ItemCarrier
         this.targetPosition = new Vector3(0, 0, 0);
 
         this.waitTime = 0;
-        this.leaveTime = 20; // in seconds
+        this.leaveTime = 10; // in seconds
         
         this.actions = new Array();
     }
