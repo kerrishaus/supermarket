@@ -23,6 +23,8 @@ export class BuyableTile extends Interactable
         this.label = new CSS2DObject(labelDiv);
         this.label.color = "white";
         this.add(this.label);
+
+        this.name = name;
         
         this.carriedMoney = new Array();
         

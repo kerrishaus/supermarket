@@ -10,12 +10,12 @@ import { Register } from "./tiles/Register.js";
 import { RecycleBin } from "./tiles/RecycleBin.js";
 import { BuyableTile } from "./tiles/BuyableTile.js";
 
-import { TomatoPlant } from "./tiles/TomatoPlant.js";
 import { TomatoStand } from "./tiles/TomatoStand.js";
 
 import { SodaMachine } from "./tiles/SodaMachine.js";
 
 import { Customer } from "./Customer.js";
+import { BackstockContainer } from "./tiles/BackstockContainer.js";
 
 export class Shop extends Group
 {
@@ -38,8 +38,8 @@ export class Shop extends Group
         // east wall
         scene.add(GeometryUtil.createObject(new Vector3(wallThickness, shopWidth, 4), new Vector3(-shopWidth / 2 - wallThickness / 2, 0, 1.5), 0xbfbfbf));
         
-        const farmFloor = new RigidBodyCube(new Vector3(shopWidth, shopLength, wallThickness), 0x449c5d, new Vector3(0, -shopLength, -1), new Quaternion(), 0);
-        scene.add(farmFloor);
+        const backroomFloor = new RigidBodyCube(new Vector3(shopWidth, shopLength / 2, wallThickness), 0x878787, new Vector3(0, -15, -1), new Quaternion(), 0);
+        scene.add(backroomFloor);
 
         this.doors = new Door(new Vector3(-4, 10.491, 0.5), 0x0000ff);
         scene.add(this.doors);
@@ -69,33 +69,6 @@ export class Shop extends Group
             scene.remove(tomatoStandBuyTile);
             this.containerTiles.push(tomatoStand);
 
-            let tomatoPlant2BuyTile = new BuyableTile(0.2, 0.2, -8, -14, 100, "Buy \"Tomato Plant\"");
-            tomatoPlant2BuyTile.onFullyPaid = () =>
-            {
-                // create tomatoPlant
-                const tomatoPlant2 = new TomatoPlant();
-                tomatoPlant2.position.copy(tomatoPlant2BuyTile.position);
-
-                scene.add(tomatoPlant2);
-                tomatoPlant2BuyTile.remove(tomatoPlant2BuyTile.label);
-                scene.remove(tomatoPlant2BuyTile);
-                
-                let tomatoPlant3BuyTile = new BuyableTile(0.2, 0.2, -8, -16, 100, "Buy \"Tomato Plant\"");
-                tomatoPlant3BuyTile.onFullyPaid = () =>
-                {
-                    const tomatoPlant3 = new TomatoPlant();
-                    tomatoPlant3.position.copy(tomatoPlant3BuyTile.position);
-
-                    scene.add(tomatoPlant3);
-                    tomatoPlant3BuyTile.remove(tomatoPlant3BuyTile.label);
-                    scene.remove(tomatoPlant3BuyTile);
-
-                    console.log("all tomato plants have been constructed");
-                };
-                scene.add(tomatoPlant3BuyTile);
-            };
-            scene.add(tomatoPlant2BuyTile);
-
             let sodaMachineBuyTile = new BuyableTile(0.2, 0.2, 7, 3, 100, "Buy \"Soda Machine\"");
             sodaMachineBuyTile.onFullyPaid = () =>
             {
@@ -113,23 +86,18 @@ export class Shop extends Group
         };
         scene.add(tomatoStandBuyTile);
 
-        const tomatoPlant1 = new TomatoPlant();
-        tomatoPlant1.position.x = -8;
-        tomatoPlant1.position.y = -12;
-        scene.add(tomatoPlant1);
+        this.tomatoContainer = new BackstockContainer();
+        this.tomatoContainer.position.x = -5;
+        this.tomatoContainer.position.y = -18;
+        scene.add(this.tomatoContainer);
 
-        const recycleBin = new RecycleBin();
-        recycleBin.position.x = -9;
-        recycleBin.position.y = 9;
-        scene.add(recycleBin);
-        
         this.customers = new Array();
         this.customerTimer = 6;
         this.maxCustomers  = 20;
         this.timeSinceLastCustomer = this.customerTimer;
 
         //this.dayLength = 600; // in seconds
-        this.dayLength = 60;
+        this.dayLength = 15;
         this.dayTimer  = 0;
         this.dayOver = false;
 
@@ -142,7 +110,7 @@ export class Shop extends Group
 
         this.spawnPosition    = new Vector3(-4, 15, 0);
         this.readyPosition    = new Vector3(-4, 7, 0);
-        this.registerPosition = new Vector3(-7.5, -5, 0);
+        this.registerPosition = new Vector3(this.register.position.x, this.register.position.y - 2, 0);
 
         return this;
     }
