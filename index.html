@@ -296,16 +296,12 @@
 				{
 					mouse.x = ( event.clientX / window.innerWidth ) * 2 - 1;
 					mouse.y = - ( event.clientY / window.innerHeight ) * 2 + 1;
-
-					event.preventDefault();
 				});
 				
 				window.addEventListener("touchmove", (event) =>
 				{
 					mouse.x = ( event.touches[0].clientX / window.innerWidth ) * 2 - 1;
 					mouse.y = - ( event.touches[0].clientY / window.innerHeight ) * 2 + 1;
-					
-					event.preventDefault();
 				});
 
 				window.addEventListener("touchstart", (event) =>
@@ -314,8 +310,6 @@
 					pointerMoveOrigin.y = - ( event.touches[0].clientY / window.innerHeight ) * 2 + 1;
 
 					move = MoveType.Touch;
-
-					event.preventDefault();
 				});
 				
 				window.addEventListener("mousedown", (event) =>
@@ -324,8 +318,6 @@
 					pointerMoveOrigin.y = - ( event.clientY / window.innerHeight ) * 2 + 1;
 
 					move = MoveType.Mouse;
-
-					event.preventDefault();
 				});
 
 				$(document).on('mouseup touchend', (event) =>
