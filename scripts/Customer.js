@@ -40,10 +40,12 @@ export class Customer extends ItemCarrier
         if (action.type == "move")
         {
             console.log("moving to", action.position);
+            this.actionTime = this.position.distanceTo(action.position) / 4;
             this.setTarget(action.position, this.actionTime);
         }
         else if (action.type == "buy")
         {
+            this.actionTime = this.position.distanceTo(action.container.position) / 4;
             this.setTarget(action.container.position, this.actionTime);
         }
             
