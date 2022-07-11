@@ -15,7 +15,7 @@ import { TomatoStand } from "./tiles/TomatoStand.js";
 import { SodaMachine } from "./tiles/SodaMachine.js";
 
 import { Customer } from "./Customer.js";
-import { BackstockContainer } from "./tiles/BackstockContainer.js";
+import { SodaContainer } from "./tiles/SodaContainer.js";
 import { TomatoContainer } from "./tiles/TomatoContainer.js";
 
 export class Shop extends Group
@@ -74,7 +74,7 @@ export class Shop extends Group
             this.tomatoContainer = new TomatoContainer();
             this.tomatoContainer.position.x = -5;
             this.tomatoContainer.position.y = -18;
-            this.tomatoContainer.addItem(25);
+            this.tomatoContainer.addItem(55);
             this.backstockTiles.push(this.tomatoContainer);
             scene.add(this.tomatoContainer);
 
@@ -88,6 +88,13 @@ export class Shop extends Group
                 sodaMachineBuyTile.remove(sodaMachineBuyTile.label);
                 scene.remove(sodaMachineBuyTile);
                 this.containerTiles.push(sodaMachine);
+
+                this.sodaContainer = new SodaContainer();
+                this.sodaContainer.position.x = -2;
+                this.sodaContainer.position.y = -18;
+                this.sodaContainer.addItem(55);
+                this.backstockTiles.push(this.sodaContainer);
+                scene.add(this.sodaContainer);
 
                 console.log("Bought soda machine.");
             };
