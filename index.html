@@ -308,13 +308,13 @@
 				function moveStart(event)
 				{
 					moving = true;
-					scene.add(moveTarget);
+					//scene.add(moveTarget);
 				}
 
 				function moveEnd(event)
 				{
 					moving = false;
-					scene.remove(moveTarget);
+					//scene.remove(moveTarget);
 				}
 
 				window.addEventListener("mousedown",  moveStart, event);
@@ -397,6 +397,8 @@
 
 				player = new Player();
 				scene.add(player);
+
+				scene.add(moveTarget);
 	
 				console.log("Game is ready.");
 
@@ -459,28 +461,38 @@
 						if (!moving)
 						{
 							if (keys["KeyW"] || keys["ArrowUp"])
-								player.position.y += 0.15;
+								moveTarget.position.y += 0.2;
 							if (keys["KeyA"] || keys["ArrowLeft"])
-								player.position.x -= 0.15;
+								moveTarget.position.x -= 0.2;
 							if (keys["KeyS"] || keys["ArrowDown"])
-								player.position.y -= 0.15;
+								moveTarget.position.y -= 0.2;
 							if (keys["KeyD"] || keys["ArrowRight"])
-								player.position.x += 0.15;
+								moveTarget.position.x += 0.2;
 						}
 						else
 						{
 							raycaster.setFromCamera(mouse, camera);
 							raycaster.ray.intersectPlane(plane, intersects);
 							moveTarget.position.set(intersects.x, intersects.y, intersects.z);
-							
-							let y2 = moveTarget.position.y, y1 = player.position.y;
-							let x2 = moveTarget.position.x, x1 = player.position.x;
-							let angle = Math.atan2( y2 - y1, x2 - x1 ) - 1.5708;
-							player.rotation.z = angle;
-							player.position.lerp(moveTarget.position, 0.03);
-							player.position.z = 0.5;
 						}
 
+						let y2 = moveTarget.position.y, y1 = player.position.y;
+						let x2 = moveTarget.position.x, x1 = player.position.x;
+						let angle = Math.atan2( y2 - y1, x2 - x1 ) - 1.5708;
+						
+						player.rotation.z = angle;
+						player.position.lerp(moveTarget.position, 0.03);
+						player.position.z = 0.5;
+
+						/*
+						let minPos = new THREE.Vector3().copy(player.position).add(new THREE.Vector3(1, 1, 1));
+						let maxPos = new THREE.Vector3().copy(player.position).sub(new THREE.Vector3(1, 1, 1));
+
+						console.log(minPos, maxPos);
+
+						moveTarget.position.clamp(minPos, maxPos);
+						*/
+							
 						camera.position.copy(player.position);
 						camera.position.z = 10;
 						camera.position.y -= 6;
