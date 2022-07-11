@@ -125,6 +125,7 @@
 			import { PhysicsScene } from "./scripts/PhysicsScene.js";
 
 			import * as GeometryUtil from "./scripts/geometry/GeometryUtility.js";
+			import * as MathUtility from "./scripts/MathUtility.js";
 
 			import { PhysicsMesh } from "./scripts/geometry/PhysicsMesh.js";
 		    import { DynamicMesh } from "./scripts/geometry/DynamicMesh.js";
@@ -217,12 +218,13 @@
 				freeControls.update();
 				freeControls.enabled = false;
 
+				/*
 				dracoLoader = new DRACOLoader();
 				dracoLoader.setDecoderPath('https://kerrishaus.com/assets/threejs/examples/js/libs/draco/gltf/');
 
 				loader = new GLTFLoader();
 				loader.setDRACOLoader(dracoLoader);
-				loader.load( 'models/LittlestTokyo_placeholder.glb', function (gltf)
+				loader.load('models/LittlestTokyo_placeholder.glb', function(gltf)
 				{
 					const model = gltf.scene;
 					//model.position.set(5, 26, 11.45); // for right out front
@@ -237,7 +239,8 @@
 				}, undefined, function(e)
 				{
 					console.error(e);
-				} );
+				});
+				*/
 
 				composer = new EffectComposer(renderer);
 				composer.addPass(new RenderPass(scene, camera));
@@ -305,22 +308,30 @@
 					event.preventDefault();
 				});
 
-				function moveStart(event)
+				window.addEventListener("touchstart", (event) =>
 				{
-					moving = true;
-					//scene.add(moveTarget);
-				}
+					pointerMoveOrigin.x = ( event.touches[0].clientX / window.innerWidth ) * 2 - 1;
+					pointerMoveOrigin.y = - ( event.touches[0].clientY / window.innerHeight ) * 2 + 1;
 
-				function moveEnd(event)
+					move = MoveType.Touch;
+
+					event.preventDefault();
+				});
+				
+				window.addEventListener("mousedown", (event) =>
 				{
-					moving = false;
-					//scene.remove(moveTarget);
-				}
+					pointerMoveOrigin.x = ( event.clientX / window.innerWidth ) * 2 - 1;
+					pointerMoveOrigin.y = - ( event.clientY / window.innerHeight ) * 2 + 1;
 
-				window.addEventListener("mousedown",  moveStart, event);
-				window.addEventListener("touchstart", moveStart, event);
-				window.addEventListener("mouseup",  moveEnd, event);
-				window.addEventListener("touchend", moveEnd, event);
+					move = MoveType.Mouse;
+
+					event.preventDefault();
+				});
+
+				$(document).on('mouseup touchend', (event) =>
+				{
+					move = null;
+				});
 
 				window.addEventListener("keydown", (event) =>
 				{
@@ -332,11 +343,33 @@
 						freeControls.enabled = freeCam;
 						console.log("freecam toggled");
 					}
+					else
+					{
+						switch (event.code)
+						{
+							case "KeyW":
+							case "ArrowUp":
+							case "KeyA":
+							case "ArrowLeft":
+							case "KeyS":
+							case "ArrowDown":
+							case "KeyD":
+							case "ArrowRight":
+								move = MoveType.Keyboard;
+								break;
+						};
+					}
 				});
 				
 				window.addEventListener("keyup", (event) =>
 				{
 					keys[event.code] = false;
+
+					if (!(keys["KeyW"] || keys["ArrowUp"] ||
+						keys["KeyA"] || keys["ArrowLeft"] ||
+						keys["KeyS"] || keys["ArrowDown"] ||
+						keys["KeyD"] || keys["ArrowRight"]))
+						move = null;
 				});
 
 				$("#nextDay").click(() =>
@@ -356,7 +389,7 @@
 					
 					clock.start();
 
-					player.position.set(0, 0, 0);
+					player.position.set(0, 0, 0.5);
 					player.quaternion.copy(new THREE.Quaternion());
 
 					if (player.carriedItems.length > 0)
@@ -371,8 +404,16 @@
 		    
 		    let shop, player;
 		    
+			const MoveType = {
+				Mouse: 'Mouse',
+				Touch: 'Touch',
+				Keyboard: 'Keyboard'
+			};
+
+			let move = null;
             let keys = new Array();
-            let moving = false, freeCam = false;
+			let pointerMoveOrigin = new THREE.Vector2();
+            let moving = false, pointerMove = false, freeCam = false;
             
             let moveTarget = new THREE.Mesh(new THREE.SphereGeometry(0.25, 24, 8), new THREE.MeshPhongMaterial({ color: 0x00ffff, 
                                                                                                                  flatShading: true,
@@ -456,48 +497,66 @@
 				{
 					const deltaTime = clock.getDelta();
 
-					if (!freeCam)
+					if (!freeCam && move !== null)
 					{
-						if (!moving)
+						let x1 = 0, x2 = 0, y1 = 0, y2 = 0;
+						let velocity = 0;
+
+						if (move == MoveType.Touch)
 						{
-							if (keys["KeyW"] || keys["ArrowUp"])
-								moveTarget.position.y += 0.2;
-							if (keys["KeyA"] || keys["ArrowLeft"])
-								moveTarget.position.x -= 0.2;
-							if (keys["KeyS"] || keys["ArrowDown"])
-								moveTarget.position.y -= 0.2;
-							if (keys["KeyD"] || keys["ArrowRight"])
-								moveTarget.position.x += 0.2;
+							x1 = pointerMoveOrigin.x;
+							x2 = mouse.x;
+
+							y1 = pointerMoveOrigin.y;
+							y2 = mouse.y;
+
+							velocity = pointerMoveOrigin.distanceTo(new THREE.Vector3(mouse.x, mouse.y)) / 3;
 						}
 						else
 						{
-							raycaster.setFromCamera(mouse, camera);
-							raycaster.ray.intersectPlane(plane, intersects);
-							moveTarget.position.set(intersects.x, intersects.y, intersects.z);
+							if (move == MoveType.Keyboard)
+							{
+								const moveAmount = player.maxSpeed;
+
+								if (keys["KeyW"] || keys["ArrowUp"])
+									moveTarget.position.y += moveAmount;
+								if (keys["KeyA"] || keys["ArrowLeft"])
+									moveTarget.position.x -= moveAmount;
+								if (keys["KeyS"] || keys["ArrowDown"])
+									moveTarget.position.y -= moveAmount;
+								if (keys["KeyD"] || keys["ArrowRight"])
+									moveTarget.position.x += moveAmount;
+							}
+							else if (move == MoveType.Mouse)
+							{
+								raycaster.setFromCamera(mouse, camera);
+								raycaster.ray.intersectPlane(plane, intersects);
+								moveTarget.position.set(intersects.x, intersects.y, intersects.z);
+							}
+
+							x1 = player.position.x;
+							x2 = moveTarget.position.x;
+
+							y1 = player.position.y;
+							y2 = moveTarget.position.y;
+
+							velocity = player.position.distanceTo(moveTarget.position) / 20;
 						}
 
-						let y2 = moveTarget.position.y, y1 = player.position.y;
-						let x2 = moveTarget.position.x, x1 = player.position.x;
-						let angle = Math.atan2( y2 - y1, x2 - x1 ) - 1.5708;
-						
-						player.rotation.z = angle;
-						player.position.lerp(moveTarget.position, 0.03);
-						player.position.z = 0.5;
+						// set the player's direction
+						player.rotation.z = Math.atan2(y2 - y1, x2 - x1) - 1.5708;
 
-						/*
-						let minPos = new THREE.Vector3().copy(player.position).add(new THREE.Vector3(1, 1, 1));
-						let maxPos = new THREE.Vector3().copy(player.position).sub(new THREE.Vector3(1, 1, 1));
+						// clamp the player's velocity
+						velocity = MathUtility.clamp(velocity, 0, player.maxSpeed);
 
-						console.log(minPos, maxPos);
-
-						moveTarget.position.clamp(minPos, maxPos);
-						*/
-							
-						camera.position.copy(player.position);
-						camera.position.z = 10;
-						camera.position.y -= 6;
-						camera.lookAt(player.position);
+						// move the player their direction
+						player.translateY(velocity);
 					}
+
+					// TODO: put the camera in Player
+					camera.position.x = player.position.x;
+					camera.position.y = player.position.y - 6;
+					camera.lookAt(player.position);
 
 					scene.children.forEach((object) =>
 					{

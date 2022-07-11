@@ -1,4 +1,4 @@
-import { Vector3, Quaternion, BoxGeometry, MeshStandardMaterial } from "https://kerrishaus.com/assets/threejs/build/three.module.js";
+import { Vector3, Quaternion, BoxGeometry, MeshStandardMaterial, PerspectiveCamera } from "https://kerrishaus.com/assets/threejs/build/three.module.js";
 
 import { ItemCarrier } from "./ItemCarrier.js";
 
@@ -21,6 +21,10 @@ export class Player extends ItemCarrier
         this.money = 0;
         
         this.carriedMoney = new Array();
+
+        //this.camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 200);
+		        
+        this.maxSpeed = 0.3;
     }
     
     update(deltaTime)
