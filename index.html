@@ -355,7 +355,9 @@
 							case "ArrowDown":
 							case "KeyD":
 							case "ArrowRight":
+								break;
 								move = MoveType.Keyboard;
+								moveTarget.quaternion.copy(player.quaternion);
 								break;
 						};
 					}
@@ -519,13 +521,15 @@
 								const moveAmount = player.maxSpeed;
 
 								if (keys["KeyW"] || keys["ArrowUp"])
-									moveTarget.position.y += moveAmount;
+									moveTarget.translateY(moveAmount);
 								if (keys["KeyA"] || keys["ArrowLeft"])
-									moveTarget.position.x -= moveAmount;
+									moveTarget.translateX(-moveAmount);
 								if (keys["KeyS"] || keys["ArrowDown"])
-									moveTarget.position.y -= moveAmount;
+									moveTarget.translateY(-moveAmount);
 								if (keys["KeyD"] || keys["ArrowRight"])
-									moveTarget.position.x += moveAmount;
+									moveTarget.translateX(moveAmount);
+
+								moveTarget.quaternion.copy(player.quaternion);
 							}
 							else if (move == MoveType.Mouse)
 							{
