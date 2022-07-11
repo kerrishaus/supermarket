@@ -4,6 +4,12 @@
     -webkit-user-select: none;
 }
 
+input
+{
+    user-select: initial !important;
+    -webkit-user-select: initial !important;
+}
+
 html, body
 {
     margin: 0;
