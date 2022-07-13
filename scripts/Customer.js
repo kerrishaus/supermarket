@@ -86,10 +86,7 @@ export class Customer extends ItemCarrier
             if (this.actions.length > 0)
             {                
                 if (this.actions[0].type == "move")
-                {
                     this.nextAction();
-                    return;
-                }
                 else if (this.actions[0].type == "buy")
                 {
                     if (this.actions[0].container.carriedItems.length > 0)
@@ -99,33 +96,31 @@ export class Customer extends ItemCarrier
                         console.log("taking item from container. " + this.actions[0].amount + " " + this.carriedItems.length);
 
                         if (this.carriedItems.length >= this.actions[0].amount)
-                        {
                             this.nextAction();
-                            return;
-                        }
                     } // else, keep waiting for enough items to become available
                     else
                         this.waitTime += deltaTime;
                 }
             }
-            
-            this.position.copy(this.targetPosition);
-            return;
+            else
+                this.position.copy(this.targetPosition);
         }
-        
-        this.position.lerpVectors(this.startPosition, this.targetPosition, this.elapsedTime / this.actionTime);
-        
-        let y2 = this.targetPosition.y, y1 = this.position.y;
-        let x2 = this.targetPosition.x, x1 = this.position.x;
-        let angle = Math.atan2( y2 - y1, x2 - x1 ) - 1.5708;
-        this.rotation.z = angle;
+        else
+        {
+            this.position.lerpVectors(this.startPosition, this.targetPosition, this.elapsedTime / this.actionTime);
+            
+            let y2 = this.targetPosition.y, y1 = this.position.y;
+            let x2 = this.targetPosition.x, x1 = this.position.x;
+            let angle = Math.atan2( y2 - y1, x2 - x1 ) - 1.5708;
+            this.rotation.z = angle;
+        }
 
         // keeps all carried items in their proper position
         for (let i = 0; i < this.carriedItems.length; i++)
         {
             let item = this.carriedItems[i];
 
-            const carryPos = ((item.scale.z / 2) * i) + 1.25;
+            const carryPos = ((item.scale.z / 2) * i) + this.scale.z + item.scale.z / 2;
             
             item.quaternion.copy(this.quaternion);
 
