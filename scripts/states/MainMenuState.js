@@ -1,5 +1,7 @@
 import { State } from "./State.js";
 
+import * as PageUtility from "../PageUtility.js";
+
 import { PlayState } from "./PlayState.js";
 
 export class MainMenuState extends State
@@ -8,11 +10,7 @@ export class MainMenuState extends State
     {
         this.stateMachine = stateMachine;
 
-        this.menuStyles = document.createElement("link");
-        this.menuStyles.setAttribute("rel", "stylesheet");
-        this.menuStyles.setAttribute("href", "./styles/mainMenu.css");
-        this.menuStyles.id = "menuStyles";
-        document.head.appendChild(this.menuStyles);
+        PageUtility.addStyle("mainMenu");
 
         this.mainMenu = document.createElement("div");
         this.mainMenu.id = "mainMenu";
@@ -35,7 +33,8 @@ export class MainMenuState extends State
 
     cleanup()
     {
-        menuStyles.remove();
+        PageUtility.removeStyle("mainMenu");
+
         mainMenu.remove();
 
         console.log("MainMenuState cleaned up.");

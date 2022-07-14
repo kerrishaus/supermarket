@@ -3,6 +3,7 @@ import { State } from "./State.js";
 import * as THREE from "https://kerrishaus.com/assets/threejs/build/three.module.js";
 
 import * as MathUtility from "../MathUtility.js";
+import * as PageUtility from "../PageUtility.js";
 
 import { Interactable } from "../geometry/InteractableMesh.js";
 
@@ -10,6 +11,11 @@ export class PlayState extends State
 {
     init()
     {
+        PageUtility.addStyle("game");
+        PageUtility.addStyle("banner");
+        PageUtility.addStyle("interface");
+        PageUtility.addStyle("dayMenu");
+
         $(document.body).append(`<div id='interface' class="gameInterfaceContainer">
         <div class='banner'>
             <div>
@@ -238,6 +244,11 @@ export class PlayState extends State
 
     cleanup()
     {
+        PageUtility.removeStyle("game");
+        PageUtility.removeStyle("banner");
+        PageUtility.removeStyle("interface");
+        PageUtility.removeStyle("dayMenu");
+
         console.log("Cleaned up PlayState.");
     }
 

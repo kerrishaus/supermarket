@@ -24,6 +24,8 @@ import { PhysicsScene } from "../PhysicsScene.js";
 import { Shop } from "../Shop.js";
 import { Player } from "../Player.js";
 
+import * as PageUtility from "../PageUtility.js";
+
 import { MainMenuState } from "./MainMenuState.js";
 
 export class LoadingState extends State
@@ -32,11 +34,7 @@ export class LoadingState extends State
     {
         this.stateMachine = stateMachine;
 
-        this.loadingStyles = document.createElement("link");
-        this.loadingStyles.setAttribute("rel", "stylesheet");
-        this.loadingStyles.setAttribute("href", "./styles/loading.css");
-        this.loadingStyles.id = "loadingStyles";
-        document.head.appendChild(this.loadingStyles);
+        PageUtility.addStyle("loading");
 
         this.loadingDiv = document.createElement("div");
         this.loadingDiv.id = "loadingDiv";
@@ -338,7 +336,8 @@ export class LoadingState extends State
     
     cleanup()
     {
-        loadingStyles.remove();
+        PageUtility.removeStyle("loading");
+        
         loadingDiv.remove();
         
         console.log("LoadingState cleaned up.");
