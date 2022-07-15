@@ -21,12 +21,11 @@ import { CSS2DRenderer } from "https://kerrishaus.com/assets/threejs/examples/js
 import AmmoLib from "https://kerrishaus.com/assets/ammojs/ammo.module.js";
 
 import { PhysicsScene } from "../PhysicsScene.js";
-import { Shop } from "../Shop.js";
-import { Player } from "../Player.js";
 
 import * as PageUtility from "../PageUtility.js";
 
 import { MainMenuState } from "./MainMenuState.js";
+import { PlayState } from "./PlayState.js";
 
 export class LoadingState extends State
 {
@@ -172,7 +171,8 @@ export class LoadingState extends State
                 prepareThree();
                 prepareAmmo(lib);
 
-                this.stateMachine.changeState(new MainMenuState());
+                //this.stateMachine.changeState(new MainMenuState());
+                this.stateMachine.changeState(new PlayState());
             });
         });
         

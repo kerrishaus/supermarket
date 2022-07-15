@@ -1,8 +1,8 @@
-import { BackstockContainer } from "./BackstockContainer.js";
+import { ItemGenerator } from "./ItemGenerator.js";
 
 import { SodaCan } from "../SodaCan.js";
 
-export class SodaContainer extends BackstockContainer
+export class SodaMaker extends ItemGenerator
 {
     createItem()
     {

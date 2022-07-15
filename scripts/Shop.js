@@ -11,12 +11,12 @@ import { RecycleBin } from "./tiles/RecycleBin.js";
 import { BuyableTile } from "./tiles/BuyableTile.js";
 
 import { TomatoStand } from "./tiles/TomatoStand.js";
-
 import { SodaMachine } from "./tiles/SodaMachine.js";
 
 import { Customer } from "./Customer.js";
-import { SodaContainer } from "./tiles/SodaContainer.js";
-import { TomatoContainer } from "./tiles/TomatoContainer.js";
+import { SodaMaker } from "./tiles/SodaMaker.js";
+import { TomatoPlant } from "./tiles/TomatoPlant.js";
+import { Tomato } from "./Tomato.js";
 
 export class Shop extends Group
 {
@@ -71,12 +71,12 @@ export class Shop extends Group
             scene.remove(tomatoStandBuyTile);
             this.containerTiles.push(tomatoStand);
 
-            this.tomatoContainer = new TomatoContainer();
-            this.tomatoContainer.position.x = -5;
-            this.tomatoContainer.position.y = -18;
-            this.tomatoContainer.addItem(55);
-            this.backstockTiles.push(this.tomatoContainer);
-            scene.add(this.tomatoContainer);
+            this.tomatoPlant1 = new TomatoPlant();
+            this.tomatoPlant1.position.x = -5;
+            this.tomatoPlant1.position.y = -18;
+            this.tomatoPlant1.addItem(55);
+            this.backstockTiles.push(this.tomatoPlant1);
+            scene.add(this.tomatoPlant1);
 
             let sodaMachineBuyTile = new BuyableTile(0.2, 0.2, 7, 3, 100, "Buy \"Soda Machine\"");
             sodaMachineBuyTile.onFullyPaid = () =>
@@ -89,12 +89,12 @@ export class Shop extends Group
                 scene.remove(sodaMachineBuyTile);
                 this.containerTiles.push(sodaMachine);
 
-                this.sodaContainer = new SodaContainer();
-                this.sodaContainer.position.x = -2;
-                this.sodaContainer.position.y = -18;
-                this.sodaContainer.addItem(55);
-                this.backstockTiles.push(this.sodaContainer);
-                scene.add(this.sodaContainer);
+                this.sodaMaker = new SodaMaker();
+                this.sodaMaker.position.x = -2;
+                this.sodaMaker.position.y = -18;
+                this.sodaMaker.addItem(55);
+                this.backstockTiles.push(this.sodaMaker);
+                scene.add(this.sodaMaker);
 
                 console.log("Bought soda machine.");
             };

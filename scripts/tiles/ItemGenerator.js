@@ -8,13 +8,13 @@ import { Player } from "../Player.js";
 import { Customer } from "../Customer.js";
 import { Employee } from "../Employee.js";
 
-export class BackstockContainer extends Interactable
+export class ItemGenerator extends Interactable
 {
     constructor()
     {
         super(2, 2, 2, 4, 0xad723e);
 
-        this.name = "backstockContainer";
+        this.name = "ItemGenerator";
         this.itemType = null;
         
         this.carriedItems = new Array();
@@ -38,11 +38,22 @@ export class BackstockContainer extends Interactable
         this.label = new CSS2DObject(labelDiv);
         this.label.color = "white";
         this.add(this.label);
+
+        this.itemTime = 3;
+        this.timeSinceLastItem = 0;
     }
     
     update(deltaTime)
     {
         super.update(deltaTime);
+
+        if (this.timeSinceLastItem > this.itemTime)
+        {
+            this.addItem();
+            this.timeSinceLastItem = 0;
+        }
+
+        this.timeSinceLastItem += deltaTime;
     }
 
     // this can be overriden by derived classes
@@ -52,7 +63,7 @@ export class BackstockContainer extends Interactable
         return new Carryable(this.itemLength, this.itemWidth, this.itemThickness, 0x48c942);
     }
     
-    addItem(amount)
+    addItem(amount = 1)
     {
         for (let i = 0; i < amount; i++)
         {
