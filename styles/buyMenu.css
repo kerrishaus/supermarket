@@ -1,0 +1,45 @@
+#buyMenu
+{
+    box-sizing: border-box;
+
+    width: 100vw;
+    height: 100vh;
+
+    position: absolute;
+    z-index: 100;
+    top: 0px;
+    left: 0px;
+
+    border: 30px solid #000000bb;
+
+    padding: 40px;
+
+    background-color: #ffffffe7;
+
+    transition: opacity 0.25s;
+}
+
+#buyMenu[data-visiblity="hidden"]
+{
+    pointer-events: none;
+    user-select: none;
+    -webkit-user-select: none;
+
+    opacity: 0;
+}
+
+#buyMenu[data-visiblity="shown"]
+{
+    opacity: 1;
+
+    pointer-events: all;
+    user-select: all;
+    -webkit-user-select: all;
+}
+
+.buyItem
+{
+    background-color: gray;
+    padding: 10px 20px;
+    border-radius: 10px;
+}

@@ -16,7 +16,7 @@ export class PlayState extends State
         PageUtility.addStyle("game");
         PageUtility.addStyle("banner");
         PageUtility.addStyle("interface");
-        PageUtility.addStyle("dayMenu");
+        PageUtility.addStyle("buyMenu");
 
         $(document.body).append(`<div id='interface' class="gameInterfaceContainer">
         <div class='banner'>
@@ -37,6 +37,9 @@ export class PlayState extends State
             </div>
         </div>
     </div>`);
+
+            $(document.body).append(`<div id="buyMenu" class="display-flex flex-wrap flex-gap" data-visiblity="hidden">
+        </div>`);
 
         window.shop = new Shop();
         scene.add(shop);
@@ -80,19 +83,19 @@ export class PlayState extends State
             return false;
         };
 
-        window.addEventListener("mousemove", (event) =>
+        renderer.domElement.addEventListener("mousemove", (event) =>
         {
             this.mouse.x = ( event.clientX / window.innerWidth ) * 2 - 1;
             this.mouse.y = - ( event.clientY / window.innerHeight ) * 2 + 1;
         });
         
-        window.addEventListener("touchmove", (event) =>
+        renderer.domElement.addEventListener("touchmove", (event) =>
         {
             this.mouse.x = ( event.touches[0].clientX / window.innerWidth ) * 2 - 1;
             this.mouse.y = - ( event.touches[0].clientY / window.innerHeight ) * 2 + 1;
         });
 
-        window.addEventListener("touchstart", (event) =>
+        renderer.domElement.addEventListener("touchstart", (event) =>
         {
             this.pointerMoveOrigin.x = ( event.touches[0].clientX / window.innerWidth ) * 2 - 1;
             this.pointerMoveOrigin.y = - ( event.touches[0].clientY / window.innerHeight ) * 2 + 1;
@@ -100,7 +103,7 @@ export class PlayState extends State
             this.move = this.MoveType.Touch;
         });
         
-        window.addEventListener("mousedown", (event) =>
+        renderer.domElement.addEventListener("mousedown", (event) =>
         {
             this.pointerMoveOrigin.x = ( event.clientX / window.innerWidth ) * 2 - 1;
             this.pointerMoveOrigin.y = - ( event.clientY / window.innerHeight ) * 2 + 1;
@@ -108,7 +111,7 @@ export class PlayState extends State
             this.move = this.MoveType.Mouse;
         });
 
-        $(document).on('mouseup touchend', (event) =>
+        $(renderer.domElement).on('mouseup touchend', (event) =>
         {
             this.move = null;
         });
@@ -127,6 +130,12 @@ export class PlayState extends State
             {
                 switch (event.code)
                 {
+                    case "KeyB":
+                        if ($("#buyMenu").attr("data-visiblity") == "shown")
+                            $("#buyMenu").attr("data-visiblity", "hidden");
+                        else
+                            $("#buyMenu").attr("data-visiblity", "shown");
+                        break;
                     case "KeyW":
                     case "ArrowUp":
                     case "KeyA":
@@ -169,7 +178,7 @@ export class PlayState extends State
         PageUtility.removeStyle("game");
         PageUtility.removeStyle("banner");
         PageUtility.removeStyle("interface");
-        PageUtility.removeStyle("dayMenu");
+        PageUtility.removeStyle("buyMenu");
 
         console.log("Cleaned up PlayState.");
     }

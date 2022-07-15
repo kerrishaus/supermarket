@@ -65,19 +65,23 @@ export class Shop extends Group
         {
             const tomatoStand = new TomatoStand(1, 4);
             tomatoStand.position.copy(tomatoStandBuyTile.position);
-
             scene.add(tomatoStand);
+
             tomatoStandBuyTile.remove(tomatoStandBuyTile.label);
             scene.remove(tomatoStandBuyTile);
             this.containerTiles.push(tomatoStand);
 
-            this.tomatoPlant1 = new TomatoPlant();
-            this.tomatoPlant1.position.x = -5;
-            this.tomatoPlant1.position.y = -18;
-            this.tomatoPlant1.addItem(55);
-            this.backstockTiles.push(this.tomatoPlant1);
-            scene.add(this.tomatoPlant1);
+            $("#buyMenu").append(`<div class='buyItem' id='buyTomatoPlant'>Tomato Plant</div>`).click((event) =>
+            {
+                this.tomatoPlant1 = new TomatoPlant();
+                this.tomatoPlant1.position.x = -5;
+                this.tomatoPlant1.position.y = -18;
+                this.tomatoPlant1.addItem(55);
+                this.backstockTiles.push(this.tomatoPlant1);
+                scene.add(this.tomatoPlant1);
+            });
 
+            /*
             let sodaMachineBuyTile = new BuyableTile(0.2, 0.2, 7, 3, 100, "Buy \"Soda Machine\"");
             sodaMachineBuyTile.onFullyPaid = () =>
             {
@@ -99,6 +103,7 @@ export class Shop extends Group
                 console.log("Bought soda machine.");
             };
             scene.add(sodaMachineBuyTile);
+            */
         };
         scene.add(tomatoStandBuyTile);
 
