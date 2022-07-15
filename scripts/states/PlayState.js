@@ -5,6 +5,8 @@ import * as THREE from "https://kerrishaus.com/assets/threejs/build/three.module
 import * as MathUtility from "../MathUtility.js";
 import * as PageUtility from "../PageUtility.js";
 
+import { Shop } from "../Shop.js";
+import { Player } from "../Player.js";
 import { Interactable } from "../geometry/InteractableMesh.js";
 
 export class PlayState extends State
@@ -36,6 +38,12 @@ export class PlayState extends State
         </div>
     </div>`);
 
+        window.shop = new Shop();
+        scene.add(shop);
+
+        window.player = new Player();
+        scene.add(player);
+
         this.MoveType = {
             Mouse: 'Mouse',
             Touch: 'Touch',
@@ -54,8 +62,10 @@ export class PlayState extends State
                                                                                                              transparent: true,
                                                                                                              opacity: 0.7,
                                                                                                             }));
+
+        scene.add(this.moveTarget);                                                                                                            
         
-        this.plane = new THREE.Plane(new THREE.Vector3(0, 0, 1), 0);
+        this.plane = new THREE.Plane(new THREE.Vector3(0, 0, 0.5), 0);
 
         this.mouse = new THREE.Vector2();
         this.raycaster = new THREE.Raycaster();
@@ -87,7 +97,7 @@ export class PlayState extends State
             this.pointerMoveOrigin.x = ( event.touches[0].clientX / window.innerWidth ) * 2 - 1;
             this.pointerMoveOrigin.y = - ( event.touches[0].clientY / window.innerHeight ) * 2 + 1;
 
-            this.move = MoveType.Touch;
+            this.move = this.MoveType.Touch;
         });
         
         window.addEventListener("mousedown", (event) =>
@@ -125,7 +135,7 @@ export class PlayState extends State
                     case "ArrowDown":
                     case "KeyD":
                     case "ArrowRight":
-                        break;
+                        break; // remove this when keyboard movement is allowed
                         this.move = MoveType.Keyboard;
                         this.moveTarget.quaternion.copy(player.quaternion);
                         break;
@@ -136,6 +146,8 @@ export class PlayState extends State
         window.addEventListener("keyup", (event) =>
         {
             this.keys[event.code] = false;
+
+            return; // remove this when keyboard movement is allowed
 
             if (!(this.keys["KeyW"] || this.keys["ArrowUp"] ||
                   this.keys["KeyA"] || this.keys["ArrowLeft"] ||
@@ -247,7 +259,7 @@ export class PlayState extends State
                 {
                     this.raycaster.setFromCamera(this.mouse, camera);
                     this.raycaster.ray.intersectPlane(this.plane, this.intersects);
-                    this.moveTarget.position.set(this.intersects.x, this.intersects.y, this.intersects.z);
+                    this.moveTarget.position.copy(this.intersects);
                 }
 
                 x1 = player.position.x;
