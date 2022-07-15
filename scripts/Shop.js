@@ -107,15 +107,8 @@ export class Shop extends Group
         this.maxCustomers  = 20;
         this.timeSinceLastCustomer = this.customerTimer;
 
-        this.dayLength = 60;
-        this.dayTimer  = this.dayLength;
-        this.dayOver = true;
-
-        this.daySales       = 0;
         this.lifeSales      = 0;
-        this.dayCustomers   = 0;
         this.lifeCustomers  = 0;
-        this.dayReputation  = 0;
         this.lifeReputation = 0;
 
         this.spawnPosition    = new Vector3(-4, 15, 0);
@@ -162,99 +155,15 @@ export class Shop extends Group
         $("#customerCount").text(this.customers.length);
     }
 
-    startDay()
-    {
-        console.log("Starting new day.");
-
-        this.dayTimer = 0;
-
-        this.dayCustomers = 0;
-        this.daySales     = 0;
-
-        for (const container of this.containerTiles)
-        {
-            container.dayCustomers = 0;
-            container.daySales     = 0;
-        }
-
-        for (const container of this.backstockTiles)
-        {
-            container.addItem($(`input[name="${container.name}"]`).val());
-        }
-
-        this.dayOver = false;
-
-        console.log("Day started.");
-    }
-
-    prepNextDay()
-    {
-        console.log("prepping next day");
-
-        $(".newDay > div > .day-order > table > thead").empty();
-        $(".newDay > div > .day-order > table > tbody").empty();
-
-        for (const container of this.backstockTiles)
-        {
-            $(".newDay > div > .day-order > table > thead").append(`<th>${container.name}</th>`);
-            $(".newDay > div > .day-order > table > tbody").append(`<td><input type='number' name='${container.name}'/></td>`);
-        }
-    }
-
-    endDay()
-    {
-        console.log("Ending day.");
-
-        this.dayOver = true;
-
-        $(".endDay > div > .day-stats > .daySales > thead").empty();
-        $(".endDay > div > .day-stats > .daySales > tbody").empty();
-
-        $(".endDay > div > .day-stats > .lifeSales > thead").empty();
-        $(".endDay > div > .day-stats > .lifeSales > tbody").empty();
-
-        for (const container of this.containerTiles)
-        {
-            this.lifeSales += this.daySales += container.daySales;
-            this.lifeCustomers += this.dayCustomers += container.dayCustomers;
-
-            $(".endDay > div > .day-stats > .daySales > thead").append(`<th>${container.name}</th>`);
-            $(".endDay > div > .day-stats > .daySales > tbody").append(`<td>${container.daySales}</td>`);
-
-            $(".endDay > div > .day-stats > .lifeSales > thead").append(`<th>${container.name}</th>`);
-            $(".endDay > div > .day-stats > .lifeSales > tbody").append(`<td>${container.lifeSales}</td>`);
-        }
-
-        $(".endDay > div > .day-stats > .daySales > thead").prepend("<th>Total</td>");
-        $(".endDay > div > .day-stats > .daySales > tbody").prepend(`<th>${this.daySales}</th>`);
-
-        $(".endDay > div > .day-stats > .lifeSales > thead").prepend("<th>Total</td>");
-        $(".endDay > div > .day-stats > .lifeSales > tbody").prepend(`<th>${this.lifeSales}</th>`);
-
-        $("#endDay").attr("data-visibility", "shown");
-
-        console.log("Ended day.");
-    }
-    
     update(deltaTime)
     {
-        if (this.dayTimer < this.dayLength)
+        if (this.timeSinceLastCustomer > this.customerTimer)
         {
-            if (this.timeSinceLastCustomer > this.customerTimer)
-            {
-                if (this.containerTiles.length > 0 && this.customers.length < this.maxCustomers)
-                    this.spawnCustomer();
-            }
-            else
-                this.timeSinceLastCustomer += deltaTime;
-
-            this.dayTimer += deltaTime;
-
-            $("#dayTime").text(Math.floor(this.dayTimer));
+            if (this.containerTiles.length > 0 && this.customers.length < this.maxCustomers)
+                this.spawnCustomer();
         }
-        else // day is over
-            if (this.customers.length <= 0)
-                this.endDay();
+        else
+            this.timeSinceLastCustomer += deltaTime;
 
         for (const customer of this.customers)
         {
@@ -282,7 +191,7 @@ export class Shop extends Group
                 customer.pushAction({type: "move", position: this.readyPosition});
                 customer.pushAction({type: "move", position: this.spawnPosition});
 
-                this.dayReputation -= 1;
+                this.lifeReputation -= 1;
             }
         }
     }
