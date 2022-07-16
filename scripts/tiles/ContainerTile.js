@@ -1,11 +1,11 @@
 import { Vector3 } from "https://kerrishaus.com/assets/threejs/build/three.module.js";
 
-import { Interactable } from "../geometry/InteractableMesh.js";
+import { Triggerable } from "../geometry/TriggerableMesh.js";
 
 import { Player } from "../Player.js";
 import { Customer } from "../Customer.js";
 
-export class ContainerTile extends Interactable
+export class ContainerTile extends Triggerable
 {
     // TODO: improve this constructor
     constructor(a, b, c, d, e,)

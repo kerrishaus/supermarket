@@ -7,7 +7,7 @@ import * as PageUtility from "../PageUtility.js";
 
 import { Shop } from "../Shop.js";
 import { Player } from "../Player.js";
-import { Interactable } from "../geometry/InteractableMesh.js";
+import { Triggerable } from "../geometry/TriggerableMesh.js";
 
 export class PlayState extends State
 {
@@ -300,7 +300,7 @@ export class PlayState extends State
             if ('update' in object)
                 object.update(deltaTime);
 
-            if (object instanceof Interactable)
+            if (object instanceof Triggerable)
             {
                 if (player.box.intersectsBox(object.trigger))
                     object.onTrigger(player);
@@ -309,7 +309,7 @@ export class PlayState extends State
 
                 for (const customer of shop.customers)
                 {
-                    // customer intersects with interactable's trigger
+                    // customer intersects with Triggerable's trigger
                     if (object.trigger.intersectsBox(customer.box))
                     {
                         // object is not currently triggered by the customer

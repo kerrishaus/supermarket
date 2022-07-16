@@ -3,11 +3,11 @@ import { Vector2, Vector3, Quaternion, TextureLoader, MeshStandardMaterial } fro
 import { CSS2DObject } from "https://kerrishaus.com/assets/threejs/examples/jsm/renderers/CSS2DRenderer.js";
 
 import { Carryable } from "../Carryable.js";
-import { Interactable } from "../geometry/InteractableMesh.js";
+import { Triggerable } from "../geometry/TriggerableMesh.js";
 import { Player } from "../Player.js";
 import { Employee } from "../Employee.js";
 
-export class GeneratorTile extends Interactable
+export class GeneratorTile extends Triggerable
 {
     constructor(size, triggerSize, color = 0xad723e, name = "Item Generator")
     {

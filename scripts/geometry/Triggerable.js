@@ -2,7 +2,7 @@ import { BoxGeometry, MeshStandardMaterial, Mesh, Box3 } from "https://kerrishau
 
 import { DynamicMesh } from "./DynamicMesh.js";
 
-export class Interactable extends DynamicMesh
+export class Triggerable extends DynamicMesh
 {
     constructor(width, length, triggerWidth, triggerLength, color)
     {

@@ -1,8 +1,8 @@
-import { Interactable } from "../geometry/InteractableMesh";
+import { Triggerable } from "../geometry/TriggerableMesh";
 import { ContainerTile } from "./ContainerTile";
 import { GeneratorTile } from "./GeneratorTile";
 
-export class TomatoJuicer extends Interactable
+export class TomatoJuicer extends Triggerable
 {
     constructor(position)
     {
