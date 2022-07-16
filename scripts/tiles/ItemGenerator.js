@@ -19,9 +19,8 @@ export class ItemGenerator extends Interactable
         this.itemTime = 3;
         this.timeSinceLastItem = 0;
 
-        this.maxItems = 3;
-        
         this.carriedItems = new Array();
+        this.maxItems = 3;
         
         this.column_ = 0;
         this.row_ = 0;
@@ -85,7 +84,7 @@ export class ItemGenerator extends Interactable
         this.label.element.textContent = this.carriedItems.length;
     }
     
-    transferItem(carrier)
+    transferToCarrier(carrier)
     {
         if (this.carriedItems.length <= 0)
             return;
@@ -140,7 +139,7 @@ export class ItemGenerator extends Interactable
         super.onTrigger(object);
 
         if (object instanceof Player)
-            this.transferItem(object);
+            this.transferToCarrier(object);
     }
     
     onStopTrigger(object)

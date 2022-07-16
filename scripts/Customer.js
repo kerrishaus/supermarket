@@ -1,5 +1,7 @@
 import { BoxGeometry, MeshStandardMaterial, Vector3, Box3 } from "https://kerrishaus.com/assets/threejs/build/three.module.js";
 
+import { CSS2DObject } from "https://kerrishaus.com/assets/threejs/examples/jsm/renderers/CSS2DRenderer.js";
+
 import { ItemCarrier } from "./ItemCarrier.js";
 
 export class Customer extends ItemCarrier
@@ -21,7 +23,7 @@ export class Customer extends ItemCarrier
         
         this.actions = new Array();
     }
-    
+
     pushAction(action)
     {
         this.actions.push(action);
@@ -92,14 +94,14 @@ export class Customer extends ItemCarrier
                     if (this.actions[0].container.carriedItems.length > 0)
                     {
                         this.actions[0].container.transferToCarrier(this);
-
+                        
                         console.log(`Picking up item ${this.carriedItems.length} of ${this.actions[0].amount}`);
-
+                        
                         if (this.carriedItems.length >= this.actions[0].amount)
                             this.nextAction();
                     } // else, keep waiting for enough items to become available
                     else
-                        this.waitTime += deltaTime;
+                    this.waitTime += deltaTime;
                 }
             }
             else
@@ -113,25 +115,6 @@ export class Customer extends ItemCarrier
             let x2 = this.targetPosition.x, x1 = this.position.x;
             let angle = Math.atan2( y2 - y1, x2 - x1 ) - 1.5708;
             this.rotation.z = angle;
-        }
-
-        // keeps all carried items in their proper position
-        for (let i = 0; i < this.carriedItems.length; i++)
-        {
-            let item = this.carriedItems[i];
-
-            const carryPos = ((item.scale.z / 2) * i) + this.scale.z + item.scale.z / 2;
-            
-            item.quaternion.copy(this.quaternion);
-
-            if (item.elapsedTime > item.moveTime)
-            {
-                item.position.copy(this.position);
-                item.position.z += carryPos;
-                continue;
-            }
-            
-            item.updateTarget(this.position, new Vector3(0, 0, carryPos));
         }
         
         super.update(deltaTime);

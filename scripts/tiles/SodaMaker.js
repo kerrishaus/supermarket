@@ -1,6 +1,6 @@
 import { ItemGenerator } from "./ItemGenerator.js";
 
-import { SodaCan } from "../SodaCan.js";
+import { SodaCan } from "../items/SodaCan.js";
 
 export class SodaMaker extends ItemGenerator
 {

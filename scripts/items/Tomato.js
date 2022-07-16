@@ -1,4 +1,4 @@
-import { Carryable } from "./Carryable.js";
+import { Carryable } from "../Carryable.js";
 
 export class Tomato extends Carryable
 {

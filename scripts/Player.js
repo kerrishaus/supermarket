@@ -13,10 +13,10 @@ export class Player extends ItemCarrier
         
         super(geometry, material);
 
-        this.nose = GeometryUtil.createScaledCube(0.4, 1, 0.2, 0x0000aa);
-        this.nose.position.z = 0.8;
-        this.nose.position.y = 0.5;
-        this.add(this.nose);
+        const nose = GeometryUtil.createScaledCube(0.4, 1, 0.2, 0x0000aa);
+        nose.position.z = 0.8;
+        nose.position.y = 0.5;
+        this.add(nose);
         
         this.money = 0;
         

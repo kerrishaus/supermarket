@@ -17,6 +17,7 @@ import { TomatoPlant } from "./tiles/TomatoPlant.js";
 
 import { SodaMachine } from "./tiles/SodaMachine.js";
 import { SodaMaker } from "./tiles/SodaMaker.js";
+import { Employee } from "./Employee.js";
 
 export class Shop extends Group
 {
@@ -46,7 +47,7 @@ export class Shop extends Group
         scene.add(this.doors);
 
         this.containerTiles = new Array();
-        this.backstockTiles = new Array();
+        this.generatorTiles = new Array();
         
         this.register = new Register();
         this.register.position.x = -8;
@@ -74,7 +75,7 @@ export class Shop extends Group
             this.tomatoPlant1 = new TomatoPlant();
             this.tomatoPlant1.position.x = -5;
             this.tomatoPlant1.position.y = -18;
-            this.backstockTiles.push(this.tomatoPlant1);
+            this.generatorTiles.push(this.tomatoPlant1);
             scene.add(this.tomatoPlant1);
 
             let tomatoPlant2BuyTile = new BuyableTile(0.3, 0.3, -3, -18, 50, "Buy \"Tomato Plant\"");
@@ -140,6 +141,9 @@ export class Shop extends Group
 
         tomatoStandBuyTile.onFullyPaid();
 
+        const employee1 = new Employee(this);
+        scene.add(employee1);
+
         this.customers = new Array();
         this.timeUntilNextCustomer = 14;
         this.minTimeUntilNextCustomer = 7;
@@ -189,7 +193,7 @@ export class Shop extends Group
             customer.pushAction({
                 type: "buy",
                 container: this.containerTiles[0],
-                amount: MathUtility.getRandomInt(0, this.containerTiles[0].maxItems)
+                amount: MathUtility.getRandomInt(0, customer.carryLimit) + 1
             });
         
         customer.pushAction({type: "move", position: this.registerPosition});

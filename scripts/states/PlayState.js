@@ -44,6 +44,7 @@ export class PlayState extends State
         scene.add(shop);
 
         window.player = new Player();
+        player.position.z = 0.5;
         scene.add(player);
 
         this.MoveType = {
