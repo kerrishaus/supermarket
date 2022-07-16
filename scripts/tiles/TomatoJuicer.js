@@ -1,4 +1,4 @@
-import { Triggerable } from "../geometry/TriggerableMesh";
+import { Triggerable } from "../geometry/Triggerable";
 import { ContainerTile } from "./ContainerTile";
 import { GeneratorTile } from "./GeneratorTile";
 

@@ -3,7 +3,7 @@ import { Vector3 } from "https://kerrishaus.com/assets/threejs/build/three.modul
 
 import { createObject } from "./geometry/GeometryUtility.js";
 
-import { Triggerable } from "./geometry/TriggerableMesh.js";
+import { Triggerable } from "./geometry/Triggerable.js";
 import { Carryable } from "./Carryable.js";
 
 export class Door extends Triggerable

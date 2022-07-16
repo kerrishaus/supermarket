@@ -7,7 +7,7 @@ import * as PageUtility from "../PageUtility.js";
 
 import { Shop } from "../Shop.js";
 import { Player } from "../Player.js";
-import { Triggerable } from "../geometry/TriggerableMesh.js";
+import { Triggerable } from "../geometry/Triggerable.js";
 
 export class PlayState extends State
 {
