@@ -18,7 +18,6 @@ export class ContainerTile extends Interactable
         this.name     = null;
         this.itemType = null;
 
-        this.daySales  = 0;
         this.lifeSales = 0;
 
         this.column_     = 0;
@@ -54,15 +53,21 @@ export class ContainerTile extends Interactable
         if (this.carriedItems.length <= 0)
             return;
 
+        if (carrier.carriedItems.length > carrier.carryLimit)
+        {
+            console.warn(`Carrier has too many items! Carrying: ${carrier.carriedItems.length}, Limit: ${carrier.carryLimit}`);
+            return;
+        }
+
         if (carrier instanceof Customer)
         {
             this.carriedItems[0].setTarget(carrier.position, new Vector3(0, 0, 0));
+            this.carriedItems[0].autoPositionAfterAnimation = false;
 
             carrier.carriedItems.push(this.carriedItems[0]);
             this.carriedItems.shift();
 
             this.lifeSales += 1;
-            this.daySales += 1;
         }
     }
 

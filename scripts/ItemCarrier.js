@@ -21,7 +21,7 @@ export class ItemCarrier extends DynamicMesh
         {
             let item = this.carriedItems[i];
 
-            const carryPos = ((item.scale.z / 2) * i) + 1.25;
+            const carryPos = ((item.scale.z / 2) * i) + this.scale.z + item.scale.z / 2;
             
             item.quaternion.copy(this.quaternion);
 
