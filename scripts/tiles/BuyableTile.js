@@ -10,7 +10,7 @@ export class BuyableTile extends Interactable
 {
     constructor(width, length, xPos, yPos, price, name)
     {
-        super(width, length, width + 3, length + 3, 0xff0000);
+        super(width, length, width + 2, length + 2, 0xff0000);
         
         this.position.x = xPos;
         this.position.y = yPos;

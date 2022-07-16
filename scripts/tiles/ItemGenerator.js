@@ -1,21 +1,25 @@
-import { Vector3, Quaternion, TextureLoader, MeshStandardMaterial } from "https://kerrishaus.com/assets/threejs/build/three.module.js";
+import { Vector2, Vector3, Quaternion, TextureLoader, MeshStandardMaterial } from "https://kerrishaus.com/assets/threejs/build/three.module.js";
 
 import { CSS2DObject } from "https://kerrishaus.com/assets/threejs/examples/jsm/renderers/CSS2DRenderer.js";
 
 import { Carryable } from "../Carryable.js";
 import { Interactable } from "../geometry/InteractableMesh.js";
 import { Player } from "../Player.js";
-import { Customer } from "../Customer.js";
 import { Employee } from "../Employee.js";
 
 export class ItemGenerator extends Interactable
 {
-    constructor()
+    constructor(size, triggerSize, color = 0xad723e, name = "Item Generator")
     {
-        super(2, 2, 2, 4, 0xad723e);
+        super(size.x, size.y, triggerSize.x, triggerSize.y, color);
 
-        this.name = "ItemGenerator";
+        this.name = name;
         this.itemType = null;
+
+        this.itemTime = 3;
+        this.timeSinceLastItem = 0;
+
+        this.maxItems = 3;
         
         this.carriedItems = new Array();
         
@@ -38,20 +42,18 @@ export class ItemGenerator extends Interactable
         this.label = new CSS2DObject(labelDiv);
         this.label.color = "white";
         this.add(this.label);
-
-        this.itemTime = 3;
-        this.timeSinceLastItem = 0;
     }
     
     update(deltaTime)
     {
         super.update(deltaTime);
 
-        if (this.timeSinceLastItem > this.itemTime)
-        {
-            this.addItem();
-            this.timeSinceLastItem = 0;
-        }
+        if (this.carriedItems.length < this.maxItems)
+            if (this.timeSinceLastItem > this.itemTime)
+            {
+                this.addItem();
+                this.timeSinceLastItem = 0;
+            }
 
         this.timeSinceLastItem += deltaTime;
     }
@@ -67,8 +69,6 @@ export class ItemGenerator extends Interactable
     {
         for (let i = 0; i < amount; i++)
         {
-            this.calculateGrid();
-            
             const item = this.createItem();
             
             item.position.copy(this.position);
@@ -79,6 +79,8 @@ export class ItemGenerator extends Interactable
             scene.add(item);
             this.carriedItems.push(item);
         }
+
+        this.updateItems();
 
         this.label.element.textContent = this.carriedItems.length;
     }
@@ -108,30 +110,28 @@ export class ItemGenerator extends Interactable
         this.label.element.textContent = this.carriedItems.length;
         
         // TODO: don't think this is necessary
-        this.calculateGrid();
+        this.updateItems();
     }
     
-    calculateGrid()
+    updateItems()
     {
-        this.column_ = 0;
-        this.row_    = 0;
-        this.layer_  = 0;
-        
+        // keeps all carried items in their proper position
         for (let i = 0; i < this.carriedItems.length; i++)
         {
-            this.column_ += 1;
+            let item = this.carriedItems[i];
+
+            const carryPos = ((item.scale.z / 2) * i) + this.scale.z + item.scale.z / 2;
             
-            if (this.column_ >= this.gridColumns)
+            item.quaternion.copy(this.quaternion);
+
+            if (item.elapsedTime > item.moveTime)
             {
-                this.column_ = 0;
-                this.row_ += 1;
+                item.position.copy(this.position);
+                item.position.z += carryPos;
+                continue;
             }
             
-            if (this.row_ >= this.gridRows)
-            {
-                this.row_ = 0;
-                this.layer_ += 1;
-            }
+            item.setTarget(this.position, new Vector3(0, 0, carryPos));
         }
     }
     

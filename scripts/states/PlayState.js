@@ -38,8 +38,7 @@ export class PlayState extends State
         </div>
     </div>`);
 
-            $(document.body).append(`<div id="buyMenu" class="display-flex flex-wrap flex-gap" data-visiblity="hidden">
-        </div>`);
+        //$(document.body).append(`<div id="buyMenu" class="display-flex flex-wrap flex-gap" data-visiblity="hidden"></div>`);
 
         window.shop = new Shop();
         scene.add(shop);
@@ -83,19 +82,19 @@ export class PlayState extends State
             return false;
         };
 
-        renderer.domElement.addEventListener("mousemove", (event) =>
+        window.addEventListener("mousemove", (event) =>
         {
             this.mouse.x = ( event.clientX / window.innerWidth ) * 2 - 1;
             this.mouse.y = - ( event.clientY / window.innerHeight ) * 2 + 1;
         });
         
-        renderer.domElement.addEventListener("touchmove", (event) =>
+        window.addEventListener("touchmove", (event) =>
         {
             this.mouse.x = ( event.touches[0].clientX / window.innerWidth ) * 2 - 1;
             this.mouse.y = - ( event.touches[0].clientY / window.innerHeight ) * 2 + 1;
         });
 
-        renderer.domElement.addEventListener("touchstart", (event) =>
+        window.addEventListener("touchstart", (event) =>
         {
             this.pointerMoveOrigin.x = ( event.touches[0].clientX / window.innerWidth ) * 2 - 1;
             this.pointerMoveOrigin.y = - ( event.touches[0].clientY / window.innerHeight ) * 2 + 1;
@@ -103,7 +102,7 @@ export class PlayState extends State
             this.move = this.MoveType.Touch;
         });
         
-        renderer.domElement.addEventListener("mousedown", (event) =>
+        window.addEventListener("mousedown", (event) =>
         {
             this.pointerMoveOrigin.x = ( event.clientX / window.innerWidth ) * 2 - 1;
             this.pointerMoveOrigin.y = - ( event.clientY / window.innerHeight ) * 2 + 1;
@@ -111,7 +110,7 @@ export class PlayState extends State
             this.move = this.MoveType.Mouse;
         });
 
-        $(renderer.domElement).on('mouseup touchend', (event) =>
+        $(window).on('mouseup touchend', (event) =>
         {
             this.move = null;
         });

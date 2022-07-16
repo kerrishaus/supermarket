@@ -10,13 +10,13 @@ import { Register } from "./tiles/Register.js";
 import { RecycleBin } from "./tiles/RecycleBin.js";
 import { BuyableTile } from "./tiles/BuyableTile.js";
 
-import { TomatoStand } from "./tiles/TomatoStand.js";
-import { SodaMachine } from "./tiles/SodaMachine.js";
-
 import { Customer } from "./Customer.js";
-import { SodaMaker } from "./tiles/SodaMaker.js";
+
+import { TomatoStand } from "./tiles/TomatoStand.js";
 import { TomatoPlant } from "./tiles/TomatoPlant.js";
-import { Tomato } from "./Tomato.js";
+
+import { SodaMachine } from "./tiles/SodaMachine.js";
+import { SodaMaker } from "./tiles/SodaMaker.js";
 
 export class Shop extends Group
 {
@@ -66,20 +66,42 @@ export class Shop extends Group
             const tomatoStand = new TomatoStand(1, 4);
             tomatoStand.position.copy(tomatoStandBuyTile.position);
             scene.add(tomatoStand);
+            this.containerTiles.push(tomatoStand);
 
             tomatoStandBuyTile.remove(tomatoStandBuyTile.label);
             scene.remove(tomatoStandBuyTile);
-            this.containerTiles.push(tomatoStand);
 
-            $("#buyMenu").append(`<div class='buyItem' id='buyTomatoPlant'>Tomato Plant</div>`).click((event) =>
+            this.tomatoPlant1 = new TomatoPlant();
+            this.tomatoPlant1.position.x = -5;
+            this.tomatoPlant1.position.y = -18;
+            this.backstockTiles.push(this.tomatoPlant1);
+            scene.add(this.tomatoPlant1);
+
+            let tomatoPlant2BuyTile = new BuyableTile(0.3, 0.3, -3, -18, 50, "Buy \"Tomato Plant\"");
+            tomatoPlant2BuyTile.onFullyPaid = () =>
             {
-                this.tomatoPlant1 = new TomatoPlant();
-                this.tomatoPlant1.position.x = -5;
-                this.tomatoPlant1.position.y = -18;
-                this.tomatoPlant1.addItem(55);
-                this.backstockTiles.push(this.tomatoPlant1);
-                scene.add(this.tomatoPlant1);
-            });
+                tomatoPlant2BuyTile.remove(tomatoPlant2BuyTile.label);
+                scene.remove(tomatoPlant2BuyTile);
+
+                this.tomatoPlant2 = new TomatoPlant();
+                this.tomatoPlant2.position.x = -3;
+                this.tomatoPlant2.position.y = -18;
+                scene.add(this.tomatoPlant2);
+
+                let tomatoPlant2BuyTile = new BuyableTile(0.3, 0.3, -1, -18, 50, "Buy \"Tomato Plant\"");
+                tomatoPlant3BuyTile.onFullyPaid = () =>
+                {
+                    tomatoPlant3BuyTile.remove(tomatoPlant3BuyTile.label);
+                    scene.remove(tomatoPlant3BuyTile);
+
+                    this.tomatoPlant3 = new TomatoPlant();
+                    this.tomatoPlant3.position.x = -1;
+                    this.tomatoPlant3.position.y = -18;
+                    scene.add(this.tomatoPlant3);
+                };
+                scene.add(tomatoPlant3BuyTile);
+            };
+            scene.add(tomatoPlant2BuyTile);
 
             /*
             let sodaMachineBuyTile = new BuyableTile(0.2, 0.2, 7, 3, 100, "Buy \"Soda Machine\"");
@@ -108,7 +130,7 @@ export class Shop extends Group
         scene.add(tomatoStandBuyTile);
 
         this.customers = new Array();
-        this.customerTimer = 6;
+        this.customerTimer = 14;
         this.maxCustomers  = 20;
         this.timeSinceLastCustomer = this.customerTimer;
 
@@ -116,7 +138,7 @@ export class Shop extends Group
         this.lifeCustomers  = 0;
         this.lifeReputation = 0;
 
-        this.spawnPosition    = new Vector3(-4, 15, 0);
+        this.spawnPosition    = new Vector3(-4, 13, 0);
         this.readyPosition    = new Vector3(-4, 7, 0);
         this.registerPosition = new Vector3(this.register.position.x, this.register.position.y + 2, 0);
     }
