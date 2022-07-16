@@ -93,7 +93,7 @@ export class Customer extends ItemCarrier
                     {
                         this.actions[0].container.transferToCarrier(this);
 
-                        console.log("taking item from container. " + this.actions[0].amount + " " + this.carriedItems.length);
+                        console.log(`Picking up item ${this.carriedItems.length} of ${this.actions[0].amount}`);
 
                         if (this.carriedItems.length >= this.actions[0].amount)
                             this.nextAction();

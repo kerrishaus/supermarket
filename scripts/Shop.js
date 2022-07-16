@@ -88,7 +88,7 @@ export class Shop extends Group
                 this.tomatoPlant2.position.y = -18;
                 scene.add(this.tomatoPlant2);
 
-                let tomatoPlant2BuyTile = new BuyableTile(0.3, 0.3, -1, -18, 50, "Buy \"Tomato Plant\"");
+                let tomatoPlant3BuyTile = new BuyableTile(0.3, 0.3, -1, -18, 50, "Buy \"Tomato Plant\"");
                 tomatoPlant3BuyTile.onFullyPaid = () =>
                 {
                     tomatoPlant3BuyTile.remove(tomatoPlant3BuyTile.label);
@@ -98,8 +98,14 @@ export class Shop extends Group
                     this.tomatoPlant3.position.x = -1;
                     this.tomatoPlant3.position.y = -18;
                     scene.add(this.tomatoPlant3);
+
+                    this.minTimeUntilNextCustomer -= 1;
+                    this.maxTimeUntilNextCustomer -= 1;
                 };
                 scene.add(tomatoPlant3BuyTile);
+
+                this.minTimeUntilNextCustomer -= 1;
+                this.maxTimeUntilNextCustomer -= 1;
             };
             scene.add(tomatoPlant2BuyTile);
 
@@ -126,13 +132,20 @@ export class Shop extends Group
             };
             scene.add(sodaMachineBuyTile);
             */
+
+            this.minTimeUntilNextCustomer -= 3;
+            this.maxTimeUntilNextCustomer -= 3;
         };
         scene.add(tomatoStandBuyTile);
 
+        tomatoStandBuyTile.onFullyPaid();
+
         this.customers = new Array();
-        this.customerTimer = 14;
+        this.timeUntilNextCustomer = 14;
+        this.minTimeUntilNextCustomer = 7;
+        this.maxTimeUntilNextCustomer = 20;
         this.maxCustomers  = 20;
-        this.timeSinceLastCustomer = this.customerTimer;
+        this.timeSinceLastCustomer = this.timeUntilNextCustomer;
 
         this.lifeSales      = 0;
         this.lifeCustomers  = 0;
@@ -152,11 +165,19 @@ export class Shop extends Group
         let atLeastOneTileSelected = false;
         for (const containerTile of this.containerTiles)
         {
-            const chance = MathUtility.getRandomInt(100);
+            const chance = MathUtility.getRandomInt(0, 100) + 1;
 
             if (chance > 50)
             {
-                const amount = MathUtility.getRandomInt(containerTile.maxItems / 2) + 1;
+                const amount = MathUtility.getRandomInt(0, customer.carryLimit) + 1;
+
+                if (amount > customer.carryLimit)
+                {
+                    console.error(`Amount is greater than carry limit! Amount: ${amount} carryLimit: ${customer.carryLimit}`);
+                    return;
+                }
+                else
+                    console.log(`Customer will buy ${amount} from ${containerTile.name}`);
 
                 customer.pushAction({type: "buy", container: containerTile, amount: amount})
 
@@ -165,7 +186,11 @@ export class Shop extends Group
         }
 
         if (!atLeastOneTileSelected)
-            customer.pushAction({type: "buy", container: this.containerTiles[0], amount: MathUtility.getRandomInt(this.containerTiles[0].maxItems / 2) + 1});
+            customer.pushAction({
+                type: "buy",
+                container: this.containerTiles[0],
+                amount: MathUtility.getRandomInt(0, this.containerTiles[0].maxItems)
+            });
         
         customer.pushAction({type: "move", position: this.registerPosition});
         customer.pushAction({type: "move", position: this.readyPosition});
@@ -176,15 +201,15 @@ export class Shop extends Group
         this.timeSinceLastCustomer = 0;
         console.log("added customer");
 
-        this.customerTimer = MathUtility.getRandomInt(7) + 1;
-        console.log("Next customer will spawn in " + this.customerTimer + " seconds");
+        this.timeUntilNextCustomer = MathUtility.getRandomInt(this.minTimeUntilNextCustomer, this.maxTimeUntilNextCustomer);
+        console.log("Next customer will spawn in " + this.timeUntilNextCustomer + " seconds");
 
         $("#customerCount").text(this.customers.length);
     }
 
     update(deltaTime)
     {
-        if (this.timeSinceLastCustomer > this.customerTimer)
+        if (this.timeSinceLastCustomer > this.timeUntilNextCustomer)
         {
             if (this.containerTiles.length > 0 && this.customers.length < this.maxCustomers)
                 this.spawnCustomer();
