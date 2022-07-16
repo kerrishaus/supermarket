@@ -7,7 +7,7 @@ import { Interactable } from "../geometry/InteractableMesh.js";
 import { Player } from "../Player.js";
 import { Employee } from "../Employee.js";
 
-export class ItemGenerator extends Interactable
+export class GeneratorTile extends Interactable
 {
     constructor(size, triggerSize, color = 0xad723e, name = "Item Generator")
     {

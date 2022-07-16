@@ -1,8 +1,8 @@
-import { ItemGenerator } from "./ItemGenerator.js";
+import { GeneratorTile } from "./GeneratorTile.js";
 
 import { SodaCan } from "../items/SodaCan.js";
 
-export class SodaMaker extends ItemGenerator
+export class SodaMaker extends GeneratorTile
 {
     constructor()
     {

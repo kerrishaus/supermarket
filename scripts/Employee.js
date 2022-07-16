@@ -15,6 +15,7 @@ export class Employee extends ItemCarrier
         
         this.elapsedTime = 0;
         this.actionTime = 3;
+        this.speedModifier = 4;
         this.startPosition = new Vector3(0, 0, 0);
         this.targetPosition = new Vector3(0, 0, 0);
 
@@ -27,7 +28,7 @@ export class Employee extends ItemCarrier
 
         if (action.type == "goto")
         {
-            this.actionTime = this.position.distanceTo(action.position) / 4;
+            this.actionTime = this.position.distanceTo(action.position) / this.speedModifier;
             this.setTarget(action.position, this.actionTime);
         }
         
@@ -42,17 +43,17 @@ export class Employee extends ItemCarrier
         if (action.type == "goto")
         {
             console.log("moving to", action.position);
-            this.actionTime = this.position.distanceTo(action.position) / 4;
+            this.actionTime = this.position.distanceTo(action.position) / this.speedModifier;
             this.setTarget(action.position, this.actionTime);
         }
         else if (action.type == "pick")
         {
-            this.actionTime = this.position.distanceTo(action.container.position) / 4;
+            this.actionTime = this.position.distanceTo(action.container.position) / this.speedModifier;
             this.setTarget(action.container.position, this.actionTime);
         }
         else if (action.type == "stock")
         {
-            this.actionTime = this.position.distanceTo(action.container.position) / 4;
+            this.actionTime = this.position.distanceTo(action.container.position) / this.speedModifier;
             this.setTarget(action.container.position, this.actionTime);
         } 
         

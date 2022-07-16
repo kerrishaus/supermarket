@@ -1,10 +1,10 @@
 import { Vector2 } from "https://kerrishaus.com/assets/threejs/build/three.module.js";
 
-import { ItemGenerator } from "./ItemGenerator.js";
+import { GeneratorTile } from "./GeneratorTile.js";
 
 import { Tomato } from "../items/Tomato.js";
 
-export class TomatoPlant extends ItemGenerator
+export class TomatoPlant extends GeneratorTile
 {
     constructor()
     {

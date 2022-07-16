@@ -155,7 +155,7 @@ export class Shop extends Group
         this.lifeCustomers  = 0;
         this.lifeReputation = 0;
 
-        this.spawnPosition    = new Vector3(-4, 13, 0);
+        this.spawnPosition    = new Vector3(-4, 14, 0);
         this.readyPosition    = new Vector3(-4, 7, 0);
         this.registerPosition = new Vector3(this.register.position.x, this.register.position.y + 2, 0);
     }
