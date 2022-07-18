@@ -234,16 +234,13 @@ export class PlayState extends State
 
         if (!this.freeCam && this.move !== null)
         {
-            let x1 = 0, x2 = 0, y1 = 0, y2 = 0;
+            let position = new THREE.Vector2(), target = new THREE.Vector2();
             let velocity = 0;
 
             if (this.move == this.MoveType.Touch)
             {
-                x1 = this.pointerMoveOrigin.x;
-                x2 = this.mouse.x;
-
-                y1 = this.pointerMoveOrigin.y;
-                y2 = this.mouse.y;
+                position = this.pointerMoveOrigin;
+                target = this.mouse;
 
                 velocity = this.pointerMoveOrigin.distanceTo(new THREE.Vector3(this.mouse.x, this.mouse.y)) / 2;
             }
@@ -271,17 +268,18 @@ export class PlayState extends State
                     this.moveTarget.position.copy(this.intersects);
                 }
 
-                x1 = player.position.x;
-                x2 = this.moveTarget.position.x;
+                position.x = player.position.x;
+                position.y = player.position.y
 
-                y1 = player.position.y;
-                y2 = this.moveTarget.position.y;
+                target.x = this.moveTarget.position.x;
+                target.y = this.moveTarget.position.y;
 
                 velocity = player.position.distanceTo(this.moveTarget.position) / 20;
             }
 
             // set the player's direction
-            player.rotation.z = Math.atan2(y2 - y1, x2 - x1) - 1.5708;
+            //player.rotation.z = Math.atan2(y2 - y1, x2 - x1) - 1.5708;
+            player.rotation.z = MathUtility.angleToPoint(position, target);
 
             // clamp the player's velocity
             velocity = MathUtility.clamp(velocity, 0, player.maxSpeed);

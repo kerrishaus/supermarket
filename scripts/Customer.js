@@ -1,6 +1,6 @@
 import { BoxGeometry, MeshStandardMaterial, Vector3, Box3 } from "https://kerrishaus.com/assets/threejs/build/three.module.js";
 
-import { CSS2DObject } from "https://kerrishaus.com/assets/threejs/examples/jsm/renderers/CSS2DRenderer.js";
+import * as MathUtility from "./MathUtility.js";
 
 import { ItemCarrier } from "./ItemCarrier.js";
 
@@ -111,10 +111,7 @@ export class Customer extends ItemCarrier
         {
             this.position.lerpVectors(this.startPosition, this.targetPosition, this.elapsedTime / this.actionTime);
             
-            let y2 = this.targetPosition.y, y1 = this.position.y;
-            let x2 = this.targetPosition.x, x1 = this.position.x;
-            let angle = Math.atan2( y2 - y1, x2 - x1 ) - 1.5708;
-            this.rotation.z = angle;
+            this.rotation.z = MathUtility.angleToPoint(this.position, this.targetPosition);
         }
         
         super.update(deltaTime);
