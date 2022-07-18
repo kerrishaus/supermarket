@@ -1,3 +1,5 @@
+import { Vector2 } from "https://kerrishaus.com/assets/threejs/build/three.module.js";
+
 import { GeneratorTile } from "./GeneratorTile.js";
 
 import { SodaCan } from "../items/SodaCan.js";
