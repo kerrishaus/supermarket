@@ -159,6 +159,13 @@ export class Shop extends Group
         this.registerPosition = new Vector3(this.register.position.x, this.register.position.y + 2, 0);
     }
 
+    updateReputation(amount)
+    {
+        this.lifeReputation += amount;
+
+        $("#reputation").text(this.lifeReputation);
+    }
+
     spawnCustomer()
     {
         let customer = new Customer(this);
@@ -231,6 +238,8 @@ export class Shop extends Group
                 scene.remove(customer);
 
                 $("#customerCount").text(this.customers.length);
+
+                this.updateReputation(1);
             }
             else if (customer.waitTime > customer.leaveTime)
             {
@@ -246,7 +255,7 @@ export class Shop extends Group
                 customer.pushAction({type: "move", position: this.readyPosition});
                 customer.pushAction({type: "move", position: this.spawnPosition});
 
-                this.lifeReputation -= 1;
+                this.updateReputation(-1);
             }
         }
     }

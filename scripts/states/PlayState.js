@@ -23,8 +23,8 @@ export class PlayState extends State
             <div>
                 $<span id='money'>0</span>
             </div>
-            <div id='reputation'>
-                rep <span>0</span>
+            <div>
+                rep <span id='reputation'>0</span>
             </div>
             <div>
                 customers <span id="customerCount">0</span>
