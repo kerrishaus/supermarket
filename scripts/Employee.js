@@ -185,11 +185,11 @@ export class Employee extends ItemCarrier
 
                 for (const generator of this.shop.generatorTiles)
                 {
-                    if (generator.itemType == container.itemType)
+                    if (generator.itemType == lowestContainer.itemType)
                     {
                         if (generator.carriedItems.length > 0)
                         {
-                            this.gatherItemsFromAndTakeTo(generator, container);
+                            this.gatherItemsFromAndTakeTo(generator, lowestContainer);
                             actionStarted = true;
                             break;
                         }
