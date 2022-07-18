@@ -196,7 +196,7 @@ export class Employee extends ItemCarrier
                 }
 
                 if (highestGenerator !== null)
-                    this.gatherItemsFromAndTakeTo(generator, lowestContainer);
+                    this.gatherItemsFromAndTakeTo(highestGenerator, lowestContainer);
             }
         }
 
