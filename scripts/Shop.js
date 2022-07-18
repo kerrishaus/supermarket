@@ -87,6 +87,7 @@ export class Shop extends Group
                 this.tomatoPlant2 = new TomatoPlant();
                 this.tomatoPlant2.position.x = -3;
                 this.tomatoPlant2.position.y = -18;
+                this.generatorTiles.push(this.tomatoPlant2);
                 scene.add(this.tomatoPlant2);
 
                 let tomatoPlant3BuyTile = new BuyableTile(0.3, 0.3, -1, -18, 50, "Buy \"Tomato Plant\"");
@@ -98,6 +99,7 @@ export class Shop extends Group
                     this.tomatoPlant3 = new TomatoPlant();
                     this.tomatoPlant3.position.x = -1;
                     this.tomatoPlant3.position.y = -18;
+                    this.generatorTiles.push(this.tomatoPlant3);
                     scene.add(this.tomatoPlant3);
 
                     this.minTimeUntilNextCustomer -= 1;
@@ -124,8 +126,7 @@ export class Shop extends Group
                 this.sodaMaker = new SodaMaker();
                 this.sodaMaker.position.x = 3;
                 this.sodaMaker.position.y = -18;
-                this.sodaMaker.addItem(55);
-                this.backstockTiles.push(this.sodaMaker);
+                this.generatorTiles.push(this.sodaMaker);
                 scene.add(this.sodaMaker);
 
                 console.log("Bought soda machine.");
