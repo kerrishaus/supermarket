@@ -8,9 +8,9 @@ import { Customer } from "../Customer.js";
 export class ContainerTile extends Triggerable
 {
     // TODO: improve this constructor
-    constructor(a, b, c, d, e,)
+    constructor(width, length, triggerWidth, triggerLength, color)
     {
-        super(a, b, c, d, e);
+        super(width, length, triggerWidth, triggerLength, color);
 
         this.carriedItems = new Array();
         this.maxItems = 9;

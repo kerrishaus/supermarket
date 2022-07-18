@@ -17,6 +17,7 @@ import { TomatoPlant } from "./tiles/TomatoPlant.js";
 
 import { SodaMachine } from "./tiles/SodaMachine.js";
 import { SodaMaker } from "./tiles/SodaMaker.js";
+import { TomatoJuicer } from "./tiles/TomatoJuicer.js";
 import { Employee } from "./Employee.js";
 
 export class Shop extends Group
@@ -104,11 +105,27 @@ export class Shop extends Group
                     this.maxTimeUntilNextCustomer -= 1;
                 };
                 scene.add(tomatoPlant3BuyTile);
+                tomatoPlant3BuyTile.onFullyPaid();
+
+                let tomatoJuicerBuyTile = new BuyableTile(2, 1, 2, -18, "Buy \"Tomato Juicer\"");
+                tomatoJuicerBuyTile.onFullyPaid = () =>
+                {
+                    tomatoJuicerBuyTile.remove(tomatoJuicerBuyTile.label);
+                    scene.remove(tomatoJuicerBuyTile);
+
+                    this.tomatoJuicer = new TomatoJuicer(new Vector2(2, -18));
+                    scene.add(this.tomatoJuicer);
+                    this.containerTiles.add(this.tomatoJuicer.container);
+                    this.generatorTiles.add(this.tomatoJuicer.generator);
+                };
+                scene.add(tomatoJuicerBuyTile);
+                tomatoJuicerBuyTile.onFullyPaid();
 
                 this.minTimeUntilNextCustomer -= 1;
                 this.maxTimeUntilNextCustomer -= 1;
             };
             scene.add(tomatoPlant2BuyTile);
+            tomatoPlant2BuyTile.onFullyPaid();
 
             /*
             let sodaMachineBuyTile = new BuyableTile(0.2, 0.2, 7, 3, 100, "Buy \"Soda Machine\"");
