@@ -110,7 +110,6 @@ export class Shop extends Group
             };
             scene.add(tomatoPlant2BuyTile);
 
-            /*
             let sodaMachineBuyTile = new BuyableTile(0.2, 0.2, 7, 3, 100, "Buy \"Soda Machine\"");
             sodaMachineBuyTile.onFullyPaid = () =>
             {
@@ -123,7 +122,7 @@ export class Shop extends Group
                 this.containerTiles.push(sodaMachine);
 
                 this.sodaMaker = new SodaMaker();
-                this.sodaMaker.position.x = -2;
+                this.sodaMaker.position.x = 3;
                 this.sodaMaker.position.y = -18;
                 this.sodaMaker.addItem(55);
                 this.backstockTiles.push(this.sodaMaker);
@@ -132,7 +131,6 @@ export class Shop extends Group
                 console.log("Bought soda machine.");
             };
             scene.add(sodaMachineBuyTile);
-            */
 
             this.minTimeUntilNextCustomer -= 3;
             this.maxTimeUntilNextCustomer -= 3;
