@@ -8,7 +8,7 @@ export class SodaMaker extends GeneratorTile
 {
     constructor()
     {
-        super(new Vector2(1, 2), new Vector2(2, 3), 0x000000, "Soda Maker");
+        super(new Vector2(1, 2), new Vector2(2, 3), 0x000000, "Soda Maker", "sodaCan");
     }
 
     createItem()

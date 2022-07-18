@@ -9,12 +9,12 @@ import { Employee } from "../Employee.js";
 
 export class GeneratorTile extends Triggerable
 {
-    constructor(size, triggerSize, color = 0xad723e, name = "Item Generator")
+    constructor(size, triggerSize, color = 0xad723e, name = "Item Generator", itemType = null)
     {
         super(size.x, size.y, triggerSize.x, triggerSize.y, color);
 
         this.name = name;
-        this.itemType = null;
+        this.itemType = itemType;
 
         this.itemTime = 3;
         this.timeSinceLastItem = 0;

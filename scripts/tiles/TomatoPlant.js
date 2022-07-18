@@ -8,9 +8,7 @@ export class TomatoPlant extends GeneratorTile
 {
     constructor()
     {
-        super(new Vector2(0.3, 0.3), new Vector2(1, 1), 0xad723e, "Tomato Plant");
-
-        this.itemType = "tomato";
+        super(new Vector2(0.3, 0.3), new Vector2(1, 1), 0xad723e, "Tomato Plant", "tomato");
     }
 
     createItem()

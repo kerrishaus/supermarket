@@ -89,7 +89,7 @@ export class Employee extends ItemCarrier
 
     gatherItemsFromAndTakeTo(from, to)
     {
-        console.log("Gathering items from and taking them to");
+        console.log(`Gathering items from ${from.name} for ${to.name}.`);
 
         this.pushAction({
             type: "goto",
@@ -156,7 +156,7 @@ export class Employee extends ItemCarrier
             else
             {
                 this.position.lerpVectors(this.startPosition, this.targetPosition, this.elapsedTime / this.actionTime);
-            
+
                 let y2 = this.targetPosition.y, y1 = this.position.y;
                 let x2 = this.targetPosition.x, x1 = this.position.x;
                 let angle = Math.atan2( y2 - y1, x2 - x1 ) - 1.5708;
@@ -182,18 +182,19 @@ export class Employee extends ItemCarrier
             if (lowestContainer !== null)
             {
                 let highestGenerator = null;
-
+                
                 for (const generator of this.shop.generatorTiles)
-                {
                     if (generator.itemType == lowestContainer.itemType)
                     {
+                        if (generator.carriedItems.length <= 0)
+                            continue;
+
                         if (highestGenerator === null)
                             highestGenerator = generator;
 
                         if (generator.carriedItems.length > highestGenerator.carriedItems.length)
                             highestGenerator = generator;
                     }
-                }
 
                 if (highestGenerator !== null)
                     this.gatherItemsFromAndTakeTo(highestGenerator, lowestContainer);
