@@ -181,20 +181,22 @@ export class Employee extends ItemCarrier
 
             if (lowestContainer !== null)
             {
-                let actionStarted = false;
+                let highestGenerator = null;
 
                 for (const generator of this.shop.generatorTiles)
                 {
                     if (generator.itemType == lowestContainer.itemType)
                     {
-                        if (generator.carriedItems.length > 0)
-                        {
-                            this.gatherItemsFromAndTakeTo(generator, lowestContainer);
-                            actionStarted = true;
-                            break;
-                        }
+                        if (highestGenerator === null)
+                            highestGenerator = generator;
+
+                        if (generator.carriedItems.length > highestGenerator.carriedItems.length)
+                            highestGenerator = generator;
                     }
                 }
+
+                if (highestGenerator !== null)
+                    this.gatherItemsFromAndTakeTo(generator, lowestContainer);
             }
         }
 
