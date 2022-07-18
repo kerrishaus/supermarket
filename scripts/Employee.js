@@ -165,27 +165,35 @@ export class Employee extends ItemCarrier
         }
         else
         {
+            let lowestContainer = null;
+
             for (const container of this.shop.containerTiles)
             {
                 if (container.carriedItems.length < container.maxItems)
                 {
-                    let actionStarted = false;
+                    if (lowestContainer === null)
+                        lowestContainer = container;
 
-                    for (const generator of this.shop.generatorTiles)
+                    if (container.carriedItems.length < lowestContainer.carriedItems.length)
+                        lowestContainer = container;
+                }
+            }
+
+            if (lowestContainer !== null)
+            {
+                let actionStarted = false;
+
+                for (const generator of this.shop.generatorTiles)
+                {
+                    if (generator.itemType == container.itemType)
                     {
-                        if (generator.itemType == container.itemType)
+                        if (generator.carriedItems.length > 0)
                         {
-                            if (generator.carriedItems.length > 0)
-                            {
-                                this.gatherItemsFromAndTakeTo(generator, container);
-                                actionStarted = true;
-                                break;
-                            }
+                            this.gatherItemsFromAndTakeTo(generator, container);
+                            actionStarted = true;
+                            break;
                         }
                     }
-
-                    if (actionStarted)
-                        break;
                 }
             }
         }
