@@ -167,7 +167,7 @@ export class Employee extends ItemCarrier
         {
             for (const container of this.shop.containerTiles)
             {
-                if (container.carriedItems < container.maxItems)
+                if (container.carriedItems.length < container.maxItems)
                 {
                     let actionStarted = false;
 
