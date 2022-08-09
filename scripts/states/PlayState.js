@@ -124,6 +124,11 @@ export class PlayState extends State
             {
                 this.freeCam = !this.freeCam;
                 freeControls.enabled = this.freeCam;
+
+                camera.position.z = 10;
+                camera.position.y = -12;
+                camera.lookAt(new THREE.Vector3(0, 0, 0));
+
                 console.log("freecam toggled");
             }
             else
