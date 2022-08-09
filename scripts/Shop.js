@@ -21,7 +21,7 @@ import { Employee } from "./Employee.js";
 
 export class Shop extends Group
 {
-    constructor()
+    constructor(shopData)
     {
         super();
 
@@ -52,7 +52,7 @@ export class Shop extends Group
         this.register = new Register();
         this.register.position.x = -8;
         this.register.position.y = -7;
-        for (let i = 0; i < 25; i++)
+        for (let i = 0; i < shopData.money; i++)
             this.register.addMoney();
         scene.add(this.register);
 
@@ -139,20 +139,20 @@ export class Shop extends Group
         scene.add(tomatoStandBuyTile);
 
         tomatoStandBuyTile.onFullyPaid();
-
-        const employee1 = new Employee(this);
-        scene.add(employee1);
+        
+        this.employees = new Array();
 
         this.customers = new Array();
-        this.timeUntilNextCustomer = 14;
-        this.minTimeUntilNextCustomer = 7;
-        this.maxTimeUntilNextCustomer = 20;
-        this.maxCustomers  = 20;
-        this.timeSinceLastCustomer = this.timeUntilNextCustomer;
 
-        this.lifeSales      = 0;
-        this.lifeCustomers  = 0;
-        this.lifeReputation = 0;
+        this.maxCustomers             = shopData.maxCustomers;
+        this.timeUntilNextCustomer    = shopData.timeUntilNextCustomer;
+        this.timeSinceLastCustomer    = shopData.timeSinceLastCustomer;
+        this.maxTimeUntilNextCustomer = shopData.maxTimeUntilNextCustomer;
+        this.minTimeUntilNextCustomer = shopData.minTimeUntilNextCustomer;
+
+        this.lifeSales                = shopData.lifeSales;
+        this.lifeCustomers            = shopData.lifeCustomers;
+        this.lifeReputation           = shopData.lifeReputation;
 
         this.spawnPosition    = new Vector3(-4, 14, 0);
         this.readyPosition    = new Vector3(-4, 7, 0);
@@ -166,9 +166,19 @@ export class Shop extends Group
         $("#reputation").text(this.lifeReputation);
     }
 
+    addCustomer(customer)
+    {
+        this.customers.push(customer);
+
+        $("#customerCount").text(this.customers.length);
+
+        console.log("added customer");
+    }
+
     spawnCustomer()
     {
         let customer = new Customer(this);
+        scene.add(customer);
         customer.position.copy(this.spawnPosition);
         customer.pushAction({type: "move", position: this.readyPosition});
 
@@ -205,8 +215,6 @@ export class Shop extends Group
         customer.pushAction({type: "move", position: this.registerPosition});
         customer.pushAction({type: "move", position: this.readyPosition});
         customer.pushAction({type: "move", position: this.spawnPosition});
-        this.customers.push(customer);
-        scene.add(customer);
 
         this.timeSinceLastCustomer = 0;
         console.log("added customer");
@@ -214,7 +222,7 @@ export class Shop extends Group
         this.timeUntilNextCustomer = MathUtility.getRandomInt(this.minTimeUntilNextCustomer, this.maxTimeUntilNextCustomer);
         console.log("Next customer will spawn in " + this.timeUntilNextCustomer + " seconds");
 
-        $("#customerCount").text(this.customers.length);
+        this.addCustomer(customer);
     }
 
     update(deltaTime)

@@ -24,8 +24,7 @@ import { PhysicsScene } from "../PhysicsScene.js";
 
 import * as PageUtility from "../PageUtility.js";
 
-import { MainMenuState } from "./MainMenuState.js";
-import { PlayState } from "./PlayState.js";
+import { LoadSaveState } from "./LoadSaveState.js";
 
 export class StartupState extends State
 {
@@ -172,7 +171,7 @@ export class StartupState extends State
                 prepareAmmo(lib);
 
                 //this.stateMachine.changeState(new MainMenuState());
-                this.stateMachine.changeState(new PlayState());
+                this.stateMachine.changeState(new LoadSaveState());
             });
         });
         

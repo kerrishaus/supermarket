@@ -40,13 +40,6 @@ export class PlayState extends State
 
         //$(document.body).append(`<div id="buyMenu" class="display-flex flex-wrap flex-gap" data-visiblity="hidden"></div>`);
 
-        window.shop = new Shop();
-        scene.add(shop);
-
-        window.player = new Player();
-        player.position.z = 0.5;
-        scene.add(player);
-
         this.MoveType = {
             Mouse: 'Mouse',
             Touch: 'Touch',
