@@ -19,11 +19,11 @@
 	<body>
 		<script type='module' id="game">
 			import { StateMachine } from "./scripts/states/StateMachine.js";
-			import { LoadingState } from "./scripts/states/LoadingState.js";
+			import { StartupState } from "./scripts/states/StartupState.js";
 
 			let stateMachine = new StateMachine();
 
-			stateMachine.pushState(new LoadingState());
+			stateMachine.pushState(new StartupState());
 		</script>
 	</body>
 </html>

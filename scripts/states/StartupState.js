@@ -27,7 +27,7 @@ import * as PageUtility from "../PageUtility.js";
 import { MainMenuState } from "./MainMenuState.js";
 import { PlayState } from "./PlayState.js";
 
-export class LoadingState extends State
+export class StartupState extends State
 {
     init(stateMachine)
     {
