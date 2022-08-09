@@ -123,7 +123,7 @@ export class PlayState extends State
             if (event.code == "KeyO")
             {
                 this.freeCam = !this.freeCam;
-                this.freeControls.enabled = this.freeCam;
+                freeControls.enabled = this.freeCam;
                 console.log("freecam toggled");
             }
             else
@@ -288,10 +288,13 @@ export class PlayState extends State
             player.translateY(velocity);
         }
 
-        // TODO: put the camera in Player
-        camera.position.x = player.position.x;
-        camera.position.y = player.position.y - 6;
-        camera.lookAt(player.position);
+        if (!this.freeCam)
+        {
+            // TODO: put the camera in Player
+            camera.position.x = player.position.x;
+            camera.position.y = player.position.y - 6;
+            camera.lookAt(player.position);
+        }
 
         scene.children.forEach((object) =>
         {
@@ -328,7 +331,7 @@ export class PlayState extends State
         //physicsStep(deltaTime);
 
         if (this.freeCam)
-            this.freeControls.update();
+            freeControls.update();
 
             /*
         if (mixer)
