@@ -4,16 +4,15 @@ import * as THREE from "https://kerrishaus.com/assets/threejs/build/three.module
 
 import { CSS2DRenderer } from "https://kerrishaus.com/assets/threejs/examples/jsm/renderers/CSS2DRenderer.js";
 
-import { PhysicsScene } from "../PhysicsScene.js";
-
 import * as PageUtility from "../PageUtility.js";
 
-import { MainMenuState } from "./MainMenuState.js";
 import { PlayState } from "./PlayState.js";
 import { Shop } from "../Shop.js";
 import { Player } from "../Player.js";
 import { Customer } from "../Customer.js";
 import { Employee } from "../Employee.js";
+import { Tomato } from "../items/Tomato.js";
+import { SodaCan } from "../items/SodaCan.js";
 
 export class LoadSaveState extends State
 {
@@ -72,7 +71,7 @@ export class LoadSaveState extends State
                   },
                   "carriedItems": [
                     {
-                      "itemType": "tomato"
+                      "type": "tomato"
                     }
                   ],
                   "actions": [
@@ -104,7 +103,7 @@ export class LoadSaveState extends State
                   },
                   "carriedItems": [
                     {
-                      "itemType": "tomato"
+                      "type": "tomato"
                     }
                   ],
                   "actions": []
@@ -115,16 +114,16 @@ export class LoadSaveState extends State
               "position": {
                 "x": 0,
                 "y": 0,
-                "z": 0
+                "z": 0.5
               },
               "rotation": {
                 "x": 0,
                 "y": 0,
-                "z": 0.5
+                "z": 0
               },
               "carriedItems": [
                 {
-                  "itemType": {},
+                  "type": "tomato",
                   "position": {
                     "x": 0,
                     "y": 0,
@@ -157,6 +156,27 @@ export class LoadSaveState extends State
         player.rotation.x = saveData.player.rotation.x
         player.rotation.y = saveData.player.rotation.y
         player.rotation.z = saveData.player.rotation.z
+
+        for (const item of saveData.player.carriedItems)
+        {
+            let newItem = null;
+
+            switch (item.type)
+            {
+                case "tomato":
+                  newItem = new Tomato(player.position);
+                  break;
+                case "sodaCan":
+                  newItem = new SodaCan(player.position);
+                  break;
+                default:
+                  console.log("Unknown item type: " + item);
+                  continue;
+            }
+
+            newItem.setTarget(player.position, new THREE.Vector3());
+            player.carriedItems.push(newItem);
+        }
         
         console.log("LoadSaveState complete.");
 
