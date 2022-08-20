@@ -5,8 +5,6 @@ import * as THREE from "https://kerrishaus.com/assets/threejs/build/three.module
 import * as MathUtility from "../MathUtility.js";
 import * as PageUtility from "../PageUtility.js";
 
-import { Shop } from "../Shop.js";
-import { Player } from "../Player.js";
 import { Triggerable } from "../geometry/Triggerable.js";
 
 export class PlayState extends State
@@ -28,6 +26,14 @@ export class PlayState extends State
             </div>
             <div>
                 customers <span id="customerCount">0</span>
+            </div>
+
+            <div>
+                <a id="upgradesButton">Upgrades</a>
+            </div>
+
+            <div>
+                <a id="settingsButton">Settings</a>
             </div>
         </div>
         

@@ -8,7 +8,7 @@ import { RigidBodyCube } from "./geometry/RigidBodyCube.js";
 import { Door } from "./Door.js";
 import { Register } from "./tiles/Register.js";
 import { RecycleBin } from "./tiles/RecycleBin.js";
-import { BuyableTile } from "./tiles/BuyableTile.js";
+import { BuyableTile } from "./tiles/buyable/BuyableTile.js";
 
 import { Customer } from "./Customer.js";
 
@@ -55,11 +55,6 @@ export class Shop extends Group
         for (let i = 0; i < shopData.money; i++)
             this.register.addMoney();
         scene.add(this.register);
-
-        this.recycleBin = new RecycleBin(6, 4);
-        this.recycleBin.position.x = -9;
-        this.recycleBin.position.y = 9;
-        scene.add(this.recycleBin);
         
         let tomatoStandBuyTile = new BuyableTile(1, 1, 7, 7, 100, "Buy \"Tomato Stand\"");
         tomatoStandBuyTile.onFullyPaid = () =>

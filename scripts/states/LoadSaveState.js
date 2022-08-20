@@ -13,6 +13,8 @@ import { Customer } from "../Customer.js";
 import { Employee } from "../Employee.js";
 import { Tomato } from "../items/Tomato.js";
 import { SodaCan } from "../items/SodaCan.js";
+import { RecycleBin } from "../tiles/RecycleBin.js";
+import * as SaveLoader from "../SaveLoader.js";
 
 export class LoadSaveState extends State
 {
@@ -30,115 +32,13 @@ export class LoadSaveState extends State
 
         const saveVersion = 1;
 
-        const saveDataRaw = 
-        `
-        {
-            "version": 1,
-            "shop": {
-              "type": 1,
-              "money": 25,
-              "maxCustomers": 20,
-              "timeUntilNextCustomer": 14,
-              "timeSinceLastCustomer": 0,
-              "minTimeUntilNextCustomer": 7,
-              "maxTimeUntilNextCustomer": 20,
-              "lifeSales": 0,
-              "lifeCustomers": 0,
-              "lifeReputation": 0,
-              "containers": [
-                {
-                  "itemType": "tomato",
-                  "position": {
-                    "x": 0,
-                    "y": 0,
-                    "z": 0
-                  },
-                  "amount": 0
-                }
-              ],
-              "customers": [
-                {
-                  "reputation": 0,
-                  "position": {
-                    "x": 0,
-                    "y": 0,
-                    "z": 0
-                  },
-                  "rotation": {
-                    "x": 0,
-                    "y": 0,
-                    "z": 0
-                  },
-                  "carriedItems": [
-                    {
-                      "type": "tomato"
-                    }
-                  ],
-                  "actions": [
-                    {
-                      "name": {},
-                      "type": {},
-                      "amount": {},
-                      "container": {},
-                      "position": {
-                        "x": 0,
-                        "y": 0,
-                        "z": 0
-                      }
-                    }
-                  ]
-                }
-              ],
-              "employees": [
-                {
-                  "position": {
-                    "x": 0,
-                    "y": 0,
-                    "z": 0.5
-                  },
-                  "rotation": {
-                    "x": 0,
-                    "y": 0,
-                    "z": 0
-                  },
-                  "carriedItems": [
-                    {
-                      "type": "tomato"
-                    }
-                  ],
-                  "actions": []
-                }
-              ]
-            },
-            "player": {
-              "position": {
-                "x": 0,
-                "y": 0,
-                "z": 0.5
-              },
-              "rotation": {
-                "x": 0,
-                "y": 0,
-                "z": 0
-              },
-              "carriedItems": [
-                {
-                  "type": "tomato",
-                  "position": {
-                    "x": 0,
-                    "y": 0,
-                    "z": 0
-                  }
-                }
-              ]
-            }
-          }
-        `;
-
-        const saveData = JSON.parse(saveDataRaw);
+        const saveData = JSON.parse(SaveLoader.saveDataRaw);
 
         window.shop = new Shop(saveData.shop);
         scene.add(shop);
+
+        for (const tile of saveData.shop.tiles)
+            this.loadTile(tile);
 
         for (const customer of saveData.shop.customers)
             this.loadCustomer(customer);
@@ -197,9 +97,19 @@ export class LoadSaveState extends State
 
     }
 
-    loadContainer(containerData)
+    loadTile(tileData)
     {
+        if (tileData.type == "recycleBin")
+        {
+            shop.recycleBin = new RecycleBin(6, 4);
+            shop.recycleBin.position.x = tileData.position.x;
+            shop.recycleBin.position.y = tileData.position.y;
+            scene.add(shop.recycleBin);
+        }
+        else if (tileData.type == "")
+        {
 
+        }
     }
 
     loadCustomerAction(actionData)
