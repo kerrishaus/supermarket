@@ -169,6 +169,11 @@ export class PlayState extends State
                   this.move = null;
         });
 
+        window.onbeforeunload = function(event)
+        {
+            return 'You will lose unsaved progress, are you sure?';
+        };
+
         console.log("PlayState is ready.");
 
         $(renderer.domElement).show();
@@ -183,6 +188,8 @@ export class PlayState extends State
         PageUtility.removeStyle("banner");
         PageUtility.removeStyle("interface");
         PageUtility.removeStyle("buyMenu");
+
+        window.onbeforeunload = null;
 
         console.log("Cleaned up PlayState.");
     }
