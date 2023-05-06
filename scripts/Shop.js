@@ -139,15 +139,16 @@ export class Shop extends Group
 
         this.customers = new Array();
 
-        this.maxCustomers             = shopData.maxCustomers;
-        this.timeUntilNextCustomer    = shopData.timeUntilNextCustomer;
-        this.timeSinceLastCustomer    = shopData.timeSinceLastCustomer;
-        this.maxTimeUntilNextCustomer = shopData.maxTimeUntilNextCustomer;
-        this.minTimeUntilNextCustomer = shopData.minTimeUntilNextCustomer;
+        this.maxCustomers                     = shopData.maxCustomers;
+        this.timeUntilNextCustomer            = shopData.timeUntilNextCustomer;
+        this.timeSinceLastCustomer            = shopData.timeSinceLastCustomer;
+        this.maxTimeUntilNextCustomer         = shopData.maxTimeUntilNextCustomer;
+        this.minTimeUntilNextCustomer         = shopData.minTimeUntilNextCustomer;
+        this.customerWaitReputationMultiplier = 0.1;
 
-        this.lifeSales                = shopData.lifeSales;
-        this.lifeCustomers            = shopData.lifeCustomers;
-        this.lifeReputation           = shopData.lifeReputation;
+        this.lifeSales                        = shopData.lifeSales;
+        this.lifeCustomers                    = shopData.lifeCustomers;
+        this.lifeReputation                   = shopData.lifeReputation;
 
         this.spawnPosition    = new Vector3(-4, 14, 0);
         this.readyPosition    = new Vector3(-4, 7, 0);
@@ -211,12 +212,6 @@ export class Shop extends Group
         customer.pushAction({type: "move", position: this.readyPosition});
         customer.pushAction({type: "move", position: this.spawnPosition});
 
-        this.timeSinceLastCustomer = 0;
-        console.log("added customer");
-
-        this.timeUntilNextCustomer = MathUtility.getRandomInt(this.minTimeUntilNextCustomer, this.maxTimeUntilNextCustomer);
-        console.log("Next customer will spawn in " + this.timeUntilNextCustomer + " seconds");
-
         this.addCustomer(customer);
     }
 
@@ -225,25 +220,42 @@ export class Shop extends Group
         if (this.timeSinceLastCustomer > this.timeUntilNextCustomer)
         {
             if (this.containerTiles.length > 0 && this.customers.length < this.maxCustomers)
+            {
                 this.spawnCustomer();
+
+                this.timeSinceLastCustomer = 0;
+                console.log("added customer");
+        
+                this.timeUntilNextCustomer = MathUtility.getRandomInt(this.minTimeUntilNextCustomer, this.maxTimeUntilNextCustomer);
+
+                //this.timeUntilNextCustomer += this.customerWaitReputationMultiplier * this.lifeReputation;
+
+                if (this.timeUntilNextCustomer > this.maxTimeUntilNextCustomer)
+                    this.timeUntilNextCustomer = this.maxTimeUntilNextCustomer;
+                
+                console.log("Next customer will spawn in " + this.timeUntilNextCustomer + " seconds");
+            }
         }
         else
             this.timeSinceLastCustomer += deltaTime;
 
         for (const customer of this.customers)
         {
+            // if the customer has no actions
+            // TODO: make sure the customer actually made it to the register
             if (customer.actions.length <= 0)
             {
                 for (const carriedItem of customer.carriedItems)
                     scene.remove(carriedItem);
 
+                this.updateReputation(customer.mood);
+
                 this.customers.splice(this.customers.indexOf(customer), 1);
                 scene.remove(customer);
 
                 $("#customerCount").text(this.customers.length);
-
-                this.updateReputation(1);
             }
+            // if the customer does have actions
             else if (customer.waitTime > customer.leaveTime)
             {
                 customer.waitTime = 0;
@@ -257,8 +269,6 @@ export class Shop extends Group
 
                 customer.pushAction({type: "move", position: this.readyPosition});
                 customer.pushAction({type: "move", position: this.spawnPosition});
-
-                this.updateReputation(-1);
             }
         }
     }

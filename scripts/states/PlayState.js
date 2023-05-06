@@ -16,33 +16,22 @@ export class PlayState extends State
         PageUtility.addStyle("interface");
         PageUtility.addStyle("buyMenu");
 
-        $(document.body).append(`<div id='interface' class="gameInterfaceContainer">
-        <div class='banner'>
-            <div>
-                $<span id='money'>0</span>
+        $(document.body).append(`
+            <div id='interface' class="gameInterfaceContainer">
+                <div id="businessStats">
+                    <div id="moneyContainer">
+                        $<span id='money'>0</span>
+                    </div>
+                    <div id="reputationContainer">
+                        <i class='fa fa-shield'></i> <span id='reputation'>0</span>
+                    </div>
+                    <div>
+                        <i class='fa fa-users'></i> <span id="customerCount">0</span>
+                    </div>
+                    </div>
+                </div>
             </div>
-            <div>
-                rep <span id='reputation'>0</span>
-            </div>
-            <div>
-                customers <span id="customerCount">0</span>
-            </div>
-
-            <div>
-                <a id="upgradesButton">Upgrades</a>
-            </div>
-
-            <div>
-                <a id="settingsButton">Settings</a>
-            </div>
-        </div>
-        
-        <div class='buttons'>
-            <div class='upgrades'>
-                
-            </div>
-        </div>
-    </div>`);
+        `);
 
         //$(document.body).append(`<div id="buyMenu" class="display-flex flex-wrap flex-gap" data-visiblity="hidden"></div>`);
 
@@ -169,10 +158,12 @@ export class PlayState extends State
                   this.move = null;
         });
 
+        /*
         window.onbeforeunload = function(event)
         {
             return 'You will lose unsaved progress, are you sure?';
         };
+        */
 
         console.log("PlayState is ready.");
 

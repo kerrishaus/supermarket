@@ -20,6 +20,7 @@ export class Customer extends ItemCarrier
 
         this.waitTime = 0;
         this.leaveTime = 10; // in seconds
+        this.mood = 0;
         
         this.actions = new Array();
     }
@@ -87,27 +88,48 @@ export class Customer extends ItemCarrier
         {
             if (this.actions.length > 0)
             {                
-                if (this.actions[0].type == "move")
-                    this.nextAction();
-                else if (this.actions[0].type == "buy")
+                if (this.waitTime > this.leaveTime)
                 {
-                    if (this.actions[0].container.carriedItems.length > 0)
+                    this.waitTime = 0;
+
+                    console.log("Customer waited too long and is leaving.");
+
+                    this.actions.length = 0;
+
+                    if (this.carriedItems.length > 0)
+                        this.pushAction({type: "move", position: this.registerPosition});
+
+                    this.pushAction({type: "move", position: this.readyPosition});
+                    this.pushAction({type: "move", position: this.spawnPosition});
+
+                    this.mood -= 8;
+                }
+                else
+                {
+                    if (this.actions[0].type == "move")
+                        this.nextAction();
+                    else if (this.actions[0].type == "buy")
                     {
-                        this.actions[0].container.transferToCarrier(this);
-                        
-                        console.log(`Picking up item ${this.carriedItems.length} of ${this.actions[0].amount}`);
-                        
-                        if (this.carriedItems.length >= this.actions[0].amount)
-                            this.nextAction();
-                    } // else, keep waiting for enough items to become available
-                    else
-                    this.waitTime += deltaTime;
+                        if (this.actions[0].container.carriedItems.length > 0)
+                        {
+                            this.actions[0].container.transferToCarrier(this);
+                            
+                            console.log(`Picked up item ${this.carriedItems.length} of ${this.actions[0].amount}`);
+
+                            this.mood += 1;
+                            
+                            if (this.carriedItems.length >= this.actions[0].amount)
+                                this.nextAction();
+                        }
+                        else // keep waiting for enough items to become available
+                            this.waitTime += deltaTime;
+                    }
                 }
             }
             else
                 this.position.copy(this.targetPosition);
         }
-        else
+        else // moving somewhere
         {
             this.position.lerpVectors(this.startPosition, this.targetPosition, this.elapsedTime / this.actionTime);
             
