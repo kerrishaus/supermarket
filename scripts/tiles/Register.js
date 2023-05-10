@@ -35,14 +35,14 @@ export class Register extends Triggerable
         super.update(deltaTime);
     }
     
-    addMoney()
+    addMoney(position = this.position)
     {
         this.calculateGrid();
         
         const money = new Carryable(this.moneyLength, this.moneyWidth, this.moneyThickness, 0x48c942);
         money.material = this.moneyMaterial;
         
-        money.position.copy(this.position);
+        money.position.copy(position);
         money.setTarget(this.position, new Vector3(this.column_ * this.moneyLength - 0.6 - 1,
                                                    this.row_ * this.moneyWidth - 0.5,
                                                   (this.scale.z / 2) + (this.layer_ * this.moneyThickness) + this.moneyThickness / 2));
@@ -106,7 +106,7 @@ export class Register extends Triggerable
             console.log("selling " + object.carriedItems.length + " items");
 
             for (let i = 0; i < object.carriedItems.length; i++)
-                this.addMoney();
+                this.addMoney(object.position);
         }
     }
     
