@@ -1,8 +1,8 @@
 import { SphereGeometry, MeshStandardMaterial } from "https://kerrishaus.com/assets/threejs/build/three.module.js";
 
-import { PhysicsMesh } from "./PhysicsMesh.js";
+import { RigidBodyMesh } from "./RigidBodyMesh.js";
 
-export class RigidBodySphere extends PhysicsMesh
+export class RigidBodySphere extends RigidBodyMesh
 {
     constructor(radius, color, pos, quat, mass)
     {

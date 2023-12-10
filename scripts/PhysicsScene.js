@@ -1,6 +1,6 @@
 import { Scene } from "https://kerrishaus.com/assets/threejs/build/three.module.js";
 
-import { PhysicsMesh } from "./geometry/PhysicsMesh.js";
+import { RigidBodyMesh } from "./geometry/RigidBodyMesh.js";
 
 export class PhysicsScene extends Scene
 {
@@ -13,7 +13,7 @@ export class PhysicsScene extends Scene
     {
         super.add(object);
 
-        if (object instanceof PhysicsMesh)
+        if (object instanceof RigidBodyMesh)
         {
             physicsBodies.push(object);
             physicsWorld.addRigidBody(object.body);
@@ -24,7 +24,7 @@ export class PhysicsScene extends Scene
     {
         super.remove(object);
 
-        if (object instanceof PhysicsMesh)
+        if (object instanceof RigidBodyMesh)
         {
             // remove from physicsBodies
             // remove from physicsWorld

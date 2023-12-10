@@ -1,6 +1,6 @@
 import { DynamicMesh } from "./DynamicMesh.js";
 
-export class PhysicsMesh extends DynamicMesh
+export class RigidBodyMesh extends DynamicMesh
 {
     constructor(geometry, material)
     {
