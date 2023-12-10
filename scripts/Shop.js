@@ -209,8 +209,9 @@ export class Shop extends Group
             });
         
         customer.pushAction({type: "move", position: this.registerPosition});
-        customer.pushAction({type: "move", position: this.readyPosition});
-        customer.pushAction({type: "move", position: this.spawnPosition});
+        customer.pushAction({type: "waitToCheckout" });
+        //customer.pushAction({type: "move", position: this.readyPosition});
+        //customer.pushAction({type: "move", position: this.spawnPosition});
 
         this.addCustomer(customer);
     }

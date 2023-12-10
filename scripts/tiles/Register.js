@@ -28,11 +28,37 @@ export class Register extends Triggerable
         
         this.moneyTexture = new TextureLoader().load('textures/dollar_placeholder.jpeg');
         this.moneyMaterial = new MeshStandardMaterial({ map: this.moneyTexture });
+
+        this.waitingCustomers = new Map();
+
+        this.playerIsInContact = false;
     }
     
     update(deltaTime)
     {
         super.update(deltaTime);
+
+        if (this.waitingCustomers.size > 0 && this.playerIsInContact)
+        {
+            console.log("taking care of customers at the register");
+
+            // TODO: don't do this all in one go in the future
+
+            this.waitingCustomers.forEach((customer, uuid, map) => {
+                console.log("selling " + customer.carriedItems.length + " items");
+
+                for (let i = 0; i < customer.carriedItems.length; i++)
+                    this.addMoney(customer.position);
+
+                customer.pushAction({type: "move", position: shop.readyPosition});
+                customer.pushAction({type: "move", position: shop.spawnPosition});
+
+                // their current action should be waitToCheckout
+                customer.nextAction();
+            });
+
+            this.waitingCustomers.clear();
+        }
     }
     
     addMoney(position = this.position)
@@ -99,19 +125,31 @@ export class Register extends Triggerable
         super.onTrigger(object);
 
         if (object instanceof Player)
+        {
             this.transferMoney(object);
+            
+            if (!this.playerIsInContact)
+            {
+                console.log("player is at register");
+                this.playerIsInContact = true;
+            }
+        }
 
         if (object instanceof Customer)
-        {
-            console.log("selling " + object.carriedItems.length + " items");
+            if (!this.waitingCustomers.has(object.uuid))
+            {
+                console.log("customer is now waiting to check out");
+                this.waitingCustomers.set(object.uuid, object);
 
-            for (let i = 0; i < object.carriedItems.length; i++)
-                this.addMoney(object.position);
-        }
+                console.log(this.waitingCustomers);
+            }
     }
     
     onStopTrigger(object)
     {
         super.onStopTrigger(object);
+
+        if (object instanceof Player)
+            this.playerIsInContact = false;
     }
 };
