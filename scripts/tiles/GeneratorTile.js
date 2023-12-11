@@ -1,11 +1,15 @@
-import { Vector2, Vector3, Quaternion, TextureLoader, MeshStandardMaterial } from "https://kerrishaus.com/assets/threejs/build/three.module.js";
+import { Vector3, MeshStandardMaterial } from "https://kerrishaus.com/assets/threejs/build/three.module.js";
 
 import { CSS2DObject } from "https://kerrishaus.com/assets/threejs/examples/jsm/renderers/CSS2DRenderer.js";
 
 //import { Carryable } from "../Carryable.js";
 import { Triggerable } from "../geometry/Triggerable.js";
-import { Player } from "../Player.js";
-import { Employee } from "../Employee.js";
+import { Player      } from "../Player.js";
+import { Employee    } from "../Employee.js";
+import { Entity      } from "../entity/Entity.js";
+
+import { CarryableComponent } from "../entity/components/CarryableComponent.js";
+import { GeometryComponent  } from "../entity/components/GeometryComponent.js";
 
 export class GeneratorTile extends Triggerable
 {
@@ -63,7 +67,14 @@ export class GeneratorTile extends Triggerable
     // as long as the returned item inherits Carryable
     createItem()
     {
-        return new Carryable(this.itemLength, this.itemWidth, this.itemThickness, 0x48c942);
+        const entity = new Entity;
+        entity.addComponent(new CarryableComponent);
+        entity.addComponent(new GeometryComponent(
+            new BoxGeometry(this.itemLength, this.itemWidth, this.itemThickness),
+            new MeshStandardMaterial({ color: 0x48c92 })
+        ));
+
+        return entity;
     }
     
     addItem(amount = 1)

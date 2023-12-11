@@ -8,7 +8,7 @@ export class Tomato extends Entity
     {
         super();
 
-        this.addComponent(new ModelComponent);
+        this.addComponent(new ModelComponent("tomato"));
         this.addComponent(new CarryableComponent);
         
         this.type = "tomato";
