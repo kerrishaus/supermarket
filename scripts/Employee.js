@@ -133,8 +133,10 @@ export class Employee extends ItemCarrier
                     {
                         action.container.transferToCarrier(this);
 
-                        // go to next action after picking as many items as we can carry
-                        if (this.carriedItems.length >= this.carryLimit)
+                        // go to next action if we are carrying as much as we can OR
+                        // if the container is now empty.
+                        if (this.carriedItems.length >= this.carryLimit ||
+                            action.container.carriedItems.length <= 0)
                             this.nextAction();
                     }
                     else if (action.type == "stock")
@@ -150,7 +152,7 @@ export class Employee extends ItemCarrier
                 else
                     this.position.copy(this.targetPosition);
             }
-            else
+            else // the action time has not elapsed, meaning we should still be moving
             {
                 this.position.lerpVectors(this.startPosition, this.targetPosition, this.elapsedTime / this.actionTime);
 
@@ -168,6 +170,7 @@ export class Employee extends ItemCarrier
             {
                 let lowestContainer = null;
 
+                // looks for the container with the lowest items, in order to fill it
                 for (const container of this.shop.containerTiles)
                 {
                     if (container.carriedItems.length < container.maxItems)
