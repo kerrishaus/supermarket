@@ -7,24 +7,23 @@ import { EntityComponent } from "./EntityComponent.js";
 
 export class ModelComponent extends EntityComponent
 {
-    constructor(model, size)
+    constructor(modelName, size = null)
     {
         super();
 
+        this.model = null;
+
         let dracoLoader = new DRACOLoader();
-        dracoLoader.setDecoderPath('../models/');
+        dracoLoader.setDecoderPath('https://kerrishaus.com/assets/threejs/examples/js/libs/draco/gltf/');
 
         let loader = new GLTFLoader();
         loader.setDRACOLoader(dracoLoader);
-        loader.load("../models/" + model + ".glb", (gltf) =>
+        loader.load(`models/${modelName}.glb`, (gltf) =>
         {
             this.model = gltf.scene;
-            this.model.position.set(5, 30, 11.45);
             this.model.rotation.x = 1.5708;
-            this.model.scale.set(size ?? new Vector3(1, 1, 1));
+            this.model.scale.copy(size ?? new Vector3(1, 1, 1));
             scene.add(this.model);
-
-            console.log(this.model);
 
             //mixer = new THREE.AnimationMixer(model);
             //mixer.clipAction(gltf.animations[0]).play();
@@ -37,6 +36,8 @@ export class ModelComponent extends EntityComponent
     update(deltaTime)
     {
         super.update(deltaTime);
+
+        this.model.rotation.y += 0.01;
 
         this.model.position.copy(this.parentEntity.position);
     }

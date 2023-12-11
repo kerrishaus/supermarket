@@ -16,7 +16,7 @@ export class GeometryComponent extends EntityComponent
         this.mesh.geometry.computeBoundingBox();
 
         // TODO: make sure it gets removed from the scene properly.
-        // it seems to do.
+        // right now it just sits around wherever it was last
         scene.add(this.mesh);
 
         this.box = new Box3();
