@@ -4,7 +4,7 @@ export class SodaMachine extends ContainerTile
 {
     constructor(xPos, yPos)
     {
-        super(1, 1, 2, 2, 0x4d220b);
+        super(1, 1, 2, 2, 0x2b9ba1);
         
         this.name = "sodaMachine";
         this.itemType = "sodaCan";

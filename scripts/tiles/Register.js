@@ -55,7 +55,9 @@ export class Register extends Triggerable
 
                 this.waitingCustomers.delete(uuid);
 
-                // TODO: this is a hack to stop customers from freezing in place.
+                // FIXME: this is a hack to stop customers from freezing in place.
+                // if you're in the register trigger at the same time that a customer
+                // is added to the waitingCustomers list, they will freeze.
                 customer.actions.length = 0;
                 customer.pushAction({type: "move", position: shop.readyPosition});
                 customer.pushAction({type: "move", position: shop.spawnPosition});

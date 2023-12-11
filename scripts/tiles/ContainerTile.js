@@ -8,9 +8,9 @@ import { Customer } from "../Customer.js";
 export class ContainerTile extends Triggerable
 {
     // TODO: improve this constructor
-    constructor(a, b, c, d, e,)
+    constructor(width, height, triggerWidth, triggerHeight, color)
     {
-        super(a, b, c, d, e);
+        super(width, height, triggerWidth, triggerHeight, color);
 
         this.carriedItems = new Array();
         this.maxItems = 9;
@@ -66,6 +66,8 @@ export class ContainerTile extends Triggerable
 
             carrier.carriedItems.push(this.carriedItems[0]);
             this.carriedItems.shift();
+
+            this.calculateGrid();
 
             this.lifeSales += 1;
         }

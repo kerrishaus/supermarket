@@ -1,23 +1,24 @@
-import { Vector3, Quaternion, MeshBasicMaterial, RepeatWrapping, Group } from "https://kerrishaus.com/assets/threejs/build/three.module.js";
+import { Vector3, Quaternion, Group } from "https://kerrishaus.com/assets/threejs/build/three.module.js";
 
 import * as GeometryUtil from "./geometry/GeometryUtility.js";
 import * as MathUtility from "./MathUtility.js";
 
 import { RigidBodyCube } from "./geometry/RigidBodyCube.js";
 
-import { Door } from "./Door.js";
-import { Register } from "./tiles/Register.js";
-import { RecycleBin } from "./tiles/RecycleBin.js";
+import { Door        } from "./Door.js";
+import { Register    } from "./tiles/Register.js";
+import { RecycleBin  } from "./tiles/RecycleBin.js";
 import { BuyableTile } from "./tiles/BuyableTile.js";
 
 import { Customer } from "./Customer.js";
 
-import { TomatoStand } from "./tiles/TomatoStand.js";
-import { TomatoPlant } from "./tiles/TomatoPlant.js";
+import { TomatoJuicer } from "./tiles/TomatoJuicer.js";
+import { TomatoPlant  } from "./tiles/TomatoPlant.js";
+import { SodaGenerator    } from "./tiles/SodaGenerator.js";
 
 import { SodaMachine } from "./tiles/SodaMachine.js";
-import { SodaMaker } from "./tiles/SodaMaker.js";
-import { Employee } from "./Employee.js";
+import { Employee    } from "./Employee.js";
+import { ContainerTile } from "./tiles/ContainerTile.js";
 
 export class Shop extends Group
 {
@@ -52,14 +53,18 @@ export class Shop extends Group
         this.register = new Register();
         this.register.position.x = -8;
         this.register.position.y = -7;
-        for (let i = 0; i < shopData.money; i++)
+        for (let i = 0; i < shopData.money * 4; i++)
             this.register.addMoney();
         scene.add(this.register);
         
         let tomatoStandBuyTile = new BuyableTile(1, 1, 7, 7, 100, "Buy \"Tomato Stand\"");
         tomatoStandBuyTile.onFullyPaid = () =>
         {
-            const tomatoStand = new TomatoStand(1, 4);
+            const tomatoStand = new ContainerTile(1, 1, 2, 2, 0x4d220b);
+            tomatoStand.name = "tomatoStand";
+            tomatoStand.itemType = "tomato";
+            tomatoStand.position.x = 1;
+            tomatoStand.position.y = 4;
             tomatoStand.position.copy(tomatoStandBuyTile.position);
             scene.add(tomatoStand);
             this.containerTiles.push(tomatoStand);
@@ -118,25 +123,53 @@ export class Shop extends Group
                 scene.remove(sodaMachineBuyTile);
                 this.containerTiles.push(sodaMachine);
 
-                this.sodaMaker = new SodaMaker();
-                this.sodaMaker.position.x = 3;
-                this.sodaMaker.position.y = -18;
-                this.generatorTiles.push(this.sodaMaker);
-                scene.add(this.sodaMaker);
+                this.sodaGenerator = new SodaGenerator();
+                this.sodaGenerator.position.x = 3;
+                this.sodaGenerator.position.y = -18;
+                this.generatorTiles.push(this.sodaGenerator);
+                scene.add(this.sodaGenerator);
 
                 console.log("Bought soda machine.");
+
+                let tomatoJuicerBuyTile = new BuyableTile(3.5, 1, 7, -18, 100, "Buy \"Tomato Juicer\"");
+                tomatoJuicerBuyTile.onFullyPaid = () =>
+                {
+                    tomatoJuicerBuyTile.remove(tomatoJuicerBuyTile.label);
+                    scene.remove(tomatoJuicerBuyTile);
+
+                    this.tomatoJuicer = new TomatoJuicer(7, -18);
+                    //this.generatorTiles.push(this.tomatoJuicer.generatorTile);
+                    scene.add(this.tomatoJuicer);
+                    
+                    this.tomatoJuiceStand = new ContainerTile(1, 1, 2, 2, 0xa12b45);
+                    this.tomatoJuiceStand.name = "tomatoJuiceStand";
+                    this.tomatoJuiceStand.itemType = "tomatoJuice";
+                    this.tomatoJuiceStand.position.x = 7;
+                    this.tomatoJuiceStand.position.y = -1;
+                    this.containerTiles.push(this.tomatoJuiceStand);
+                    scene.add(this.tomatoJuiceStand);
+
+                    this.minTimeUntilNextCustomer -= 1;
+                    this.maxTimeUntilNextCustomer -= 1;
+                };
+                scene.add(tomatoJuicerBuyTile);
+
+                console.log("Unlocked TomatoJuicer buy tile");
             };
             scene.add(sodaMachineBuyTile);
+
+            // TODO: remove these for real gameplay
+            //sodaMachineBuyTile.onFullyPaid();
 
             this.minTimeUntilNextCustomer -= 3;
             this.maxTimeUntilNextCustomer -= 3;
         };
         scene.add(tomatoStandBuyTile);
 
-        tomatoStandBuyTile.onFullyPaid();
+        // TODO: remove these for real gameplay
+        //tomatoStandBuyTile.onFullyPaid();
         
         this.employees = new Array();
-
         this.customers = new Array();
 
         this.maxCustomers                     = shopData.maxCustomers;
