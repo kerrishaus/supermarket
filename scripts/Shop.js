@@ -138,7 +138,7 @@ export class Shop extends Group
                     scene.remove(tomatoJuicerBuyTile);
 
                     this.tomatoJuicer = new TomatoJuicer(7, -18);
-                    //this.generatorTiles.push(this.tomatoJuicer.generatorTile);
+                    this.generatorTiles.push(this.tomatoJuicer.generator);
                     scene.add(this.tomatoJuicer);
                     
                     this.tomatoJuiceStand = new ContainerTile(1, 1, 2, 2, 0xa12b45);
@@ -146,6 +146,7 @@ export class Shop extends Group
                     this.tomatoJuiceStand.itemType = "tomatoJuice";
                     this.tomatoJuiceStand.position.x = 7;
                     this.tomatoJuiceStand.position.y = -1;
+                    // TODO: figure out a way to get the employee to stock the juicer container
                     this.containerTiles.push(this.tomatoJuiceStand);
                     scene.add(this.tomatoJuiceStand);
 
