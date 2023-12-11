@@ -28,13 +28,13 @@ export class Employee extends ItemCarrier
     {
         this.actions.push(action);
 
-        if (action.type == "goto")
+        if (action.type == "move")
         {
             this.actionTime = this.position.distanceTo(action.position) / this.speedModifier;
             this.setTarget(action.position, this.actionTime);
         }
         
-        console.log("added action");
+        console.debug("added action");
         
         if (this.actions.length <= 1)
             this.focusAction(action);
@@ -42,7 +42,7 @@ export class Employee extends ItemCarrier
     
     focusAction(action)
     {
-        if (action.type == "goto")
+        if (action.type == "move")
         {
             console.log("moving to", action.position);
             this.actionTime = this.position.distanceTo(action.position) / this.speedModifier;
@@ -59,12 +59,12 @@ export class Employee extends ItemCarrier
             this.setTarget(action.container.position, this.actionTime);
         } 
         
-        console.log("focused action");
+        console.debug("focused action");
     }
 
     nextAction()
     {
-        console.log("action complete");
+        console.debug("action complete");
 
         this.actions.shift();
                 
@@ -94,7 +94,7 @@ export class Employee extends ItemCarrier
         console.log(`Gathering items from ${from.name} for ${to.name}.`);
 
         this.pushAction({
-            type: "goto",
+            type: "move",
             position: from.position,
         });
 
@@ -104,18 +104,13 @@ export class Employee extends ItemCarrier
         });
 
         this.pushAction({
-            type: "goto",
+            type: "move",
             position: to.position
         });
 
         this.pushAction({
             type: "stock",
             container: to,
-        });
-
-        this.pushAction({
-            type: "goto",
-            position: new Vector3(0, 0, 0)
         });
     }
     
@@ -132,7 +127,7 @@ export class Employee extends ItemCarrier
                 {
                     const action = this.actions[0];
 
-                    if (action.type == "goto")
+                    if (action.type == "move")
                         this.nextAction();   
                     else if (action.type == "pick")
                     {
@@ -162,41 +157,49 @@ export class Employee extends ItemCarrier
                 this.rotation.z = MathUtility.angleToPoint(this.position, this.targetPosition);
             }
         }
-        else
+        else // no more actions, find a new one
         {
-            let lowestContainer = null;
-
-            for (const container of this.shop.containerTiles)
+            if (this.shop.register.waitingCustomers.size > 0)
             {
-                if (container.carriedItems.length < container.maxItems)
-                {
-                    if (lowestContainer === null)
-                        lowestContainer = container;
-
-                    if (container.carriedItems.length < lowestContainer.carriedItems.length)
-                        lowestContainer = container;
-                }
+                console.log("moving to checkout customers");
+                this.pushAction({type: "move", position: this.shop.registerPosition});
             }
-
-            if (lowestContainer !== null)
+            else // nobody is waiting at the register
             {
-                let highestGenerator = null;
-                
-                for (const generator of this.shop.generatorTiles)
-                    if (generator.itemType == lowestContainer.itemType)
+                let lowestContainer = null;
+
+                for (const container of this.shop.containerTiles)
+                {
+                    if (container.carriedItems.length < container.maxItems)
                     {
-                        if (generator.carriedItems.length <= 0)
-                            continue;
+                        if (lowestContainer === null)
+                            lowestContainer = container;
 
-                        if (highestGenerator === null)
-                            highestGenerator = generator;
-
-                        if (generator.carriedItems.length > highestGenerator.carriedItems.length)
-                            highestGenerator = generator;
+                        if (container.carriedItems.length < lowestContainer.carriedItems.length)
+                            lowestContainer = container;
                     }
+                }
 
-                if (highestGenerator !== null)
-                    this.gatherItemsFromAndTakeTo(highestGenerator, lowestContainer);
+                if (lowestContainer !== null)
+                {
+                    let highestGenerator = null;
+                    
+                    for (const generator of this.shop.generatorTiles)
+                        if (generator.itemType == lowestContainer.itemType)
+                        {
+                            if (generator.carriedItems.length <= 0)
+                                continue;
+
+                            if (highestGenerator === null)
+                                highestGenerator = generator;
+
+                            if (generator.carriedItems.length > highestGenerator.carriedItems.length)
+                                highestGenerator = generator;
+                        }
+
+                    if (highestGenerator !== null)
+                        this.gatherItemsFromAndTakeTo(highestGenerator, lowestContainer);
+                }
             }
         }
 

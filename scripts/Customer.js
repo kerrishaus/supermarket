@@ -32,7 +32,7 @@ export class Customer extends ItemCarrier
         if (action.type == "buy")
             console.log("buying from " + action.container.name + " amount " + action.amount);
         
-        console.log("added action");
+        console.debug("added action:" + action.type);
         
         if (this.actions.length <= 1)
             this.focusAction(action);
@@ -42,7 +42,7 @@ export class Customer extends ItemCarrier
     {
         if (action.type == "move")
         {
-            console.log("moving to", action.position);
+            console.debug("moving to", action.position);
             this.actionTime = this.position.distanceTo(action.position) / 4;
             this.setTarget(action.position, this.actionTime);
         }
@@ -52,12 +52,12 @@ export class Customer extends ItemCarrier
             this.setTarget(action.container.position, this.actionTime);
         }
             
-        console.log("focused action");
+        console.debug("focused action:" + action.type);
     }
 
     nextAction()
     {
-        console.log("action complete");
+        console.debug("starting next action");
 
         this.actions.shift();
                 
@@ -118,6 +118,7 @@ export class Customer extends ItemCarrier
 
                             this.mood += 1;
                             
+                            // once they have all their items, start the next action
                             if (this.carriedItems.length >= this.actions[0].amount)
                                 this.nextAction();
                         }

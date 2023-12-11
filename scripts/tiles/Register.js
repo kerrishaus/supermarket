@@ -4,6 +4,7 @@ import { Carryable } from "../Carryable.js";
 import { Triggerable } from "../geometry/Triggerable.js";
 import { Player } from "../Player.js";
 import { Customer } from "../Customer.js";
+import { Employee } from "../Employee.js";
 
 export class Register extends Triggerable
 {
@@ -31,25 +32,31 @@ export class Register extends Triggerable
 
         this.waitingCustomers = new Map();
 
-        this.playerIsInContact = false;
+        this.playerIsInContact   = false;
+        this.employeeIsInContact = false;
     }
     
     update(deltaTime)
     {
         super.update(deltaTime);
 
-        if (this.waitingCustomers.size > 0 && this.playerIsInContact)
+        if (this.waitingCustomers.size > 0 && (this.playerIsInContact || this.employeeIsInContact))
         {
             console.log("taking care of customers at the register");
 
             // TODO: don't do this all in one go in the future
 
-            this.waitingCustomers.forEach((customer, uuid, map) => {
+            this.waitingCustomers.forEach((customer, uuid, map) => 
+            {
                 console.log("selling " + customer.carriedItems.length + " items");
 
                 for (let i = 0; i < customer.carriedItems.length; i++)
                     this.addMoney(customer.position);
 
+                this.waitingCustomers.delete(uuid);
+
+                // TODO: this is a hack to stop customers from freezing in place.
+                customer.actions.length = 0;
                 customer.pushAction({type: "move", position: shop.readyPosition});
                 customer.pushAction({type: "move", position: shop.spawnPosition});
 
@@ -57,7 +64,7 @@ export class Register extends Triggerable
                 customer.nextAction();
             });
 
-            this.waitingCustomers.clear();
+            $("#waitingCustomers").text(this.waitingCustomers.size);
         }
     }
     
@@ -135,13 +142,21 @@ export class Register extends Triggerable
             }
         }
 
+        if (object instanceof Employee)
+            if (!this.employeeIsInContact)
+            { 
+                console.log("employee is at the register")
+                this.employeeIsInContact = true;
+            }
+
         if (object instanceof Customer)
             if (!this.waitingCustomers.has(object.uuid))
             {
                 console.log("customer is now waiting to check out");
+                
                 this.waitingCustomers.set(object.uuid, object);
 
-                console.log(this.waitingCustomers);
+                $("#waitingCustomers").text(this.waitingCustomers.size);
             }
     }
     
@@ -151,5 +166,8 @@ export class Register extends Triggerable
 
         if (object instanceof Player)
             this.playerIsInContact = false;
+
+        if (object instanceof Employee)
+            this.employeeIsInContact = false;
     }
 };

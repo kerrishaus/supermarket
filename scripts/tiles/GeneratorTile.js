@@ -89,6 +89,7 @@ export class GeneratorTile extends Triggerable
         if (this.carriedItems.length <= 0)
             return;
 
+        // TODO: figure out if this check can be replaced with carrier instanceof ItemCarrier
         if (carrier instanceof Player || carrier instanceof Employee)
             if (carrier.carriedItems.length > carrier.carryLimit)
                 return;
