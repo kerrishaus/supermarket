@@ -2,7 +2,7 @@ import { Vector3, BoxGeometry, MeshStandardMaterial, Mesh, Quaternion } from "ht
 
 import { RigidBodyCube } from "./RigidBodyCube.js";
 
-export function createObject(size, position, color)
+export function createCube(size, position, color)
 {
     const geometry = new BoxGeometry(size.x, size.y, size.z);
     const material = new MeshStandardMaterial({color: color});
@@ -16,14 +16,9 @@ export function createObject(size, position, color)
     return mesh;
 }
 
-export function createCube(color)
-{
-    return createObject(new Vector3(1, 1, 1), new Vector3(), color);
-}
-
 export function createScaledCube(width, height, thickness, color)
 {
-    return createObject(new Vector3(width, height, thickness), new Vector3(), color);
+    return createCube(new Vector3(width, height, thickness), new Vector3(), color);
 }
 
 export function createPhysCube(size, position, color, mass = 10)

@@ -1,13 +1,16 @@
-import { Carryable } from "../Carryable.js";
+import { Entity             } from "../entity/Entity.js";
+import { CarryableComponent } from "../entity/components/CarryableComponent.js";
+import { ModelComponent     } from "../entity/components/ModelComponent.js";
 
-export class Tomato extends Carryable
+export class Tomato extends Entity
 {
-    constructor(position)
+    constructor()
     {
-        super(0.4, 0.4, 0.4, 0x852520);
-        
-        this.position.copy(position);
+        super();
 
+        this.addComponent(new ModelComponent);
+        this.addComponent(new CarryableComponent);
+        
         this.type = "tomato";
     }
 };

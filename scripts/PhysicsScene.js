@@ -26,6 +26,7 @@ export class PhysicsScene extends Scene
 
         if (object instanceof RigidBodyMesh)
         {
+            // TODO: probably make physicsBodies and physicsWorld maps
             // remove from physicsBodies
             // remove from physicsWorld
 

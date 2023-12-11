@@ -1,10 +1,12 @@
-import { Carryable } from "../Carryable.js";
+import { Vector3 } from "https://kerrishaus.com/assets/threejs/build/three.module.js";
 
-export class SodaCan extends Carryable
+import { Entity } from "../entity/Entity.js";
+
+export class SodaCan extends Entity
 {
     constructor(position)
     {
-        super(0.4, 0.4, 0.4, 0xc2c2c2);
+        super("sodaCan", new Vector3(0.3, 0.3, 0.3));
         
         this.position.copy(position);
 

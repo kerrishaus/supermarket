@@ -1,16 +1,13 @@
-import { BoxGeometry, MeshStandardMaterial, Vector3 } from "https://kerrishaus.com/assets/threejs/build/three.module.js";
+import { Vector3 } from "https://kerrishaus.com/assets/threejs/build/three.module.js";
 
-import { DynamicMesh } from "./geometry/DynamicMesh.js";
+import { EntityComponent } from "./EntityComponent.js";
 
-export class Carryable extends DynamicMesh
+export class CarryableComponent extends EntityComponent
 {
-    constructor(width, height, thickness, color)
+    constructor()
     {
-        const geometry = new BoxGeometry(width, height, thickness);
-        const material = new MeshStandardMaterial({color: color});
-        
-        super(geometry, material);
-        
+        super();
+
         this.offset         = new Vector3(0, 0, 0);
         this.owner          = new Vector3(0, 0, 0);
         this.targetPosition = new Vector3(0, 0, 0);
@@ -21,10 +18,10 @@ export class Carryable extends DynamicMesh
         
         this.autoPositionAfterAnimation = true;
     }
-    
+
     setTarget(owner, offset)
     {
-        this.startPosition.copy(this.position);
+        this.startPosition.copy(this.parentEntity.position);
         this.updateTarget(owner, offset);
         this.elapsedTime = 0;
     }
@@ -47,21 +44,23 @@ export class Carryable extends DynamicMesh
         this.offset.copy(offset);
         
         this.targetPosition = new Vector3(this.owner.x + this.offset.x,
-                                                this.owner.y + this.offset.y,
-                                                this.owner.z + this.offset.z);
+                                          this.owner.y + this.offset.y,
+                                          this.owner.z + this.offset.z);
     }
     
     update(deltaTime)
     {
+        super.update(deltaTime);
+
         if (this.elapsedTime > this.moveTime)
         {
             if (this.autoPositionAfterAnimation)
-                this.position.copy(this.targetPosition);
+                this.parentEntity.position.copy(this.targetPosition);
                 
             return;
         }
         
         this.elapsedTime += deltaTime;
-        this.position.lerpVectors(this.startPosition, this.targetPosition, this.elapsedTime / this.moveTime);
+        this.parentEntity.position.lerpVectors(this.startPosition, this.targetPosition, this.elapsedTime / this.moveTime);
     }
-};
+}

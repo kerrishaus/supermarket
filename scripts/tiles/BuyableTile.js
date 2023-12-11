@@ -4,7 +4,7 @@ import { CSS2DObject } from "https://kerrishaus.com/assets/threejs/examples/jsm/
 
 import { Triggerable } from "../geometry/Triggerable.js";
 import { Player } from "../Player.js";
-import { Carryable } from "../Carryable.js";
+//import { Carryable } from "../Carryable.js";
 
 export class BuyableTile extends Triggerable
 {

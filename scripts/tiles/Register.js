@@ -1,6 +1,6 @@
 import { Vector3, TextureLoader, MeshStandardMaterial } from "https://kerrishaus.com/assets/threejs/build/three.module.js";
 
-import { Carryable } from "../Carryable.js";
+//import { Carryable } from "../Carryable.js";
 import { Triggerable } from "../geometry/Triggerable.js";
 import { Player } from "../Player.js";
 import { Customer } from "../Customer.js";
