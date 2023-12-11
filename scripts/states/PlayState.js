@@ -20,14 +20,16 @@ export class PlayState extends State
             <div id='interface' class="gameInterfaceContainer">
                 <div id="businessStats">
                     <div id="moneyContainer">
-                        $<span id='money'>0</span>
+                        <i class='fa fa-money'></i> Money: $<span id='money'>0</span>
                     </div>
                     <div id="reputationContainer">
-                        <i class='fa fa-shield'></i> <span id='reputation'>0</span>
+                        <i class='fa fa-shield'></i> Reputation: <span id='reputation'>0</span>
                     </div>
                     <div>
-                        <i class='fa fa-users'></i> <span id="customerCount">0</span>
+                        <i class='fa fa-users'></i> Customers in store: <span id="customerCount">0</span>
                     </div>
+                    <div>
+                        <i class='fa fa-users'></i> Customers waiting to checkout: <span id="waitingCustomers">0</span>
                     </div>
                 </div>
             </div>
@@ -223,7 +225,7 @@ export class PlayState extends State
                 if (distance > 0.0)
                     continue;
 
-                console.log({manifoldIndex: i, contactIndex: j, distance: distance});
+                //console.log({manifoldIndex: i, contactIndex: j, distance: distance});
             }
         }
     }
@@ -298,6 +300,11 @@ export class PlayState extends State
             camera.lookAt(player.position);
         }
 
+        // this only checks if
+        // - players
+        // - customers
+        // - employees
+        // are in the trigger zone of an object
         scene.children.forEach((object) =>
         {
             if ('update' in object)
@@ -305,11 +312,13 @@ export class PlayState extends State
 
             if (object instanceof Triggerable)
             {
+                // first check if the player intersects this object
                 if (player.box.intersectsBox(object.trigger))
                     object.onTrigger(player);
                 else if (object.triggeringObjects.includes(player))
                     object.onStopTrigger(player);
 
+                // then check if any customers intersect this object
                 for (const customer of shop.customers)
                 {
                     // customer intersects with Triggerable's trigger
@@ -325,6 +334,25 @@ export class PlayState extends State
                         // if this trigger is triggered by the customer, stop triggering
                         if (object.triggeringObjects.includes(customer))
                             object.onStopTrigger(customer);
+                    }
+                }
+
+                // finally check if any employees intersect this object
+                for (const employee of shop.employees)
+                {
+                    // employee intersects with Triggerable's trigger
+                    if (object.trigger.intersectsBox(employee.box))
+                    {
+                        // object is not currently triggered by the employee
+                        if (!object.triggeringObjects.includes(employee))
+                            object.onTrigger(employee);
+                    }
+                    // employee is not intersecting with this trigger
+                    else
+                    {
+                        // if this trigger is triggered by the employee, stop triggering
+                        if (object.triggeringObjects.includes(employee))
+                            object.onStopTrigger(employee);
                     }
                 }
             }
