@@ -5,6 +5,11 @@ export class EntityComponent
         this.parentEntity = null;
     }
 
+    destructor()
+    {
+        
+    }
+
     setParentEntity(entity)
     {
         this.parentEntity = entity;

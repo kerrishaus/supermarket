@@ -33,9 +33,9 @@ export class Player extends ItemCarrier
 
         for (const money of this.carriedMoney)
         {
-            if (money.elapsedTime > money.moveTime)
+            if (money.getComponent("CarryableComponent").elapsedTime > money.getComponent("CarryableComponent").moveTime)
             {
-                scene.remove(money);
+                money.destructor();
                 this.carriedMoney.splice(this.carriedMoney.indexOf(money), 1);
                 continue;
             }

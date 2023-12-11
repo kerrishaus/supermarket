@@ -284,7 +284,7 @@ export class Shop extends Group
             if (customer.actions.length <= 0)
             {
                 for (const carriedItem of customer.carriedItems)
-                    scene.remove(carriedItem);
+                    carriedItem.destructor();
 
                 this.updateReputation(customer.mood);
 

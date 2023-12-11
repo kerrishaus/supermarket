@@ -33,6 +33,13 @@ export class ModelComponent extends EntityComponent
         });
     }
 
+    destructor()
+    {
+        super.destructor();
+
+        scene.remove(this.model);
+    }
+
     update(deltaTime)
     {
         super.update(deltaTime);

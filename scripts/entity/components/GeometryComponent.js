@@ -22,6 +22,13 @@ export class GeometryComponent extends EntityComponent
         this.box = new Box3();
     }
 
+    destructor()
+    {
+        super.destructor();
+
+        scene.remove(this.mesh);
+    }
+
     update(deltaTime)
     {
         super.update(deltaTime);

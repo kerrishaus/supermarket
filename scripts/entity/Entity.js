@@ -9,6 +9,13 @@ export class Entity extends Object3D
         this.components = new Map();
     }
 
+    destructor()
+    {
+        this.components.forEach((component, componentType, map) => {
+            component.destructor();
+        })
+    }
+
     update(deltaTime)
     {
         this.components.forEach((component, componentType, map) => {
@@ -42,6 +49,8 @@ export class Entity extends Object3D
             console.error("tried to remove component" + componentType + " but it does not exist in object", this);
             return false;
         }
+
+        this.components.get(componentType).destructor();
 
         this.components.delete(componentType);
     }
