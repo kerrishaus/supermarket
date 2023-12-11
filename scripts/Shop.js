@@ -8,7 +8,7 @@ import { RigidBodyCube } from "./geometry/RigidBodyCube.js";
 import { Door } from "./Door.js";
 import { Register } from "./tiles/Register.js";
 import { RecycleBin } from "./tiles/RecycleBin.js";
-import { BuyableTile } from "./tiles/buyable/BuyableTile.js";
+import { BuyableTile } from "./tiles/BuyableTile.js";
 
 import { Customer } from "./Customer.js";
 
