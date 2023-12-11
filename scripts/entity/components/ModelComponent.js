@@ -1,3 +1,6 @@
+import { GLTFLoader } from 'https://kerrishaus.com/assets/threejs/examples/jsm/loaders/GLTFLoader.js';
+import { DRACOLoader } from 'https://kerrishaus.com/assets/threejs/examples/jsm/loaders/DRACOLoader.js';
+
 import { EntityComponent } from "./EntityComponent.js";
 
 export class ModelComponent extends EntityComponent

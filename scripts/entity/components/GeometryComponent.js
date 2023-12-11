@@ -10,10 +10,10 @@ export class GoemetryComponent extends EntityComponent
 
         this.mesh = new Mesh(geometry, material);
 
-        this.castShadow = true;
-        this.receiveShadow = true;
+        this.mesh.castShadow = true;
+        this.mesh.receiveShadow = true;
 
-        this.geometry.computeBoundingBox();
+        this.mesh.geometry.computeBoundingBox();
 
         this.box = new Box3();
     }

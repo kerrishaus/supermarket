@@ -1,10 +1,13 @@
-import { Vector3, TextureLoader, MeshStandardMaterial } from "https://kerrishaus.com/assets/threejs/build/three.module.js";
+import { BoxGeometry, Vector3, TextureLoader, MeshStandardMaterial } from "https://kerrishaus.com/assets/threejs/build/three.module.js";
 
-//import { Carryable } from "../Carryable.js";
 import { Triggerable } from "../geometry/Triggerable.js";
-import { Player } from "../Player.js";
-import { Customer } from "../Customer.js";
-import { Employee } from "../Employee.js";
+import { Player      } from "../Player.js";
+import { Customer    } from "../Customer.js";
+import { Employee    } from "../Employee.js";
+
+import { Entity             } from "../entity/Entity.js";
+import { CarryableComponent } from "../entity/components/CarryableComponent.js";
+import { GoemetryComponent  } from "../entity/components/GeometryComponent.js";
 
 export class Register extends Triggerable
 {
@@ -74,13 +77,17 @@ export class Register extends Triggerable
     {
         this.calculateGrid();
         
-        const money = new Carryable(this.moneyLength, this.moneyWidth, this.moneyThickness, 0x48c942);
-        money.material = this.moneyMaterial;
+        const money = new Entity();
+        money.addComponent(new CarryableComponent);
+        money.addComponent(new GoemetryComponent(
+            new BoxGeometry(this.moneyLength, this.moneyWidth, this.moneyThickness),
+            this.moneyMaterial
+        ));
         
         money.position.copy(position);
-        money.setTarget(this.position, new Vector3(this.column_ * this.moneyLength - 0.6 - 1,
-                                                   this.row_ * this.moneyWidth - 0.5,
-                                                  (this.scale.z / 2) + (this.layer_ * this.moneyThickness) + this.moneyThickness / 2));
+        money.getComponent("CarryableComponent").setTarget(this.position, new Vector3(this.column_ * this.moneyLength - 0.6 - 1,
+                                                            this.row_ * this.moneyWidth - 0.5,
+                                                            (this.scale.z / 2) + (this.layer_ * this.moneyThickness) + this.moneyThickness / 2));
         
         scene.add(money);
         this.money.push(money);
