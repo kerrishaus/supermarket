@@ -74,7 +74,8 @@ export class LoadSaveState extends State
                   continue;
             }
 
-            newItem.setTarget(player.position, new THREE.Vector3());
+            newItem.getComponent("CarryableComponent").setTarget(player.position, new THREE.Vector3());
+            
             player.carriedItems.push(newItem);
         }
         

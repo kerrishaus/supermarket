@@ -32,7 +32,7 @@ export class ItemCarrier extends DynamicMesh
                 continue;
             }
             
-            item.updateTarget(this.position, new Vector3(0, 0, carryPos));
+            item.getComponent("CarryableComponent").updateTarget(this.position, new Vector3(0, 0, carryPos));
         }
     }
 }

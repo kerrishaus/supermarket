@@ -40,7 +40,7 @@ export class RecycleBin extends Triggerable
         const item = holder.carriedItems[holder.carriedItems.length - 1]
         holder.carriedItems.splice(holder.carriedItems.indexOf(holder), 1);
         this.carriedItems.push(item);
-        item.setTarget(this.position, new Vector3(0, 0, 0));
+        item.getComponent("CarryableComponent").setTarget(this.position, new Vector3(0, 0, 0));
     }
     
     onTrigger(object)

@@ -73,7 +73,7 @@ export class GeneratorTile extends Triggerable
             const item = this.createItem();
             
             item.position.copy(this.position);
-            item.setTarget(this.position, new Vector3(this.column_ * this.itemLength - 0.6 - 1,
+            item.getComponent("CarryableComponent").setTarget(this.position, new Vector3(this.column_ * this.itemLength - 0.6 - 1,
                                                     this.row_ * this.itemWidth - 0.5,
                                                     (this.scale.z / 2) + (this.layer_ * this.itemThickness) + this.itemThickness / 2));
             
@@ -103,7 +103,7 @@ export class GeneratorTile extends Triggerable
         // TODO: I want to set the offset vector here, in the future
         // but right now it's really not required because it will set by
         // updateTarget later in Player#update
-        item.setTarget(carrier.position, new Vector3(0, 0, 0));
+        item.getComponent("CarryableComponent").setTarget(carrier.position, new Vector3(0, 0, 0));
         item.autoPositionAfterAnimation = false;
         
         carrier.carriedItems.push(item);
@@ -133,7 +133,7 @@ export class GeneratorTile extends Triggerable
                 continue;
             }
             
-            item.setTarget(this.position, new Vector3(0, 0, carryPos));
+            item.getComponent("CarryableComponent").setTarget(this.position, new Vector3(0, 0, carryPos));
         }
     }
     

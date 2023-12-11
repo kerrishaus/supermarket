@@ -100,7 +100,7 @@ export class Register extends Triggerable
             
         const money = this.money[this.money.length - 1];
         
-        money.setTarget(player.position, new Vector3(0, 0, 0));
+        money.getComponent("CarryableComponent").setTarget(player.position, new Vector3(0, 0, 0));
         
         player.carriedMoney.push(money);
         

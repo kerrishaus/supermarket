@@ -40,7 +40,7 @@ export class Player extends ItemCarrier
                 continue;
             }
             
-            money.updateTarget(this.position, new Vector3(0, 0, 0.5));
+            money.getComponent("CarryableComponent").updateTarget(this.position, new Vector3(0, 0, 0.5));
         }
     }
 };

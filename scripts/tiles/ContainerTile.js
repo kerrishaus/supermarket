@@ -42,7 +42,7 @@ export class ContainerTile extends Triggerable
                 
                 this.calculateGrid();
                 
-                //item.setTarget(this.position, new Vector3(this.column_ - 1, this.row_ - 1, this.layer_ + 1));
+                //item.getComponent("CarryableComponent").setTarget(this.position, new Vector3(this.column_ - 1, this.row_ - 1, this.layer_ + 1));
                 item.autoPositionAfterAnimation = true;
             }
         }
@@ -61,7 +61,7 @@ export class ContainerTile extends Triggerable
 
         if (carrier instanceof Customer)
         {
-            this.carriedItems[0].setTarget(carrier.position, new Vector3(0, 0, 0));
+            this.carriedItems[0].getComponent("CarryableComponent").setTarget(carrier.position, new Vector3(0, 0, 0));
             this.carriedItems[0].autoPositionAfterAnimation = false;
 
             carrier.carriedItems.push(this.carriedItems[0]);
@@ -95,7 +95,7 @@ export class ContainerTile extends Triggerable
                 this.layer_ += 1;
             }
 
-            this.carriedItems[i].setTarget(this.position, new Vector3(this.column_ - 1, this.row_ - 1, this.layer_ + 1));
+            this.carriedItems[i].getComponent("CarryableComponent").setTarget(this.position, new Vector3(this.column_ - 1, this.row_ - 1, this.layer_ + 1));
         }
     }
     

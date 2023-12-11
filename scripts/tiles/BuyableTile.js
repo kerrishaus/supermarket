@@ -1,10 +1,12 @@
-import { Vector3, TextureLoader, MeshStandardMaterial } from "https://kerrishaus.com/assets/threejs/build/three.module.js";
+import { BoxGeometry, Vector3, TextureLoader, MeshStandardMaterial } from "https://kerrishaus.com/assets/threejs/build/three.module.js";
 
 import { CSS2DObject } from "https://kerrishaus.com/assets/threejs/examples/jsm/renderers/CSS2DRenderer.js";
 
 import { Triggerable } from "../geometry/Triggerable.js";
 import { Player } from "../Player.js";
-//import { Carryable } from "../Carryable.js";
+import { Entity } from "../entity/Entity.js";
+import { CarryableComponent } from "../entity/components/CarryableComponent.js";
+import { GoemetryComponent } from "../entity/components/GeometryComponent.js";
 
 export class BuyableTile extends Triggerable
 {
@@ -45,12 +47,18 @@ export class BuyableTile extends Triggerable
 
         if (player.money <= 0)
             return;
-            
-        const money = new Carryable(0.3, 0.2, 0.02, 0x48c942);
-        money.material = this.moneyMaterial;
+        
+        // TODO: use standard money size variables from register
+        const money = new Entity();
+        money.addComponent(new CarryableComponent);
+        money.addComponent(new GoemetryComponent(
+            new BoxGeometry(0.3, 0.2, 0.02),
+            this.moneyMaterial
+        ));
+
         money.position.copy(this.position);
-        money.setTarget(this.position, new Vector3(0, 0, 0));
-        money.startPosition.copy(player.position);
+        money.getComponent("CarryableComponent").setTarget(this.position, new Vector3(0, 0, 0));
+        money.getComponent("CarryableComponent").startPosition.copy(player.position);
         scene.add(money);
         
         this.carriedMoney.push(money);
