@@ -27,7 +27,7 @@ export class Door extends Triggerable
         this.leftDoor.getComponent("CarryableComponent").setTarget(this.leftDoor.position, new Vector3(0, 0, 0.5));
         
         // main door
-        this.leftDoor.add(createCube(new Vector3(2, 1, 4), new Vector3(-0.9, -0.55, 0), 0x00d1e8));
+        this.leftDoor.add(createCube(new Vector3(2, 1, 4), new Vector3(0, 0, 0), 0x00d1e8));
 
         this.leftDoor.add(createCube(new Vector3(0.2, 0.1, 4), new Vector3(-0.9, -0.55, 0), 0x919191));
         this.leftDoor.add(createCube(new Vector3(0.2, 0.1, 4), new Vector3(0.9, -0.55, 0), 0x919191));
@@ -44,7 +44,7 @@ export class Door extends Triggerable
         this.rightDoor.getComponent("CarryableComponent").setTarget(this.rightDoor.position, new Vector3(0, 0, 0.5));
 
         // main door
-        this.leftDoor.add(createCube(new Vector3(2, 1, 4), new Vector3(-0.9, -0.55, 0), 0x00d1e8));
+        this.rightDoor.add(createCube(new Vector3(2, 1, 4), new Vector3(0, 0, 0), 0x00d1e8));
 
         this.rightDoor.add(createCube(new Vector3(0.2, 0.1, 4), new Vector3(-0.9, -0.55, 0), 0x919191));
         this.rightDoor.add(createCube(new Vector3(0.2, 0.1, 4), new Vector3(0.9, -0.55, 0), 0x919191));
@@ -77,8 +77,8 @@ export class Door extends Triggerable
 
         super.onTrigger(object);
 
-        this.rightDoor.setTarget(new Vector3(3, -0.1, 0.5), this.position);
-        this.leftDoor.setTarget(new Vector3(-3, -0.1, 0.5), this.position);
+        this.rightDoor.getComponent("CarryableComponent").setTarget(new Vector3(3, -0.1, 0.5), this.position);
+        this.leftDoor.getComponent("CarryableComponent").setTarget(new Vector3(-3, -0.1, 0.5), this.position);
 
         console.debug("opening door");
     }
@@ -90,8 +90,8 @@ export class Door extends Triggerable
         if (this.triggered)
             return;
 
-        this.rightDoor.setTarget(new Vector3(1, -0.1, 0.5), this.position);
-        this.leftDoor.setTarget(new Vector3(-1, -0.1, 0.5), this.position);
+        this.rightDoor.getComponent("CarryableComponent").setTarget(new Vector3(1, -0.1, 0.5), this.position);
+        this.leftDoor.getComponent("CarryableComponent").setTarget(new Vector3(-1, -0.1, 0.5), this.position);
 
         console.debug("closing door");
     }
