@@ -2,16 +2,16 @@ import { Group, Vector2 } from "https://kerrishaus.com/assets/threejs/build/thre
 
 import { ContainerTile } from "./ContainerTile.js";
 import { GeneratorTile } from "./GeneratorTile.js";
-import { TomatoJuice   } from "../items/TomatoJuice.js";
+import { Ketchup       } from "../items/Ketchup.js";
 
-export class TomatoJuicer extends Group
+export class KetchupGenerator extends Group
 {
     constructor(x, y)
     {
         super();
 
-        this.generator = new GeneratorTile(new Vector2(1, 1), new Vector2(2, 2), 0x0000ff, "Tomato Juice", "tomatoJuice");
-        this.generator.createItem = () => { return new TomatoJuice(this.generator.position) };
+        this.generator = new GeneratorTile(new Vector2(1, 1), new Vector2(2, 2), 0x0000ff, "Ketchup", "ketchup");
+        this.generator.createItem = () => { return new Ketchup(this.generator.position) };
         this.generator.position.x = x - 1.25;
         this.generator.position.y = y;
         // this prevents the 
@@ -22,7 +22,7 @@ export class TomatoJuicer extends Group
         //this.attach(this.generator);
 
         this.container = new ContainerTile(1, 1, 2, 2, 0xff0000);
-        this.container.name = "tomatoJuicerContainer";
+        this.container.name = "ketchupGeneratorContainer";
         this.container.itemType = "tomato";
         this.container.position.x = x + 1.25;
         this.container.position.y = y;

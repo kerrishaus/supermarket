@@ -12,7 +12,7 @@ import { BuyableTile } from "./tiles/BuyableTile.js";
 
 import { Customer } from "./Customer.js";
 
-import { TomatoJuicer } from "./tiles/TomatoJuicer.js";
+import { KetchupGenerator } from "./tiles/KetchupGenerator.js";
 import { TomatoPlant  } from "./tiles/TomatoPlant.js";
 import { SodaGenerator    } from "./tiles/SodaGenerator.js";
 
@@ -131,34 +131,34 @@ export class Shop extends Group
 
                 console.log("Bought soda machine.");
 
-                let tomatoJuicerBuyTile = new BuyableTile(3.5, 1, 7, -18, 100, "Buy \"Tomato Juicer\"");
-                tomatoJuicerBuyTile.onFullyPaid = () =>
+                let KetchupGeneratorBuyTile = new BuyableTile(3.5, 1, 7, -18, 100, "Buy \"Ketchup Machine\"");
+                KetchupGeneratorBuyTile.onFullyPaid = () =>
                 {
-                    tomatoJuicerBuyTile.remove(tomatoJuicerBuyTile.label);
-                    scene.remove(tomatoJuicerBuyTile);
+                    KetchupGeneratorBuyTile.remove(KetchupGeneratorBuyTile.label);
+                    scene.remove(KetchupGeneratorBuyTile);
 
-                    this.tomatoJuicer = new TomatoJuicer(7, -18);
-                    this.generatorTiles.push(this.tomatoJuicer.generator);
-                    scene.add(this.tomatoJuicer);
+                    this.KetchupGenerator = new KetchupGenerator(7, -18);
+                    this.generatorTiles.push(this.KetchupGenerator.generator);
+                    scene.add(this.KetchupGenerator);
                     
-                    this.tomatoJuiceStand = new ContainerTile(1, 1, 2, 2, 0xa12b45);
-                    this.tomatoJuiceStand.name = "tomatoJuiceStand";
-                    this.tomatoJuiceStand.itemType = "tomatoJuice";
-                    this.tomatoJuiceStand.position.x = 7;
-                    this.tomatoJuiceStand.position.y = -1;
-                    // TODO: figure out a way to get the employee to stock the juicer container
-                    this.containerTiles.push(this.tomatoJuiceStand);
-                    scene.add(this.tomatoJuiceStand);
+                    this.ketchupStand = new ContainerTile(1, 1, 2, 2, 0xa12b45);
+                    this.ketchupStand.name = "ketchupStand";
+                    this.ketchupStand.itemType = "ketchup";
+                    this.ketchupStand.position.x = 7;
+                    this.ketchupStand.position.y = -1;
+                    // TODO: figure out a way to get the employee to stock the ketchup container
+                    this.containerTiles.push(this.ketchupStand);
+                    scene.add(this.ketchupStand);
 
                     this.minTimeUntilNextCustomer -= 1;
                     this.maxTimeUntilNextCustomer -= 1;
                 };
-                scene.add(tomatoJuicerBuyTile);
+                scene.add(KetchupGeneratorBuyTile);
 
                 // TODO: remove these for real gameplay
-                //tomatoJuicerBuyTile.onFullyPaid();
+                //KetchupGeneratorBuyTile.onFullyPaid();
 
-                console.log("Unlocked TomatoJuicer buy tile");
+                console.log("Unlocked KetchupGenerator buy tile");
             };
             scene.add(sodaMachineBuyTile);
 

@@ -1,13 +1,13 @@
 import { ContainerTile } from "./ContainerTile.js";
 
-export class TomatoJuiceShelf extends ContainerTile
+export class KetchupShelf extends ContainerTile
 {
     constructor(xPos, yPos)
     {
         super(1, 1, 2, 2, 0x4d220b);
         
-        this.name = "tomatoJuiceShelf";
-        this.itemType = "tomatoJuice";
+        this.name = "ketchupShelf";
+        this.itemType = "ketchup";
         
         this.position.x = xPos;
         this.position.y = yPos;

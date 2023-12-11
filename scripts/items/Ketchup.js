@@ -2,8 +2,7 @@ import { Entity             } from "../entity/Entity.js";
 import { CarryableComponent } from "../entity/components/CarryableComponent.js";
 import { ModelComponent     } from "../entity/components/ModelComponent.js";
 
-// TODO: rename TomatoJuice to Ketchup
-export class TomatoJuice extends Entity
+export class Ketchup extends Entity
 {
     constructor()
     {
@@ -15,6 +14,6 @@ export class TomatoJuice extends Entity
         // TODO: this does not work
         this.rotation.y = 1.5708;
 
-        this.type = "tomatoJuice";
+        this.type = "ketchup";
     }
 };
