@@ -12,8 +12,6 @@ import { PixelShader } from 'https://kerrishaus.com/assets/threejs/examples/jsm/
 
 import { TransformControls } from 'https://kerrishaus.com/assets/threejs/examples/jsm/controls/TransformControls.js';
 import { OrbitControls } from 'https://kerrishaus.com/assets/threejs/examples/jsm/controls/OrbitControls.js';
-import { GLTFLoader } from 'https://kerrishaus.com/assets/threejs/examples/jsm/loaders/GLTFLoader.js';
-import { DRACOLoader } from 'https://kerrishaus.com/assets/threejs/examples/jsm/loaders/DRACOLoader.js';
 import { RoomEnvironment } from 'https://kerrishaus.com/assets/threejs/examples/jsm/environments/RoomEnvironment.js';
 
 import { CSS2DRenderer } from "https://kerrishaus.com/assets/threejs/examples/jsm/renderers/CSS2DRenderer.js";
@@ -105,30 +103,6 @@ export class StartupState extends State
             freeControls.target.set(0, 0, 0);
             freeControls.update();
             freeControls.enabled = false;
-
-            /*
-            dracoLoader = new DRACOLoader();
-            dracoLoader.setDecoderPath('https://kerrishaus.com/assets/threejs/examples/js/libs/draco/gltf/');
-
-            loader = new GLTFLoader();
-            loader.setDRACOLoader(dracoLoader);
-            loader.load('models/LittlestTokyo_placeholder.glb', function(gltf)
-            {
-                const model = gltf.scene;
-                //model.position.set(5, 26, 11.45); // for right out front
-                model.position.set(5, 30, 11.45);
-                model.rotation.x = 1.5708;
-                //model.rotation.y = 1.5708;
-                model.scale.set(0.06, 0.06, 0.06);
-                scene.add(model);
-
-                mixer = new THREE.AnimationMixer(model);
-                mixer.clipAction(gltf.animations[0]).play();
-            }, undefined, function(e)
-            {
-                console.error(e);
-            });
-            */
 
             window.composer = new EffectComposer(renderer);
             composer.addPass(new RenderPass(scene, camera));
