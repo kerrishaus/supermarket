@@ -57,6 +57,9 @@ export class LoadSaveState extends State
         player.rotation.y = saveData.player.rotation.y
         player.rotation.z = saveData.player.rotation.z
 
+        /*
+        console.log("loading player's carried items");
+
         for (const item of saveData.player.carriedItems)
         {
             let newItem = null;
@@ -78,7 +81,8 @@ export class LoadSaveState extends State
             
             player.carriedItems.push(newItem);
         }
-        
+        */
+
         console.log("LoadSaveState complete.");
 
         this.stateMachine.changeState(new PlayState());

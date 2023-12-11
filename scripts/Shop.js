@@ -155,6 +155,9 @@ export class Shop extends Group
                 };
                 scene.add(tomatoJuicerBuyTile);
 
+                // TODO: remove these for real gameplay
+                //tomatoJuicerBuyTile.onFullyPaid();
+
                 console.log("Unlocked TomatoJuicer buy tile");
             };
             scene.add(sodaMachineBuyTile);
