@@ -16,6 +16,7 @@ export class GeneratorTile extends Triggerable
         this.name = name;
         this.itemType = itemType;
 
+        // 0 or less to stop the generator from automatically creating items
         this.itemTime = 3;
         this.timeSinceLastItem = 0;
 
@@ -47,12 +48,13 @@ export class GeneratorTile extends Triggerable
     {
         super.update(deltaTime);
 
-        if (this.carriedItems.length < this.maxItems)
-            if (this.timeSinceLastItem > this.itemTime)
-            {
-                this.addItem();
-                this.timeSinceLastItem = 0;
-            }
+        if (this.itemTime > 0)
+            if (this.carriedItems.length < this.maxItems)
+                if (this.timeSinceLastItem > this.itemTime)
+                {
+                    this.addItem();
+                    this.timeSinceLastItem = 0;
+                }
 
         this.timeSinceLastItem += deltaTime;
     }

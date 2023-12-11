@@ -14,9 +14,8 @@ export class TomatoJuicer extends Group
         this.generator.createItem = () => { return new TomatoJuice(this.generator.position) };
         this.generator.position.x = x - 1.25;
         this.generator.position.y = y;
-        // TODO: a better way to do this,
-        // but right now this just prevents it from creating more
-        this.generator.maxItems = -1;
+        // this prevents the 
+        this.generator.itemTime = -1;
         // TODO: replace scene.add with this.attach
         // right now it prevents the triggers from working for some reason
         scene.add(this.generator);
@@ -37,23 +36,24 @@ export class TomatoJuicer extends Group
 
     update(deltaTime)
     {
-        if (this.timeSinceLastTransformation > 5)
-        {
-            if (this.container.carriedItems.length >= 2)
+        if (this.generator.carriedItems.length < this.generator.maxItems)
+            if (this.timeSinceLastTransformation > 5)
             {
-                console.debug("juicing 2 tomatoes from " + this.container.carriedItems.length);
+                if (this.container.carriedItems.length >= 2)
+                {
+                    console.debug("juicing 2 tomatoes from " + this.container.carriedItems.length);
 
-                scene.remove(this.container.carriedItems.shift());
-                scene.remove(this.container.carriedItems.shift());
-                this.container.calculateGrid();
+                    scene.remove(this.container.carriedItems.shift());
+                    scene.remove(this.container.carriedItems.shift());
+                    this.container.calculateGrid();
 
-                console.debug(this.container.carriedItems.length + " tomatos left");
-                
-                this.generator.addItem();
+                    console.debug(this.container.carriedItems.length + " tomatos left");
+                    
+                    this.generator.addItem();
 
-                this.timeSinceLastTransformation = 0;
+                    this.timeSinceLastTransformation = 0;
+                }
             }
-        }
 
         this.timeSinceLastTransformation += deltaTime;
     }
