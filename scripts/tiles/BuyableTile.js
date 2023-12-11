@@ -6,7 +6,7 @@ import { Triggerable } from "../geometry/Triggerable.js";
 import { Player } from "../Player.js";
 import { Entity } from "../entity/Entity.js";
 import { CarryableComponent } from "../entity/components/CarryableComponent.js";
-import { GoemetryComponent } from "../entity/components/GeometryComponent.js";
+import { GeometryComponent } from "../entity/components/GeometryComponent.js";
 
 export class BuyableTile extends Triggerable
 {
@@ -51,7 +51,7 @@ export class BuyableTile extends Triggerable
         // TODO: use standard money size variables from register
         const money = new Entity();
         money.addComponent(new CarryableComponent);
-        money.addComponent(new GoemetryComponent(
+        money.addComponent(new GeometryComponent(
             new BoxGeometry(0.3, 0.2, 0.02),
             this.moneyMaterial
         ));

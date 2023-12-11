@@ -7,7 +7,7 @@ import { Employee    } from "../Employee.js";
 
 import { Entity             } from "../entity/Entity.js";
 import { CarryableComponent } from "../entity/components/CarryableComponent.js";
-import { GoemetryComponent  } from "../entity/components/GeometryComponent.js";
+import { GeometryComponent  } from "../entity/components/GeometryComponent.js";
 
 export class Register extends Triggerable
 {
@@ -79,7 +79,7 @@ export class Register extends Triggerable
         
         const money = new Entity();
         money.addComponent(new CarryableComponent);
-        money.addComponent(new GoemetryComponent(
+        money.addComponent(new GeometryComponent(
             new BoxGeometry(this.moneyLength, this.moneyWidth, this.moneyThickness),
             this.moneyMaterial
         ));

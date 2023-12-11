@@ -2,7 +2,7 @@ import { Mesh, Box3 } from "https://kerrishaus.com/assets/threejs/build/three.mo
 
 import { EntityComponent } from "./EntityComponent.js";
 
-export class GoemetryComponent extends EntityComponent
+export class GeometryComponent extends EntityComponent
 {
     constructor(geometry, material)
     {
