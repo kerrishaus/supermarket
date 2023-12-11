@@ -15,9 +15,11 @@ export class GoemetryComponent extends EntityComponent
 
         this.mesh.geometry.computeBoundingBox();
 
+        scene.add(this.mesh);
+
         this.box = new Box3();
     }
-    
+
     update(deltaTime)
     {
         super.update(deltaTime);
