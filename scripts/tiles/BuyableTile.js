@@ -47,6 +47,9 @@ export class BuyableTile extends Triggerable
 
         if (player.money <= 0)
             return;
+
+        if (this.pricePaid >= this.price)
+            return;
         
         // TODO: use standard money size variables from register
         const money = new Entity();
@@ -65,14 +68,11 @@ export class BuyableTile extends Triggerable
         this.pricePaid += 1;
         player.money -= 1;
         
-        if (this.pricePaid == this.price)
-        {
-            this.onFullyPaid();
-            return;
-        }
-        
         this.label.element.textContent = this.price - this.pricePaid;
         $("#money").html(player.money);
+
+        if (this.pricePaid == this.price)
+            this.onFullyPaid();
     }
     
     update(deltaTime)
