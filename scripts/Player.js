@@ -75,6 +75,18 @@ export class Player extends ItemCarrier
         }
     }
 
+    disableMovement()
+    {
+        this.controlsEnabled = false;
+
+        this.move = null;
+    }
+
+    enableMovement()
+    {
+        this.controlsEnabled = true;
+    }
+
     registerEventListeners()
     {
         console.log("registered player controls event listener");

@@ -69,12 +69,12 @@ export class PlayState extends State
                 if ($("#buyMenu").attr("data-visibility") == "shown")
                 {
                     $("#buyMenu").attr("data-visibility", "hidden");
-                    player.controlsEnabled = true;
+                    player.enableMovement();
                 }
                 else
                 {
                     $("#buyMenu").attr("data-visibility", "shown");
-                    player.controlsEnabled = false;
+                    player.disableMovement();
                 }
             }
         });
