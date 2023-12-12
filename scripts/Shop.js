@@ -170,6 +170,14 @@ export class Shop extends Group
         };
         scene.add(tomatoStandBuyTile);
 
+        let employeeBuyTile = new BuyableTile(1, 1, -12, -15, 100, "Hire Employee");
+        employeeBuyTile.onFullyPaid = () =>
+        {
+            employeeBuyTile.pricePaid = 0;
+            this.addEmployee();
+        };
+        scene.add(employeeBuyTile);
+
         // TODO: remove these for real gameplay
         //tomatoStandBuyTile.onFullyPaid();
         

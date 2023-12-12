@@ -142,7 +142,7 @@ export class PlayState extends State
         for (const container in shop.containers)
         {
             $("#upgrades").append("<h1></h1>");
-            $("#upgrades").append("<div class='employee'>employee</div>");
+            $("#upgrades").append("<div class='container'>container</div>");
         }
 
         $("#upgrades").append("<hr/>");
