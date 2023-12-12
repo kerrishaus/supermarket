@@ -32,38 +32,14 @@ export class PlayState extends State
                         <i class='fa fa-users'></i> Customers waiting to checkout: <span id="waitingCustomers">0</span>
                     </div>
                 </div>
+                <div id="buyMenu" data-visibility="hidden">
+                    fuck
+                </div>
             </div>
         `);
 
         //$(document.body).append(`<div id="buyMenu" class="display-flex flex-wrap flex-gap" data-visiblity="hidden"></div>`);
 
-        this.MoveType = {
-            Mouse: 'Mouse',
-            Touch: 'Touch',
-            Keyboard: 'Keyboard'
-        };
-
-        this.move = null;
-        this.keys = new Array();
-        this.pointerMoveOrigin = new THREE.Vector2();
-        this.moving = false;
-        this.pointerMove = false;
-        this.freeCam = false;
-        
-        this.moveTarget = new THREE.Mesh(new THREE.SphereGeometry(0.25, 24, 8), new THREE.MeshPhongMaterial({ color: 0x00ffff, 
-                                                                                                             flatShading: true,
-                                                                                                             transparent: true,
-                                                                                                             opacity: 0.7,
-                                                                                                            }));
-
-        scene.add(this.moveTarget);                                                                                                            
-        
-        this.plane = new THREE.Plane(new THREE.Vector3(0, 0, 0.5), 0);
-
-        this.mouse = new THREE.Vector2();
-        this.raycaster = new THREE.Raycaster();
-        this.intersects = new THREE.Vector3();
-        
         this.clock = new THREE.Clock();
 
         window.oncontextmenu = (event) =>
@@ -73,43 +49,10 @@ export class PlayState extends State
             return false;
         };
 
-        window.addEventListener("mousemove", (event) =>
-        {
-            this.mouse.x = ( event.clientX / window.innerWidth ) * 2 - 1;
-            this.mouse.y = - ( event.clientY / window.innerHeight ) * 2 + 1;
-        });
-        
-        window.addEventListener("touchmove", (event) =>
-        {
-            this.mouse.x = ( event.touches[0].clientX / window.innerWidth ) * 2 - 1;
-            this.mouse.y = - ( event.touches[0].clientY / window.innerHeight ) * 2 + 1;
-        });
-
-        window.addEventListener("touchstart", (event) =>
-        {
-            this.pointerMoveOrigin.x = ( event.touches[0].clientX / window.innerWidth ) * 2 - 1;
-            this.pointerMoveOrigin.y = - ( event.touches[0].clientY / window.innerHeight ) * 2 + 1;
-
-            this.move = this.MoveType.Touch;
-        });
-        
-        window.addEventListener("mousedown", (event) =>
-        {
-            this.pointerMoveOrigin.x = ( event.clientX / window.innerWidth ) * 2 - 1;
-            this.pointerMoveOrigin.y = - ( event.clientY / window.innerHeight ) * 2 + 1;
-
-            this.move = this.MoveType.Mouse;
-        });
-
-        $(window).on('mouseup touchend', (event) =>
-        {
-            this.move = null;
-        });
+        player.registerEventListeners();
 
         window.addEventListener("keydown", (event) =>
         {
-            this.keys[event.code] = true;
-
             if (event.code == "KeyO")
             {
                 this.freeCam = !this.freeCam;
@@ -121,45 +64,21 @@ export class PlayState extends State
 
                 console.log("freecam toggled");
             }
-            else
+            else if (event.code == "KeyB")
             {
-                switch (event.code)
+                if ($("#buyMenu").attr("data-visibility") == "shown")
                 {
-                    case "KeyB":
-                        if ($("#buyMenu").attr("data-visiblity") == "shown")
-                            $("#buyMenu").attr("data-visiblity", "hidden");
-                        else
-                            $("#buyMenu").attr("data-visiblity", "shown");
-                        break;
-                    case "KeyW":
-                    case "ArrowUp":
-                    case "KeyA":
-                    case "ArrowLeft":
-                    case "KeyS":
-                    case "ArrowDown":
-                    case "KeyD":
-                    case "ArrowRight":
-                        break; // remove this when keyboard movement is allowed
-                        this.move = MoveType.Keyboard;
-                        this.moveTarget.quaternion.copy(player.quaternion);
-                        break;
-                };
+                    $("#buyMenu").attr("data-visibility", "hidden");
+                    player.controlsEnabled = true;
+                }
+                else
+                {
+                    $("#buyMenu").attr("data-visibility", "shown");
+                    player.controlsEnabled = false;
+                }
             }
         });
         
-        window.addEventListener("keyup", (event) =>
-        {
-            this.keys[event.code] = false;
-
-            return; // remove this when keyboard movement is allowed
-
-            if (!(this.keys["KeyW"] || this.keys["ArrowUp"] ||
-                  this.keys["KeyA"] || this.keys["ArrowLeft"] ||
-                  this.keys["KeyS"] || this.keys["ArrowDown"] ||
-                  this.keys["KeyD"] || this.keys["ArrowRight"]))
-                  this.move = null;
-        });
-
         /*
         window.onbeforeunload = function(event)
         {
@@ -181,6 +100,8 @@ export class PlayState extends State
         PageUtility.removeStyle("banner");
         PageUtility.removeStyle("interface");
         PageUtility.removeStyle("buyMenu");
+
+        player.removeEventListeners();
 
         window.onbeforeunload = null;
 
@@ -236,49 +157,49 @@ export class PlayState extends State
 
         const deltaTime = this.clock.getDelta();
 
-        if (!this.freeCam && this.move !== null)
+        if (!this.freeCam && player.move !== null)
         {
             let position = new THREE.Vector2(), target = new THREE.Vector2();
             let velocity = 0;
 
-            if (this.move == this.MoveType.Touch)
+            if (player.move == player.MoveType.Touch)
             {
-                position = this.pointerMoveOrigin;
-                target = this.mouse;
+                position = player.pointerMoveOrigin;
+                target = player.mouse;
 
-                velocity = this.pointerMoveOrigin.distanceTo(new THREE.Vector3(this.mouse.x, this.mouse.y)) / 2;
+                velocity = player.pointerMoveOrigin.distanceTo(new THREE.Vector3(player.mouse.x, player.mouse.y)) / 2;
             }
             else
             {
-                if (this.move == this.MoveType.Keyboard)
+                if (player.move == player.MoveType.Keyboard)
                 {
                     const moveAmount = player.maxSpeed;
 
-                    if (this.keys["KeyW"] || this.keys["ArrowUp"])
-                        this.moveTarget.translateY(moveAmount);
-                    if (this.keys["KeyA"] || this.keys["ArrowLeft"])
-                        this.moveTarget.translateX(-moveAmount);
-                    if (this.keys["KeyS"] || this.keys["ArrowDown"])
-                        this.moveTarget.translateY(-moveAmount);
-                    if (this.keys["KeyD"] || this.keys["ArrowRight"])
-                        this.moveTarget.translateX(moveAmount);
+                    if (player.keys["KeyW"] || player.keys["ArrowUp"])
+                        player.moveTarget.translateY(moveAmount);
+                    if (player.keys["KeyA"] || player.keys["ArrowLeft"])
+                        player.moveTarget.translateX(-moveAmount);
+                    if (player.keys["KeyS"] || player.keys["ArrowDown"])
+                        player.moveTarget.translateY(-moveAmount);
+                    if (player.keys["KeyD"] || player.keys["ArrowRight"])
+                        player.moveTarget.translateX(moveAmount);
 
-                    this.moveTarget.quaternion.copy(player.quaternion);
+                    player.moveTarget.quaternion.copy(player.quaternion);
                 }
-                else if (this.move == this.MoveType.Mouse)
+                else if (player.move == player.MoveType.Mouse)
                 {
-                    this.raycaster.setFromCamera(this.mouse, camera);
-                    this.raycaster.ray.intersectPlane(this.plane, this.intersects);
-                    this.moveTarget.position.copy(this.intersects);
+                    player.raycaster.setFromCamera(player.mouse, camera);
+                    player.raycaster.ray.intersectPlane(player.plane, player.intersects);
+                    player.moveTarget.position.copy(player.intersects);
                 }
 
                 position.x = player.position.x;
                 position.y = player.position.y
 
-                target.x = this.moveTarget.position.x;
-                target.y = this.moveTarget.position.y;
+                target.x = player.moveTarget.position.x;
+                target.y = player.moveTarget.position.y;
 
-                velocity = player.position.distanceTo(this.moveTarget.position) / 20;
+                velocity = player.position.distanceTo(player.moveTarget.position) / 20;
             }
 
             // set the player's direction

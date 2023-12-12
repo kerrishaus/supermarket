@@ -1,4 +1,4 @@
-import { BoxGeometry, MeshStandardMaterial, Vector3, Box3 } from "https://kerrishaus.com/assets/threejs/build/three.module.js";
+import { BoxGeometry, MeshStandardMaterial, Vector3 } from "https://kerrishaus.com/assets/threejs/build/three.module.js";
 
 import * as MathUtility from "./MathUtility.js";
 
@@ -14,6 +14,8 @@ export class Employee extends ItemCarrier
         super(geometry, material);
 
         this.shop = shop;
+
+        this.canCheckoutCustomers = false;
         
         this.elapsedTime = 0;
         this.actionTime = 3;
@@ -161,7 +163,7 @@ export class Employee extends ItemCarrier
         }
         else // no more actions, find a new one
         {
-            if (this.shop.register.waitingCustomers.size > 0)
+            if (this.shop.register.waitingCustomers.size > 0 && this.canCheckoutCustomers)
             {
                 console.log("moving to checkout customers");
                 this.pushAction({type: "move", position: this.shop.registerPosition});

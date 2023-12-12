@@ -19,7 +19,7 @@
     transition: opacity 0.25s;
 }
 
-#buyMenu[data-visiblity="hidden"]
+#buyMenu[data-visibility="hidden"]
 {
     pointer-events: none;
     user-select: none;
@@ -28,7 +28,7 @@
     opacity: 0;
 }
 
-#buyMenu[data-visiblity="shown"]
+#buyMenu[data-visibility="shown"]
 {
     opacity: 1;
 

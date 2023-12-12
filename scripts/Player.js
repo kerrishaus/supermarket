@@ -1,4 +1,4 @@
-import { Vector3, Quaternion, BoxGeometry, MeshStandardMaterial, PerspectiveCamera } from "https://kerrishaus.com/assets/threejs/build/three.module.js";
+import { Vector3, Vector2, Mesh, SphereGeometry, MeshPhongMaterial, Quaternion, BoxGeometry, MeshStandardMaterial, PerspectiveCamera, Plane, Raycaster } from "https://kerrishaus.com/assets/threejs/build/three.module.js";
 
 import { ItemCarrier } from "./ItemCarrier.js";
 
@@ -19,12 +19,43 @@ export class Player extends ItemCarrier
         this.add(nose);
         
         this.money = 0;
-        
         this.carriedMoney = new Array();
 
         //this.camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 200);
 		        
         this.maxSpeed = 0.3;
+
+        this.controlsEnabled = true;
+
+        this.MoveType = {
+            Mouse: 'Mouse',
+            Touch: 'Touch',
+            Keyboard: 'Keyboard'
+        };
+
+        this.move = null;
+        this.keys = new Array();
+        this.pointerMoveOrigin = new Vector2();
+        this.moving = false;
+        this.pointerMove = false;
+        
+        this.moveTarget = new Mesh(
+            new SphereGeometry(0.25, 24, 8), 
+            new MeshPhongMaterial({ 
+                color: 0x00ffff, 
+                flatShading: true,
+                transparent: true,
+                opacity: 0.7,
+            })
+        );
+
+        scene.add(this.moveTarget);                                                                                                            
+        
+        this.plane = new Plane(new Vector3(0, 0, 0.5), 0);
+
+        this.mouse = new Vector2();
+        this.raycaster = new Raycaster();
+        this.intersects = new Vector3();
     }
     
     update(deltaTime)
@@ -42,5 +73,123 @@ export class Player extends ItemCarrier
             
             money.getComponent("CarryableComponent").updateTarget(this.position, new Vector3(0, 0, 0.5));
         }
+    }
+
+    registerEventListeners()
+    {
+        console.log("registered player controls event listener");
+
+        window.addEventListener("mousemove" , this.mousemove);
+        window.addEventListener("touchmove" , this.touchmove);
+        window.addEventListener("touchstart", this.touchstart);
+        window.addEventListener("mousedown" , this.mousedown);
+        window.addEventListener("keyup"     , this.keyup);
+        window.addEventListener("keydown"   , this.keydown);
+        $(window).on('mouseup touchend'     , this.moveEnd);
+
+        this.controlsEnabled = true;
+    }
+
+    removeEventListeners()
+    {
+        console.log("unregistered player controls event listener");
+        
+        window.removeEventListener("mousemove" , this.mousemove);
+        window.removeEventListener("touchmove" , this.touchmove);
+        window.removeEventListener("touchstart", this.touchstart);
+        window.removeEventListener("mousedown" , this.mousedown);
+        window.removeEventListener("keyup"     , this.keyup);
+        window.removeEventListener("keydown"   , this.keydown);
+        $(window).off('mouseup touchend'       , this.moveEnd);
+
+        this.controlsEnabled = false;
+    }
+
+    mousemove(event)
+    {
+        if (!player.controlsEnabled)
+            return;
+
+        player.mouse.x = ( event.clientX / window.innerWidth ) * 2 - 1;
+        player.mouse.y = - ( event.clientY / window.innerHeight ) * 2 + 1;
+    };
+    
+    touchmove(event)
+    {
+        if (!player.controlsEnabled)
+            return;
+
+        player.mouse.x = ( event.touches[0].clientX / window.innerWidth ) * 2 - 1;
+        player.mouse.y = - ( event.touches[0].clientY / window.innerHeight ) * 2 + 1;
+    }
+
+    touchstart(event)
+    {
+        if (!player.controlsEnabled)
+            return;
+        
+        player.pointerMoveOrigin.x = ( event.touches[0].clientX / window.innerWidth ) * 2 - 1;
+        player.pointerMoveOrigin.y = - ( event.touches[0].clientY / window.innerHeight ) * 2 + 1;
+
+        player.move = player.MoveType.Touch;
+    }
+    
+    mousedown(event)
+    {
+        if (!player.controlsEnabled)
+            return;
+
+        player.pointerMoveOrigin.x = ( event.clientX / window.innerWidth ) * 2 - 1;
+        player.pointerMoveOrigin.y = - ( event.clientY / window.innerHeight ) * 2 + 1;
+
+        player.move = player.MoveType.Mouse;
+    }
+
+    keydown(event)
+    {
+        if (!player.controlsEnabled)
+            return;
+
+        player.keys[event.code] = true;
+
+        switch (event.code)
+        {
+            case "KeyW":
+            case "ArrowUp":
+            case "KeyA":
+            case "ArrowLeft":
+            case "KeyS":
+            case "ArrowDown":
+            case "KeyD":
+            case "ArrowRight":
+                break; // remove this when keyboard movement is allowed
+                player.move = MoveType.Keyboard;
+                player.moveTarget.quaternion.copy(player.quaternion);
+                break;
+        };
+    }
+    
+    keyup(event)
+    {
+        if (!player.controlsEnabled)
+            return;
+        
+        player.keys[event.code] = false;
+
+        return; // remove this when keyboard movement is allowed
+
+        if (!(player.keys["KeyW"] || player.keys["ArrowUp"] ||
+              player.keys["KeyA"] || player.keys["ArrowLeft"] ||
+              player.keys["KeyS"] || player.keys["ArrowDown"] ||
+              player.keys["KeyD"] || player.keys["ArrowRight"]))
+              player.move = null;
+    }
+
+    moveEnd(event)
+    {
+        if (!player.controlsEnabled)
+            return;
+
+        player.move = null;
     }
 };
