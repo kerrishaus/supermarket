@@ -32,3 +32,24 @@ html, body
     overflow-x: hidden;
     overflow-y: hidden;
 }
+
+#saveIcon
+{
+    position: absolute;
+
+    bottom: 3vw;
+    right: 3vw;
+
+    opacity: 0;
+
+    font-size: 36px;
+
+    color: white;
+
+    transition: opacity 1s;
+}
+
+#saveIcon[data-visibility="visible"]
+{
+    opacity: 1;
+}

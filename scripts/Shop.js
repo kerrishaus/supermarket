@@ -199,6 +199,7 @@ export class Shop extends Group
         $("#reputation").text(this.lifeReputation);
     }
 
+    // used to re-add saved customers to the scene
     addCustomer(customer)
     {
         this.customers.push(customer);
@@ -208,6 +209,7 @@ export class Shop extends Group
         console.log("added customer");
     }
 
+    // creates a new customer and gives them actions
     spawnCustomer()
     {
         let customer = new Customer(this);
@@ -251,6 +253,21 @@ export class Shop extends Group
         //customer.pushAction({type: "move", position: this.spawnPosition});
 
         this.addCustomer(customer);
+    }
+
+    addEmployee(employee = null)
+    {
+        if (employee == null)
+        {
+            employee = new Employee(this);
+            scene.add(employee);
+        }
+
+        this.employees.push(employee);
+
+        console.log("added employee to shop");
+
+        return employee;
     }
 
     update(deltaTime)

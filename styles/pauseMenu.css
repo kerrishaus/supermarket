@@ -1,4 +1,4 @@
-#buyMenu
+#pauseMenu
 {
     box-sizing: border-box;
 
@@ -22,7 +22,7 @@
     transition: top 0.25s;
 }
 
-#buyMenu[data-visibility="hidden"]
+#pauseMenu[data-visibility="hidden"]
 {
     pointer-events: none;
     user-select: none;
@@ -31,14 +31,14 @@
     top: 100vh;
 }
 
-#buyMenu[data-visibility="shown"]
+#pauseMenu[data-visibility="shown"]
 {
     pointer-events: all;
     user-select: all;
     -webkit-user-select: all;
 }
 
-.buyItem
+.pauseMenu
 {
     background-color: gray;
     padding: 10px 20px;

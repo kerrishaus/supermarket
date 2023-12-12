@@ -15,9 +15,13 @@ export class PlayState extends State
         PageUtility.addStyle("banner");
         PageUtility.addStyle("interface");
         PageUtility.addStyle("buyMenu");
+        PageUtility.addStyle("pauseMenu");
 
         $(document.body).append(`
             <div id='interface' class="gameInterfaceContainer">
+                <div id="pauseMenu" data-visibility="hidden">
+                    <button id="resetSave">reset save file</button>
+                </div>
                 <div id="businessStats">
                     <div id="moneyContainer">
                         <i class='fa fa-money'></i> Money: $<span id='money'>0</span>
@@ -33,12 +37,27 @@ export class PlayState extends State
                     </div>
                 </div>
                 <div id="buyMenu" data-visibility="hidden">
-                    fuck
+                    <div class="titlebar display-flex space-between">
+                        <h1>Buy Menu</h1>
+                        <div id="buyMenuClose">
+                            <i class="fas fa-times"></i>
+                        </div>
+                    </div>
+                    <hr />
+                    <div id="upgrades">
+                    </div>
+                </div>
+                <div id="saveIcon">
+                    <i class="fas fa-spinner fa-spin"></i>
                 </div>
             </div>
         `);
 
-        //$(document.body).append(`<div id="buyMenu" class="display-flex flex-wrap flex-gap" data-visiblity="hidden"></div>`);
+        $("#resetSave").click(() => 
+        {
+            localStorage.clear();
+            window.location.reload();
+        });
 
         this.clock = new THREE.Clock();
 
@@ -67,16 +86,22 @@ export class PlayState extends State
             else if (event.code == "KeyB")
             {
                 if ($("#buyMenu").attr("data-visibility") == "shown")
-                {
-                    $("#buyMenu").attr("data-visibility", "hidden");
-                    player.enableMovement();
-                }
+                    this.closeBuyMenu();
                 else
-                {
-                    $("#buyMenu").attr("data-visibility", "shown");
-                    player.disableMovement();
-                }
+                    this.openBuyMenu();
             }
+            else if (event.code == "Escape")
+            {
+                if ($("#pauseMenu").attr("data-visibility") == "shown")
+                    this.closePauseMenu();
+                else
+                    this.openPauseMenu();
+            }
+        });
+
+        $("#buyMenuClose").click(() =>
+        {
+            this.closeBuyMenu();
         });
         
         /*
@@ -100,12 +125,54 @@ export class PlayState extends State
         PageUtility.removeStyle("banner");
         PageUtility.removeStyle("interface");
         PageUtility.removeStyle("buyMenu");
+        PageUtility.removeStyle("pauseMenu");
 
         player.removeEventListeners();
 
         window.onbeforeunload = null;
 
         console.log("Cleaned up PlayState.");
+    }
+
+    openBuyMenu()
+    {
+        $("#upgrades").empty();
+
+        $("#upgrades").append("<h1>Containers</h1>");
+        for (const container in shop.containers)
+        {
+            $("#upgrades").append("<h1></h1>");
+            $("#upgrades").append("<div class='employee'>employee</div>");
+        }
+
+        $("#upgrades").append("<hr/>");
+
+        $("#upgrades").append("<h1>Employees</h1>");
+        for (const employee in shop.employees)
+        {
+            $("#upgrades").append("<div class='employee'>employee</div>");
+        }
+
+        $("#buyMenu").attr("data-visibility", "shown");
+        player.disableMovement();
+    }
+
+    closeBuyMenu()
+    {
+        $("#buyMenu").attr("data-visibility", "hidden");
+        player.enableMovement();
+    }
+
+    openPauseMenu()
+    {
+        $("#pauseMenu").attr("data-visibility", "shown");
+        player.disableMovement();
+    }
+
+    closePauseMenu()
+    {
+        $("#pauseMenu").attr("data-visibility", "hidden");
+        player.enableMovement();
     }
 
     physicsStep(deltaTime)
