@@ -8,7 +8,6 @@ import * as PageUtility from "../PageUtility.js";
 import { Shop   } from "../Shop.js";
 import { Player } from "../Player.js";
 
-import { Triggerable } from "../geometry/Triggerable.js";
 import { Entity } from "../entity/Entity.js";
 
 export class PlayState extends State

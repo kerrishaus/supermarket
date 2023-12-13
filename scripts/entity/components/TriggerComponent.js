@@ -48,7 +48,7 @@ export class TriggerComponent extends EntityComponent
             if (!this.triggeringEntitiesLastUpdate.includes(object))
             {
                 //object.onStartTrigger?.(this.parentEntity);
-                this.parentEntity.onStartTrigger(object);
+                this.parentEntity.onStartTrigger?.(object);
             }
 
             //object.onTrigger?.(this.parentEntity);
