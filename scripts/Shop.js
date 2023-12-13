@@ -38,10 +38,9 @@ export class Shop extends Group
 
         const size = 20;
         const divisions = 10;
-        const gridHelper = new GridHelper(size, divisions);
-        gridHelper.rotation.x = 1.5708;
-        gridHelper.position.z = -0.5;
-        scene.add(gridHelper)
+        this.gridHelper = new GridHelper(size, divisions);
+        this.gridHelper.rotation.x = 1.5708;
+        this.gridHelper.position.z = -0.5;
 
         const shopFloor = new Mesh(
             new PlaneGeometry(shopWidth, shopLength),
@@ -137,7 +136,7 @@ export class Shop extends Group
         this.mousePos          = new Vector2(0, 0);
         this.mouseWorldPos     = new Vector3();
         this.intersectionPos   = new Vector3();
-        this.intersectionPlane = new Plane(new Vector3(0, 0, 0.5), 0);
+        this.intersectionPlane = new Plane(shopFloor.position, 0);
         this.raycaster         = new Raycaster();
 
         for (const tile of this.availableTiles)
@@ -328,6 +327,8 @@ export class Shop extends Group
 
         player.disableMovement();
 
+        scene.add(this.gridHelper);
+
         $("#interface").append("<div id='newTileMouseCatcher' class='mouse-catcher mouse-pass-through'>");
 
         // TODO: support touch
@@ -353,17 +354,9 @@ export class Shop extends Group
         this.raycaster.ray.intersectPlane(this.intersectionPlane, this.intersectionPos);
 
         const tileCoordinates = new Vector2(
-            Math.floor(this.intersectionPos.x),
-            Math.floor(this.intersectionPos.y),
+            Math.floor(this.intersectionPos.x / 2) * 2 + 1,
+            Math.floor(this.intersectionPos.y / 2) * 2 + 1,
         );
-
-        if (!(tileCoordinates.x % 2))
-            tileCoordinates.x += 1;
-
-        if (!(tileCoordinates.y % 2))
-            tileCoordinates.y += 1;
-
-        console.log(tileCoordinates);
 
         this.newTile.position.set(tileCoordinates.x, tileCoordinates.y, 0.5);
     }
@@ -405,6 +398,8 @@ export class Shop extends Group
         this.newTile = null;
 
         player.enableMovement();
+
+        scene.remove(this.gridHelper);
 
         $("#newTileMouseCatcher").remove();
 
