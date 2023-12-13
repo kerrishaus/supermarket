@@ -1,4 +1,4 @@
-import { Vector3, Vector2, Raycaster, Plane, GridHelper, Group, PlaneGeometry, MeshStandardMaterial, Mesh, FrontSide } from "https://kerrishaus.com/assets/threejs/build/three.module.js";
+import { BoxGeometry, Vector3, Vector2, Raycaster, Plane, GridHelper, Group, PlaneGeometry, MeshStandardMaterial, Mesh, FrontSide } from "https://kerrishaus.com/assets/threejs/build/three.module.js";
 
 import * as GeometryUtil from "./geometry/GeometryUtility.js";
 import * as MathUtility from "./MathUtility.js";
@@ -23,6 +23,7 @@ import { ContainerTile } from "./tiles/ContainerTile.js";
 import { Entity } from "./entity/Entity.js";
 import { TriggerComponent } from "./entity/components/TriggerComponent.js";
 import { ContainerComponent } from "./entity/components/ContainerComponent.js";
+import { GeometryComponent } from "./entity/components/GeometryComponent.js";
 
 export class Shop extends Group
 {
@@ -87,9 +88,13 @@ export class Shop extends Group
                 name: "Tomato Stand",
                 price: 100,
                 getTile: () => {
-                    const tomatoStand = new Entity();
+                    const tomatoStand     = new Entity();
                     const tomatoTrigger   = tomatoStand.addComponent(new TriggerComponent);
                     const tomatoContainer = tomatoStand.addComponent(new ContainerComponent);
+                    tomatoStand.addComponent(new GeometryComponent(
+                        new BoxGeometry(1.5, 1.5, 1), 
+                        new MeshStandardMaterial({ color: 0xff0000 })
+                    )).mesh.position.z -= 0.5;
 
                     scene.add(tomatoStand);
                     return tomatoStand;

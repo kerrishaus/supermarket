@@ -29,9 +29,11 @@ export class Door extends Triggerable
         // main door
         this.leftDoor.add(createCube(new Vector3(2, 1, 4), new Vector3(0, 0, 0), 0x00d1e8));
 
+        // vertical frames
         this.leftDoor.add(createCube(new Vector3(0.2, 0.1, 4), new Vector3(-0.9, -0.55, 0), 0x919191));
         this.leftDoor.add(createCube(new Vector3(0.2, 0.1, 4), new Vector3(0.9, -0.55, 0), 0x919191));
         
+        // horizontal frames
         this.leftDoor.add(createCube(new Vector3(1.6, 0.1, 0.2), new Vector3(0, -0.55, 1.9), 0x919191));
         this.leftDoor.add(createCube(new Vector3(1.6, 0.1, 0.2), new Vector3(0, -0.55, 0.1), 0x919191));
         this.leftDoor.add(createCube(new Vector3(1.6, 0.1, 0.2), new Vector3(0, -0.55, -1.4), 0x919191));
@@ -46,9 +48,11 @@ export class Door extends Triggerable
         // main door
         this.rightDoor.add(createCube(new Vector3(2, 1, 4), new Vector3(0, 0, 0), 0x00d1e8));
 
+        // vertical frames
         this.rightDoor.add(createCube(new Vector3(0.2, 0.1, 4), new Vector3(-0.9, -0.55, 0), 0x919191));
         this.rightDoor.add(createCube(new Vector3(0.2, 0.1, 4), new Vector3(0.9, -0.55, 0), 0x919191));
         
+        // horizontal frames
         this.rightDoor.add(createCube(new Vector3(1.6, 0.1, 0.2), new Vector3(0, -0.55, 1.9), 0x919191));
         this.rightDoor.add(createCube(new Vector3(1.6, 0.1, 0.2), new Vector3(0, -0.55, 0.1), 0x919191));
         this.rightDoor.add(createCube(new Vector3(1.6, 0.1, 0.2), new Vector3(0, -0.55, -1.4), 0x919191));

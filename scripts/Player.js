@@ -49,7 +49,7 @@ export class Player extends ItemCarrier
             })
         );
 
-        scene.add(this.moveTarget);                                                                                                            
+        scene.add(this.moveTarget);
         
         this.plane = new Plane(new Vector3(0, 0, 0.5), 0);
 
