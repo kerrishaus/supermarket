@@ -31,20 +31,21 @@ export class KetchupGenerator extends Group
         scene.add(this.container);
         //this.attach(this.container);
 
+        this.transformTime = 5;
         this.timeSinceLastTransformation = 0;
     }
 
     update(deltaTime)
     {
         if (this.generator.carriedItems.length < this.generator.maxItems)
-            if (this.timeSinceLastTransformation > 5)
-            {
+            if (this.timeSinceLastTransformation > this.transformTime)
                 if (this.container.carriedItems.length >= 2)
                 {
                     console.debug("juicing 2 tomatoes from " + this.container.carriedItems.length);
 
-                    scene.remove(this.container.carriedItems.shift());
-                    scene.remove(this.container.carriedItems.shift());
+                    this.container.carriedItems.shift().destructor();
+                    this.container.carriedItems.shift().destructor();
+                    
                     this.container.calculateGrid();
 
                     console.debug(this.container.carriedItems.length + " tomatos left");
@@ -53,7 +54,6 @@ export class KetchupGenerator extends Group
 
                     this.timeSinceLastTransformation = 0;
                 }
-            }
 
         this.timeSinceLastTransformation += deltaTime;
     }

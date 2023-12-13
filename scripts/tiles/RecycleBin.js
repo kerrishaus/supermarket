@@ -28,7 +28,11 @@ export class RecycleBin extends Triggerable
             if (item.elapsedTime > item.moveTime)
             {
                 this.carriedItems.splice(this.carriedItems.indexOf(item), 1);
-                scene.remove(item);
+
+                if (item instanceof Entity)
+                    item.destructor();
+                else
+                    scene.remove(item);
             }
     }
     

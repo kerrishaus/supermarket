@@ -141,8 +141,15 @@ export class PlayState extends State
         $("#upgrades").append("<h1>Containers</h1>");
         for (const container in shop.containers)
         {
-            $("#upgrades").append("<h1></h1>");
             $("#upgrades").append("<div class='container'>container</div>");
+        }
+
+        $("#upgrades").append("<hr/>");
+
+        $("#upgrades").append("<h1>Generator</h1>");
+        for (const container in shop.generators)
+        {
+            $("#upgrades").append("<div class='generator'>generator</div>");
         }
 
         $("#upgrades").append("<hr/>");
@@ -159,6 +166,7 @@ export class PlayState extends State
 
     closeBuyMenu()
     {
+        $("#upgrades").empty();
         $("#buyMenu").attr("data-visibility", "hidden");
         player.enableMovement();
     }
