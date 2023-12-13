@@ -5,6 +5,9 @@ import * as THREE from "https://kerrishaus.com/assets/threejs/build/three.module
 import * as MathUtility from "../MathUtility.js";
 import * as PageUtility from "../PageUtility.js";
 
+import { Shop   } from "../Shop.js";
+import { Player } from "../Player.js";
+
 import { Triggerable } from "../geometry/Triggerable.js";
 
 export class PlayState extends State
@@ -12,8 +15,8 @@ export class PlayState extends State
     init()
     {
         PageUtility.addStyle("game");
-        PageUtility.addStyle("banner");
         PageUtility.addStyle("interface");
+        PageUtility.addStyle("banner");
         PageUtility.addStyle("buyMenu");
         PageUtility.addStyle("pauseMenu");
 
@@ -44,7 +47,21 @@ export class PlayState extends State
                         </div>
                     </div>
                     <hr />
-                    <div id="upgrades">
+                    <div class="buy-menu-container">
+                        <h1>Shop Upgrades</h1>
+                        <div id="shopUpgrades">
+                        </div>
+                    </div>
+                    <div class="buy-menu-container">
+                        <h1>Tiles</h1>
+                        <div id="tiles" class="display-flex flex-wrap">
+                        </div>
+                    </div>
+                    <div class="buy-menu-container">
+                        <h1>Employees</h1>
+                        <button id="hireEmployee">Hire Employee</button>
+                        <div id="employees">
+                        </div>
                     </div>
                 </div>
                 <div id="saveIcon">
@@ -68,7 +85,16 @@ export class PlayState extends State
             return false;
         };
 
+        window.shop = new Shop();
+        scene.add(shop);
+
+        window.player = new Player();
+        player.position.z = 0.5;
+        scene.add(player);
+
         player.registerEventListeners();
+
+        $("#hireEmployee").click(() => { shop.addEmployee() });
 
         window.addEventListener("keydown", (event) =>
         {
@@ -107,6 +133,11 @@ export class PlayState extends State
             this.closeBuyMenu();
         });
         
+        $(document).on("closeBuyMenu", () =>
+        {
+            this.closeBuyMenu();
+        });
+
         /*
         window.onbeforeunload = function(event)
         {
@@ -140,39 +171,12 @@ export class PlayState extends State
     openBuyMenu()
     {
         $(".game-menu").attr("data-visibility", "hidden");
-
-        $("#upgrades").empty();
-
-        $("#upgrades").append("<h1>Containers</h1>");
-        for (const container in shop.containers)
-        {
-            $("#upgrades").append("<div class='container'>container</div>");
-        }
-
-        $("#upgrades").append("<hr/>");
-
-        $("#upgrades").append("<h1>Generator</h1>");
-        for (const container in shop.generators)
-        {
-            $("#upgrades").append("<div class='generator'>generator</div>");
-        }
-
-        $("#upgrades").append("<hr/>");
-
-        $("#upgrades").append("<h1>Employees</h1>");
-        $("#upgrades").append("<div id='employees'>");
-        for (const employee in shop.employees)
-        {
-            $("#employees").append("<div class='employee'>employee</div>");
-        }
-
         $("#buyMenu").attr("data-visibility", "shown");
         player.disableMovement();
     }
 
     closeBuyMenu()
     {
-        $("#upgrades").empty();
         $("#buyMenu").attr("data-visibility", "hidden");
         player.enableMovement();
     }

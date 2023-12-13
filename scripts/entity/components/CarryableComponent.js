@@ -4,10 +4,8 @@ import { EntityComponent } from "./EntityComponent.js";
 
 export class CarryableComponent extends EntityComponent
 {
-    constructor()
+    init()
     {
-        super();
-
         this.offset         = new Vector3(0, 0, 0);
         this.owner          = new Vector3(0, 0, 0);
         this.targetPosition = new Vector3(0, 0, 0);

@@ -37,6 +37,7 @@ export class LoadSaveState extends State
         window.shop = new Shop(saveData.shop);
         scene.add(shop);
 
+        /*
         for (const tile of saveData.shop.tiles)
             this.loadTile(tile);
 
@@ -45,6 +46,7 @@ export class LoadSaveState extends State
 
         for (const employee of saveData.shop.employees)
             this.loadEmployee(employee);
+        */
 
         window.player = new Player();
         scene.add(player);

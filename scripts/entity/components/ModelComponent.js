@@ -6,10 +6,8 @@ import { EntityComponent } from "./EntityComponent.js";
 
 export class ModelComponent extends EntityComponent
 {
-    constructor(modelName, size = null)
+    init(modelName, size = null)
     {
-        super();
-
         this.modelName = modelName;
 
         this.model = getModel(modelName);

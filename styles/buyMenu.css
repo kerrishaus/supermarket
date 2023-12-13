@@ -17,6 +17,7 @@
     border-bottom: 0;
 
     padding: 40px;
+    padding-bottom: 0;
 
     background-color: #ffffffe7;
 
@@ -37,6 +38,28 @@
     pointer-events: all;
     user-select: all;
     -webkit-user-select: all;
+}
+
+#buyMenu #tiles
+{
+    gap: 20px;
+}
+
+#buyMenu #tiles .tile
+{
+    background-color: gray;
+
+    padding: 5px;
+}
+
+#buyMenu #tiles .tile .tile-buy
+{
+    width: 100%;
+}
+
+#buyMenu #upgrades
+{
+    overflow: auto;
 }
 
 .buyItem

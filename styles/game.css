@@ -20,8 +20,6 @@ html, body
 
 .gameInterfaceContainer
 {
-    pointer-events: none;
-
     margin: 0;
     background-color: black;
     overflow-x: hidden;
@@ -31,6 +29,11 @@ html, body
     
     overflow-x: hidden;
     overflow-y: hidden;
+}
+
+.gameInterfaceContainer > *:not(.mouse-pass-through)
+{
+    pointer-events: none;
 }
 
 #saveIcon

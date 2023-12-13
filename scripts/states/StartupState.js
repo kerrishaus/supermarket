@@ -24,6 +24,7 @@ import * as PageUtility from "../PageUtility.js";
 
 import { LoadSaveState } from "./LoadSaveState.js";
 import { loadModel } from "../ModelLoader.js";
+import { PlayState } from "./PlayState.js";
 
 export class StartupState extends State
 {
@@ -196,7 +197,7 @@ export class StartupState extends State
                     console.log("StartupState ready.");
 
                     //this.stateMachine.changeState(new MainMenuState());
-                    this.stateMachine.changeState(new LoadSaveState());
+                    this.stateMachine.changeState(new PlayState());
                 });
             });
         });

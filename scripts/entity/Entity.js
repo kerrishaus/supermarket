@@ -1,5 +1,6 @@
 import { Object3D } from "https://kerrishaus.com/assets/threejs/build/three.module.js";
 
+// TODO: rename componentType to componentName
 export class Entity extends Object3D
 {
     constructor()
@@ -39,6 +40,8 @@ export class Entity extends Object3D
         // maybe store all constructor args in a variable, then call an init function with those
         component.setParentEntity(this);
 
+        component.init(component.constructorArgs);
+
         return component;
     }
 
@@ -53,6 +56,11 @@ export class Entity extends Object3D
         this.components.get(componentType).destructor();
 
         this.components.delete(componentType);
+    }
+
+    hasComponent(componentType)
+    {
+        return this.components.has(componentType);
     }
 
     getComponent(componentType)

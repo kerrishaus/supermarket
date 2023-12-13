@@ -1,8 +1,15 @@
 export class EntityComponent
 {
-    constructor()
+    constructor(...constructorArgs)
     {
+        this.constructorArgs = constructorArgs;
+
         this.parentEntity = null;
+    }
+
+    init()
+    {
+
     }
 
     destructor()

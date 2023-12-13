@@ -1,4 +1,4 @@
-import { Vector3, Quaternion, Group } from "https://kerrishaus.com/assets/threejs/build/three.module.js";
+import { Vector3, Vector2, Raycaster, Plane, Quaternion, Group, PlaneGeometry, MeshStandardMaterial, Mesh, FrontSide } from "https://kerrishaus.com/assets/threejs/build/three.module.js";
 
 import * as GeometryUtil from "./geometry/GeometryUtility.js";
 import * as MathUtility from "./MathUtility.js";
@@ -20,9 +20,13 @@ import { SodaMachine } from "./tiles/SodaMachine.js";
 import { Employee    } from "./Employee.js";
 import { ContainerTile } from "./tiles/ContainerTile.js";
 
+import { Entity } from "./entity/Entity.js";
+import { TriggerComponent } from "./entity/components/TriggerComponent.js";
+import { ContainerComponent } from "./entity/components/ContainerComponent.js";
+
 export class Shop extends Group
 {
-    constructor(shopData)
+    constructor()
     {
         super();
 
@@ -30,33 +34,129 @@ export class Shop extends Group
         const shopLength = 20;
         const wallThickness = 1;
         
-        const shopFloor = new RigidBodyCube(new Vector3(shopWidth, shopLength, wallThickness), 0xE0E0E0, new Vector3(0, 0, -1), new Quaternion(), 0);
+        //const shopFloor = new RigidBodyCube(new Vector3(shopWidth, shopLength, wallThickness), 0xE0E0E0, new Vector3(0, 0, -1), new Quaternion(), 0);
 
+        const shopFloor = new Mesh(
+            new PlaneGeometry(shopWidth, shopLength),
+            new MeshStandardMaterial({ color: 0xE0E0E0, side: FrontSide })
+        );
+        shopFloor.castShadow = true;
+        shopFloor.receiveShadow = true;
+        shopFloor.position.set(0, 0, -0.5);
         scene.add(shopFloor);
+
+        const backroomFloor = new Mesh(
+            new PlaneGeometry(shopWidth, shopLength / 2),
+            new MeshStandardMaterial({ color: 0x878787, side: FrontSide })
+        );
+        backroomFloor.castShadow = true;
+        backroomFloor.receiveShadow = true;
+        backroomFloor.position.set(0, -15, -0.5);
+        scene.add(backroomFloor);
 
         // shop north wall
         scene.add(GeometryUtil.createCube(new Vector3(shopLength, wallThickness, 4), new Vector3(0, shopWidth / 2 - wallThickness / 2 + 1, 1.5), 0xbfbfbf));
         // west wall
-        scene.add(GeometryUtil.createCube(new Vector3(wallThickness, shopWidth, 4), new Vector3(shopWidth / 2 - wallThickness / 2 + 1, 0, 1.5), 0xbfbfbf));
+        //scene.add(GeometryUtil.createCube(new Vector3(wallThickness, shopWidth, 4), new Vector3(shopWidth / 2 - wallThickness / 2 + 1, 0, 1.5), 0xbfbfbf));
         // east wall
-        scene.add(GeometryUtil.createCube(new Vector3(wallThickness, shopWidth, 4), new Vector3(-shopWidth / 2 - wallThickness / 2, 0, 1.5), 0xbfbfbf));
+        //scene.add(GeometryUtil.createCube(new Vector3(wallThickness, shopWidth, 4), new Vector3(-shopWidth / 2 - wallThickness / 2, 0, 1.5), 0xbfbfbf));
         
-        const backroomFloor = new RigidBodyCube(new Vector3(shopWidth, shopLength / 2, wallThickness), 0x878787, new Vector3(0, -15, -1), new Quaternion(), 0);
-        scene.add(backroomFloor);
+        //const backroomFloor = new RigidBodyCube(new Vector3(shopWidth, shopLength / 2, wallThickness), 0x878787, new Vector3(0, -15, -1), new Quaternion(), 0);
+        //scene.add(backroomFloor);
 
         this.doors = new Door(new Vector3(-4, 10.491, 0.5), 0x0000ff);
         scene.add(this.doors);
 
         this.containerTiles = new Array();
         this.generatorTiles = new Array();
+
+        this.availableTiles = [
+            {
+                name: "Cash Register",
+                getTile: () => {
+
+                }
+            },
+            {
+                name: "Tomato Stand",
+                price: 100,
+                getTile: () => {
+                    const tomatoStand = new Entity();
+                    const tomatoTrigger   = tomatoStand.addComponent(new TriggerComponent);
+                    const tomatoContainer = tomatoStand.addComponent(new ContainerComponent);
+
+                    scene.add(tomatoStand);
+                    return tomatoStand;
+                }
+            },
+            {
+                name: "Tomato Plant",
+                getTile: () => {
+
+                }
+            },
+            {
+                name: "Ketchup Stand",
+                getTile: () => {
+
+                }
+            },
+            {
+                name: "Ketchup Machine",
+                getTile: () => {
+
+                }
+            },
+            {
+                name: "Soda Maker",
+                getTile: () => {
+
+                }
+            },
+            {
+                name: "Soda Stand",
+                getTile: () => {
+
+                }
+            },
+            {
+                name: "Door",
+                getTile: () => {
+
+                }
+            },
+        ];
+
+        this.mousePos          = new Vector2(0, 0);
+        this.mouseWorldPos     = new Vector3();
+        this.intersectionPos   = new Vector3();
+        this.intersectionPlane = new Plane(new Vector3(0, 0, 0.5), 0);
+        this.raycaster         = new Raycaster();
+
+        for (const tile of this.availableTiles)
+        {
+            const tileContainer = $("<div class='tile'>").appendTo("#tiles");
+            tileContainer.append(`<div class='tile-name'>${tile.name}</div>`);
+            tileContainer.append(`<div class='tile-price'>$${tile.price}</div>`);
+
+            const buyTileButton = $("<button class='tile-buy'>buy</button>").appendTo(tileContainer).click(() => 
+            {
+                this.beginTilePlacement(tile);
+            });
+
+            console.log("added tile to buy menu");
+        }
         
+        /*
         this.register = new Register();
         this.register.position.x = -8;
         this.register.position.y = -7;
         for (let i = 0; i < shopData.money * 4; i++)
             this.register.addMoney();
         scene.add(this.register);
+        */
         
+        /*
         let tomatoStandBuyTile = new BuyableTile(1, 1, 7, 7, 100, "Buy \"Tomato Stand\"");
         tomatoStandBuyTile.onFullyPaid = () =>
         {
@@ -177,6 +277,7 @@ export class Shop extends Group
             this.addEmployee();
         };
         scene.add(employeeBuyTile);
+        */
 
         // TODO: remove these for real gameplay
         //tomatoStandBuyTile.onFullyPaid();
@@ -184,6 +285,7 @@ export class Shop extends Group
         this.employees = new Array();
         this.customers = new Array();
 
+        /*
         this.maxCustomers                     = shopData.maxCustomers;
         this.timeUntilNextCustomer            = shopData.timeUntilNextCustomer;
         this.timeSinceLastCustomer            = shopData.timeSinceLastCustomer;
@@ -194,10 +296,99 @@ export class Shop extends Group
         this.lifeSales                        = shopData.lifeSales;
         this.lifeCustomers                    = shopData.lifeCustomers;
         this.lifeReputation                   = shopData.lifeReputation;
+        */
 
         this.spawnPosition    = new Vector3(-4, 14, 0);
         this.readyPosition    = new Vector3(-4, 7, 0);
-        this.registerPosition = new Vector3(this.register.position.x, this.register.position.y + 2, 0);
+        
+        //this.registerPosition = new Vector3(this.register.position.x, this.register.position.y + 2, 0);
+    }
+
+    beginTilePlacement(tile)
+    {
+        document.dispatchEvent(new CustomEvent("closeBuyMenu"));
+
+        if (this.newTile instanceof Entity)
+            this.cancelTilePlacement();
+
+        this.newTile = tile.getTile();
+
+        if (!(this.newTile instanceof Entity))
+        {
+            console.error("Tried to start tile placement process for " + tile.name + " but was not provided with a proper tile Entity.");
+            return;
+        }
+
+        player.disableMovement();
+
+        $("#interface").append("<div id='newTileMouseCatcher' class='mouse-catcher mouse-pass-through'>");
+
+        // TODO: support touch
+        $("#newTileMouseCatcher").on("mousemove", (event) => { this.updateTilePlacement(event) });
+        $("#newTileMouseCatcher").on("mousedown", () => { this.confirmTilePlacement() });
+        // TODO: press escape to cancel tile placement
+
+        console.log("Started placement of entity", this.newTile);
+    }
+
+    updateTilePlacement(event)
+    {
+        if (!(this.newTile instanceof Entity))
+        {
+            console.error("Trying to update tile placement, but newTile is invalid!", this.newTile);
+            return false;
+        }
+
+        this.mousePos.x = ( event.clientX / window.innerWidth ) * 2 - 1;
+        this.mousePos.y = - ( event.clientY / window.innerHeight ) * 2 + 1;
+
+        this.raycaster.setFromCamera(this.mousePos, camera);
+        this.raycaster.ray.intersectPlane(this.intersectionPlane, this.intersectionPos);
+        
+        this.newTile.position.copy(this.intersectionPos);
+    }
+
+    cancelTilePlacement()
+    {
+        if (!(this.newTile instanceof Entity))
+        {
+            console.error("Trying to finish tile placement, but newTile is invalid!", this.newTile);
+            this.finallyTilePlacement();
+            return false;
+        }
+
+        scene.remove(this.newTile);
+
+        this.finallyTilePlacement();
+    }
+
+    confirmTilePlacement()
+    {
+        if (!(this.newTile instanceof Entity))
+        {
+            console.error("Trying to finish tile placement, but newTile is invalid!", this.newTile);
+            this.finallyTilePlacement();
+            return false;
+        }
+
+        if (this.newTile.hasComponent("ContainerComponent"))
+            this.containerTiles.push(this.newTile);
+
+        if (this.newTile.hasComponent("GeneratorComponent"))
+            this.generatorTiles.push(this.newTile);
+
+        this.finallyTilePlacement();
+    }
+    
+    finallyTilePlacement()
+    {
+        this.newTile = null;
+
+        player.enableMovement();
+
+        $("#newTileMouseCatcher").remove();
+
+        console.log("Tile placement is finished.");
     }
 
     updateReputation(amount)
@@ -272,6 +463,8 @@ export class Shop extends Group
         }
 
         this.employees.push(employee);
+
+        $("#employees").prepend("<div class='employee'>");
 
         console.log("added employee to shop");
 

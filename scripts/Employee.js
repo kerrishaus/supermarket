@@ -192,12 +192,14 @@ ch
         }
         else // no more actions, find a new one
         {
+            /*
             if (this.shop.register.waitingCustomers.size > 0 && this.canCheckoutCustomers)
             {
                 console.log("moving to checkout customers");
                 this.pushAction({type: "move", position: this.shop.registerPosition});
             }
             else // nobody is waiting at the register
+            */
             {
                 let lowestContainer = null;
 

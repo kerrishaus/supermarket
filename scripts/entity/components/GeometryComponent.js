@@ -4,10 +4,8 @@ import { EntityComponent } from "./EntityComponent.js";
 
 export class GeometryComponent extends EntityComponent
 {
-    constructor(geometry, material)
+    init(geometry, material)
     {
-        super();
-
         this.mesh = new Mesh(geometry, material);
 
         this.mesh.castShadow = true;
