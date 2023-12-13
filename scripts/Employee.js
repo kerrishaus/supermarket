@@ -1,5 +1,7 @@
 import { BoxGeometry, MeshStandardMaterial, Vector3 } from "https://kerrishaus.com/assets/threejs/build/three.module.js";
 
+import { CSS2DObject } from "https://kerrishaus.com/assets/threejs/examples/jsm/renderers/CSS2DRenderer.js";
+
 import * as MathUtility from "./MathUtility.js";
 
 import { ItemCarrier } from "./ItemCarrier.js";
@@ -8,37 +10,54 @@ export class Employee extends ItemCarrier
 {
     constructor(shop)
     {
-        const geometry = new BoxGeometry(1, 1, 2);
-        const material = new MeshStandardMaterial({color: 0x42b6f5});
-        
-        super(geometry, material);
+        super(
+            new BoxGeometry(1, 1, 2),
+            new MeshStandardMaterial({color: 0x42b6f5})
+        );
 
         this.shop = shop;
 
-        this.canCheckoutCustomers = false;
-        
-        this.elapsedTime = 0;
-        this.actionTime = 3;
         this.speedModifier = 4;
+        this.canCheckoutCustomers = false;
+
+        this.actions = new Array();
+
+        // time since last action was started
+        this.elapsedTime = 0;
+        // actionTime is the amount of time it will take to get
+        // from the current position to the position of the action
+        this.actionTime = 0;
         this.startPosition = new Vector3(0, 0, 0);
         this.targetPosition = new Vector3(0, 0, 0);
 
-        this.actions = new Array();
+        const labelDiv = document.createElement("div");
+        labelDiv.id = this.uuid;
+        labelDiv.className = 'buyableTileTitle';
+        labelDiv.textContent = name;
+
+        this.label = new CSS2DObject(labelDiv);
+        this.label.color = "white";
+        this.add(this.label);
+        this.label.element.textContent = "i am in pain";
     }
 
     pushAction(action)
     {
         this.actions.push(action);
 
+        /*
         if (action.type == "move")
         {
             this.actionTime = this.position.distanceTo(action.position) / this.speedModifier;
             this.setTarget(action.position, this.actionTime);
         }
+        */
         
         console.debug("added action");
         
-        if (this.actions.length <= 1)
+        // if there are no actions,
+        // focus this action immediately
+        if (this.actions.length < 1)
             this.focusAction(action);
     }
     
@@ -49,21 +68,27 @@ export class Employee extends ItemCarrier
             console.log("moving to", action.position);
             this.actionTime = this.position.distanceTo(action.position) / this.speedModifier;
             this.setTarget(action.position, this.actionTime);
+
+            this.label.element.textContent = "moving";
         }
         else if (action.type == "pick")
         {
             this.actionTime = this.position.distanceTo(action.container.position) / this.speedModifier;
             this.setTarget(action.container.position, this.actionTime);
+
+            this.label.element.textContent = "picking";
         }
         else if (action.type == "stock")
         {
             this.actionTime = this.position.distanceTo(action.container.position) / this.speedModifier;
             this.setTarget(action.container.position, this.actionTime);
+
+            this.label.element.textContent = "stocking";
         } 
         
         console.debug("focused action");
     }
-
+ch
     nextAction()
     {
         console.debug("action complete");
@@ -71,10 +96,9 @@ export class Employee extends ItemCarrier
         this.actions.shift();
                 
         if (this.actions.length > 0)
-        {
             this.focusAction(this.actions[0]);
-            return; // prevents jumping to endPosition and then doing the movement
-        }
+        else
+            this.label.element.textContent = "idle";
     }
     
     setTarget(endPosition, actionTime)
@@ -94,6 +118,8 @@ export class Employee extends ItemCarrier
     gatherItemsFromAndTakeTo(from, to)
     {
         console.log(`Gathering items from ${from.name} for ${to.name}.`);
+
+        to.handledByEmployee = this;
 
         this.pushAction({
             type: "move",
@@ -147,7 +173,10 @@ export class Employee extends ItemCarrier
 
                         // go to next action after stocking all carried items
                         if (this.carriedItems.length <= 0)
+                        {
+                            action.container.handledByEmployee = null;
                             this.nextAction();
+                        }
                     }
                 }
                 // there are no remaining actions, do nothing
@@ -175,6 +204,10 @@ export class Employee extends ItemCarrier
                 // looks for the container with the lowest items, in order to fill it
                 for (const container of this.shop.containerTiles)
                 {
+                    // TODO: change this to a not null check
+                    if (container.handledByEmployee instanceof Employee)
+                        continue;
+
                     if (container.carriedItems.length < container.maxItems)
                     {
                         if (lowestContainer === null)

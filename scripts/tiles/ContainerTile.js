@@ -26,6 +26,10 @@ export class ContainerTile extends Triggerable
         
         this.gridRows    = 3;
         this.gridColumns = 3;
+
+        // this is set by employees when they are targetting this container,
+        // so that it is not targetted by multiple employees
+        this.handledByEmployee = null;
     }
 
     transferFromCarrier(carrier)
