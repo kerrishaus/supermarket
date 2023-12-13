@@ -1,4 +1,4 @@
-import { Vector3, Vector2, Raycaster, Plane, Quaternion, Group, PlaneGeometry, MeshStandardMaterial, Mesh, FrontSide } from "https://kerrishaus.com/assets/threejs/build/three.module.js";
+import { Vector3, Vector2, Raycaster, Plane, GridHelper, Group, PlaneGeometry, MeshStandardMaterial, Mesh, FrontSide } from "https://kerrishaus.com/assets/threejs/build/three.module.js";
 
 import * as GeometryUtil from "./geometry/GeometryUtility.js";
 import * as MathUtility from "./MathUtility.js";
@@ -35,6 +35,13 @@ export class Shop extends Group
         const wallThickness = 1;
         
         //const shopFloor = new RigidBodyCube(new Vector3(shopWidth, shopLength, wallThickness), 0xE0E0E0, new Vector3(0, 0, -1), new Quaternion(), 0);
+
+        const size = 20;
+        const divisions = 10;
+        const gridHelper = new GridHelper(size, divisions);
+        gridHelper.rotation.x = 1.5708;
+        gridHelper.position.z = -0.5;
+        scene.add(gridHelper)
 
         const shopFloor = new Mesh(
             new PlaneGeometry(shopWidth, shopLength),
@@ -344,8 +351,21 @@ export class Shop extends Group
 
         this.raycaster.setFromCamera(this.mousePos, camera);
         this.raycaster.ray.intersectPlane(this.intersectionPlane, this.intersectionPos);
-        
-        this.newTile.position.copy(this.intersectionPos);
+
+        const tileCoordinates = new Vector2(
+            Math.floor(this.intersectionPos.x),
+            Math.floor(this.intersectionPos.y),
+        );
+
+        if (!(tileCoordinates.x % 2))
+            tileCoordinates.x += 1;
+
+        if (!(tileCoordinates.y % 2))
+            tileCoordinates.y += 1;
+
+        console.log(tileCoordinates);
+
+        this.newTile.position.set(tileCoordinates.x, tileCoordinates.y, 0.5);
     }
 
     cancelTilePlacement()
