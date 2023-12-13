@@ -1,17 +1,20 @@
-import { Vector3, Vector2, Mesh, SphereGeometry, MeshPhongMaterial, Quaternion, BoxGeometry, MeshStandardMaterial, PerspectiveCamera, Plane, Raycaster } from "https://kerrishaus.com/assets/threejs/build/three.module.js";
+import { Vector3, Vector2, Mesh, SphereGeometry, MeshPhongMaterial, BoxGeometry, MeshStandardMaterial, Plane, Raycaster } from "https://kerrishaus.com/assets/threejs/build/three.module.js";
 
-import { ItemCarrier } from "./ItemCarrier.js";
+import { Entity } from "./entity/Entity.js";
 
 import * as GeometryUtil from "./geometry/GeometryUtility.js";
+import { GeometryComponent } from "./entity/components/GeometryComponent.js";
 
-export class Player extends ItemCarrier
+export class Player extends Entity
 {
     constructor()
     {
-        const geometry = new BoxGeometry(1, 1, 2);
-        const material = new MeshStandardMaterial({ color: 0x0000ff });
-        
-        super(geometry, material);
+        super();
+
+        this.addComponent(new GeometryComponent(
+            new BoxGeometry(1, 1, 2),
+            new MeshStandardMaterial({ color: 0x0000ff })
+        ));
 
         const nose = GeometryUtil.createScaledCube(0.4, 1, 0.2, 0x0000aa);
         nose.position.z = 0.8;
@@ -53,8 +56,8 @@ export class Player extends ItemCarrier
         
         this.plane = new Plane(new Vector3(0, 0, 0.5), 0);
 
-        this.mouse = new Vector2();
-        this.raycaster = new Raycaster();
+        this.mouse      = new Vector2();
+        this.raycaster  = new Raycaster();
         this.intersects = new Vector3();
     }
     
