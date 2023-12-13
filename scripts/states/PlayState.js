@@ -9,6 +9,7 @@ import { Shop   } from "../Shop.js";
 import { Player } from "../Player.js";
 
 import { Triggerable } from "../geometry/Triggerable.js";
+import { Entity } from "../entity/Entity.js";
 
 export class PlayState extends State
 {
@@ -315,9 +316,29 @@ export class PlayState extends State
         // are in the trigger zone of an object
         scene.children.forEach((object) =>
         {
-            if ('update' in object)
-                object.update(deltaTime);
+            // if the object is a trigger, check if any geometry boxes are within it
+            if (object instanceof Entity && object.hasComponent("TriggerComponent"))
+            {
+                const triggerComponent = object.getComponent("TriggerComponent");
 
+                scene.children.forEach((object2) =>
+                {
+                    if (object2 == object ||
+                        object2.parentEntity == object ||
+                        object.parentEntity == object2)
+                        return;
+
+                    if (object2 instanceof Entity && object2.hasComponent("GeometryComponent"))
+                    {
+                        const geometryComponent = object2.getComponent("GeometryComponent");
+
+                        if (triggerComponent.box.intersectsBox(geometryComponent.box))
+                            triggerComponent.triggeringEntities.push(object);
+                    }
+                });
+            }
+
+            /*
             if (object instanceof Triggerable)
             {
                 // first check if the player intersects this object
@@ -364,6 +385,10 @@ export class PlayState extends State
                     }
                 }
             }
+            */
+
+            if ('update' in object)
+                object.update(deltaTime);
         });
 
         //physicsStep(deltaTime);
