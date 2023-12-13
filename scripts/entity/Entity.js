@@ -34,13 +34,9 @@ export class Entity extends Object3D
 
         this.components.set(component.constructor.name, component);
 
-        // TODO: find a way to have this useable in the component constructor.
-        // right now, it isn't able to get it because I use the constructor in regular code
-        // and I don't want to specify the entity in each one.
-        // maybe store all constructor args in a variable, then call an init function with those
         component.setParentEntity(this);
 
-        component.init(component.constructorArgs);
+        component.init.apply(component, component.constructorArgs);
 
         return component;
     }

@@ -7,6 +7,7 @@ export class EntityComponent
         this.parentEntity = null;
     }
 
+    // In general, Components are not initialised until they are added to the entity.
     init()
     {
 

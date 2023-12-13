@@ -4,8 +4,6 @@ export class ContainerComponent extends EntityComponent
 {
     init()
     {
-        console.log(this.parentEntity);
-
         if (!this.parentEntity.hasComponent("TriggerComponent"))
             console.error("ContainerComponent requires TriggerComponent be added to the parent entity first!");
 

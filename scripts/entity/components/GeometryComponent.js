@@ -6,7 +6,11 @@ export class GeometryComponent extends EntityComponent
 {
     init(geometry, material)
     {
+        console.log("geometry", geometry);
+
         this.mesh = new Mesh(geometry, material);
+
+        console.log(this.mesh);
 
         this.mesh.castShadow = true;
         this.mesh.receiveShadow = true;
@@ -15,7 +19,7 @@ export class GeometryComponent extends EntityComponent
 
         // TODO: make sure it gets removed from the scene properly.
         // right now it just sits around wherever it was last
-        scene.add(this.mesh);
+        this.parentEntity.attach(this.mesh);
 
         this.box = new Box3();
     }
@@ -30,8 +34,6 @@ export class GeometryComponent extends EntityComponent
     update(deltaTime)
     {
         super.update(deltaTime);
-
-        this.mesh.position.copy(this.parentEntity.position);
 
         this.box.copy(this.mesh.geometry.boundingBox).applyMatrix4(this.mesh.matrixWorld);
     }
