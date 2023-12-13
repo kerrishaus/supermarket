@@ -4,12 +4,15 @@ import { Entity } from "./entity/Entity.js";
 
 import * as GeometryUtil from "./geometry/GeometryUtility.js";
 import { GeometryComponent } from "./entity/components/GeometryComponent.js";
+import { ContainerComponent } from "./entity/components/ContainerComponent.js";
 
 export class Player extends Entity
 {
     constructor()
     {
         super();
+
+        this.addComponent(new ContainerComponent);
 
         this.addComponent(new GeometryComponent(
             new BoxGeometry(1, 1, 2),

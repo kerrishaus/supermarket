@@ -3,27 +3,21 @@ import { BoxGeometry, Vector3, Vector2, Raycaster, Plane, GridHelper, Group, Pla
 import * as GeometryUtil from "./geometry/GeometryUtility.js";
 import * as MathUtility from "./MathUtility.js";
 
-import { RigidBodyCube } from "./geometry/RigidBodyCube.js";
-
 import { Door        } from "./Door.js";
-import { Register    } from "./tiles/Register.js";
-import { RecycleBin  } from "./tiles/RecycleBin.js";
-import { BuyableTile } from "./tiles/BuyableTile.js";
 
+import { Tomato  } from "./items/Tomato.js";
+import { Ketchup } from "./items/Ketchup.js";
+import { SodaCan } from "./items/SodaCan.js";
+
+import { Player   } from "./Player.js";
+import { Employee } from "./Employee.js";
 import { Customer } from "./Customer.js";
-
-import { KetchupGenerator } from "./tiles/KetchupGenerator.js";
-import { TomatoPlant  } from "./tiles/TomatoPlant.js";
-import { SodaGenerator    } from "./tiles/SodaGenerator.js";
-
-import { SodaMachine } from "./tiles/SodaMachine.js";
-import { Employee    } from "./Employee.js";
-import { ContainerTile } from "./tiles/ContainerTile.js";
 
 import { Entity } from "./entity/Entity.js";
 import { TriggerComponent } from "./entity/components/TriggerComponent.js";
 import { ContainerComponent } from "./entity/components/ContainerComponent.js";
 import { GeometryComponent } from "./entity/components/GeometryComponent.js";
+import { GeneratorComponent } from "./entity/components/GeneratorComponent.js";
 
 export class Shop extends Group
 {
@@ -87,14 +81,28 @@ export class Shop extends Group
             {
                 name: "Tomato Stand",
                 price: 100,
-                getTile: () => {
+                tile: null,
+                getTile: function() {
                     const tomatoStand     = new Entity();
                     const tomatoTrigger   = tomatoStand.addComponent(new TriggerComponent);
+                    tomatoTrigger.triggerEnabled = false;
                     const tomatoContainer = tomatoStand.addComponent(new ContainerComponent);
                     tomatoStand.addComponent(new GeometryComponent(
                         new BoxGeometry(1.5, 1.5, 1), 
                         new MeshStandardMaterial({ color: 0xff0000 })
                     )).mesh.position.z -= 0.5;
+
+                    tomatoStand.onStartTrigger = (object) => {
+                        console.log(object);
+                    };
+
+                    /*
+                    tomatoStand.onStartTrigger = (object) => {(function(object)
+                    {
+                        console.log("waa");
+                        console.log(this);
+                    }).call(tomatoPlant, object) };
+                    */
 
                     scene.add(tomatoStand);
                     return tomatoStand;
@@ -102,8 +110,28 @@ export class Shop extends Group
             },
             {
                 name: "Tomato Plant",
+                price: 100,
+                tile: null,
                 getTile: () => {
+                    const tomatoPlant          = new Entity();
+                    const tomatoPlantTrigger   = tomatoPlant.addComponent(new TriggerComponent);
+                    const tomatoPlantGenerator = tomatoPlant.addComponent(new GeneratorComponent("Tomato Plant", "tomato"));
+                    tomatoPlant.addComponent(new GeometryComponent(
+                        new BoxGeometry(1.5, 1.5, 1), 
+                        new MeshStandardMaterial({ color: 0xff0000 })
+                    )).mesh.position.z -= 0.5;
 
+                    tomatoPlantGenerator.createItem = () => { 
+                        return new Tomato(tomatoPlant.position);
+                    };
+
+                    tomatoPlant.onTrigger = (object) => {
+                        if (object instanceof Player)
+                            tomatoPlantGenerator.transferToCarrier(object);
+                    };
+
+                    scene.add(tomatoPlant);
+                    return tomatoPlant;
                 }
             },
             {
@@ -319,12 +347,13 @@ export class Shop extends Group
     {
         document.dispatchEvent(new CustomEvent("closeBuyMenu"));
 
-        if (this.newTile instanceof Entity)
+        if (this.newTile?.tile instanceof Entity)
             this.cancelTilePlacement();
 
-        this.newTile = tile.getTile();
+        this.newTile = tile;
+        this.newTile.tile = tile.getTile();
 
-        if (!(this.newTile instanceof Entity))
+        if (!(this.newTile?.tile instanceof Entity))
         {
             console.error("Tried to start tile placement process for " + tile.name + " but was not provided with a proper tile Entity.");
             return;
@@ -346,7 +375,7 @@ export class Shop extends Group
 
     updateTilePlacement(event)
     {
-        if (!(this.newTile instanceof Entity))
+        if (!(this.newTile?.tile instanceof Entity))
         {
             console.error("Trying to update tile placement, but newTile is invalid!", this.newTile);
             return false;
@@ -363,37 +392,40 @@ export class Shop extends Group
             Math.floor(this.intersectionPos.y / 2) * 2 + 1,
         );
 
-        this.newTile.position.set(tileCoordinates.x, tileCoordinates.y, 0.5);
+        this.newTile.tile.position.set(tileCoordinates.x, tileCoordinates.y, 0.5);
     }
 
     cancelTilePlacement()
     {
-        if (!(this.newTile instanceof Entity))
+        if (!(this.newTile?.tile instanceof Entity))
         {
             console.error("Trying to finish tile placement, but newTile is invalid!", this.newTile);
             this.finallyTilePlacement();
             return false;
         }
 
-        scene.remove(this.newTile);
+        scene.remove(this.newTile.tile);
 
         this.finallyTilePlacement();
     }
 
     confirmTilePlacement()
     {
-        if (!(this.newTile instanceof Entity))
+        if (!(this.newTile?.tile instanceof Entity))
         {
             console.error("Trying to finish tile placement, but newTile is invalid!", this.newTile);
             this.finallyTilePlacement();
             return false;
         }
 
-        if (this.newTile.hasComponent("ContainerComponent"))
-            this.containerTiles.push(this.newTile);
+        if (this.newTile.tile.hasComponent("ContainerComponent"))
+            this.containerTiles.push(this.newTile.tile);
 
-        if (this.newTile.hasComponent("GeneratorComponent"))
-            this.generatorTiles.push(this.newTile);
+        if (this.newTile.tile.hasComponent("GeneratorComponent"))
+            this.generatorTiles.push(this.newTile.tile);
+
+        this.newTile.tile.getComponent("TriggerComponent").triggerEnabled = true;
+        //this.newTile.finishTile(this.newTile.tile);
 
         this.finallyTilePlacement();
     }

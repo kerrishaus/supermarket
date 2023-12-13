@@ -1,12 +1,13 @@
+import { Vector3 } from "https://kerrishaus.com/assets/threejs/build/three.module.js";
+
+import { Player } from "../../Player.js";
+
 import { EntityComponent } from "./EntityComponent.js";
 
 export class ContainerComponent extends EntityComponent
 {
     init()
     {
-        if (!this.parentEntity.hasComponent("TriggerComponent"))
-            console.error("ContainerComponent requires TriggerComponent be added to the parent entity first!");
-
         this.carriedItems = new Array();
         this.maxItems = 9;
 
@@ -37,11 +38,11 @@ export class ContainerComponent extends EntityComponent
         if (this.carriedItems.length >= this.maxItems)
             return;
         
-        for (const item of carrier.carriedItems)
+        for (const item of carrier.getComponent("ContainerComponent").carriedItems)
         {
             if (item.type == this.itemType)
             {
-                carrier.carriedItems.splice(carrier.carriedItems.indexOf(item), 1);
+                carrier.getComponent("ContainerComponent").carriedItems.splice(carrier.getComponent("ContainerComponent").carriedItems.indexOf(item), 1);
                 this.carriedItems.push(item);
                 
                 this.calculateGrid();
@@ -57,9 +58,9 @@ export class ContainerComponent extends EntityComponent
         if (this.carriedItems.length <= 0)
             return;
 
-        if (carrier.carriedItems.length > carrier.carryLimit)
+        if (carrier.getComponent("ContainerComponent").carriedItems.length > carrier.carryLimit)
         {
-            console.warn(`Carrier has too many items! Carrying: ${carrier.carriedItems.length}, Limit: ${carrier.carryLimit}`);
+            console.warn(`Carrier has too many items! Carrying: ${carrier.getComponent("ContainerComponent").carriedItems.length}, Limit: ${carrier.getComponent("ContainerComponent").carryLimit}`);
             return;
         }
 
@@ -68,7 +69,7 @@ export class ContainerComponent extends EntityComponent
             this.carriedItems[0].getComponent("CarryableComponent").setTarget(carrier.position, new Vector3(0, 0, 0));
             this.carriedItems[0].autoPositionAfterAnimation = false;
 
-            carrier.carriedItems.push(this.carriedItems[0]);
+            carrier.getComponent("ContainerComponent").carriedItems.push(this.carriedItems[0]);
             this.carriedItems.shift();
 
             this.calculateGrid();
@@ -99,12 +100,34 @@ export class ContainerComponent extends EntityComponent
                 this.layer_ += 1;
             }
 
-            this.carriedItems[i].getComponent("CarryableComponent").setTarget(this.position, new Vector3(this.column_ - 1, this.row_ - 1, this.layer_ + 1));
+            this.carriedItems[i].getComponent("CarryableComponent").setTarget(this.parentEntity.position, new Vector3(this.column_ - 1, this.row_ - 1, this.layer_ + 1));
         }
     }
 
     update(deltaTime)
     {
         super.update(deltaTime);
+
+        // TODO: this is kind of a hack, but it'll work for now
+        if (this.parentEntity instanceof Player)
+        {
+            for (let i = 0; i < this.carriedItems.length; i++)
+            {
+                let item = this.carriedItems[i];
+    
+                const carryPos = ((item.scale.z / 2) * i) + this.parentEntity.scale.z + item.scale.z / 2;
+                
+                item.quaternion.copy(this.parentEntity.quaternion);
+    
+                if (item.elapsedTime > item.moveTime)
+                {
+                    item.position.copy(this.parentEntity.position);
+                    item.position.z += carryPos;
+                    continue;
+                }
+                
+                item.getComponent("CarryableComponent").updateTarget(this.parentEntity.position, new Vector3(0, 0, carryPos));
+            }
+        }
     }
 }
