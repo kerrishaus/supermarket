@@ -332,7 +332,7 @@ export class PlayState extends State
                         const geometryComponent = object2.getComponent("GeometryComponent");
 
                         if (triggerComponent.box.intersectsBox(geometryComponent.box))
-                            triggerComponent.triggeringEntities.push(object);
+                            triggerComponent.triggeringEntities.push(object2);
                     }
                 });
             }
