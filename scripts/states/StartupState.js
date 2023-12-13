@@ -37,9 +37,23 @@ export class StartupState extends State
 
         this.loadingDiv = document.createElement("div");
         this.loadingDiv.id = "loadingDiv";
-        this.loadingDiv.classList = "display-flex align-center justify-center";
-        this.loadingDiv.textContent = "Loading...";
+        this.loadingDiv.classList = "display-flex align-center justify-center flex-column";
+        this.loadingDiv.style.color = "black";
         document.body.appendChild(this.loadingDiv);
+
+        this.loadingBigStatus = document.createElement("h1");
+        this.loadingBigStatus.id = "loadingBigStatus";
+        this.loadingBigStatus.textContent = "Loading";
+        this.loadingDiv.appendChild(this.loadingBigStatus);
+
+        this.loadingLittleStatus = document.createElement("h2");
+        this.loadingLittleStatus.id = "loadingLittleStatus";
+        this.loadingLittleStatus.textContent = "Getting started...";
+        this.loadingDiv.appendChild(this.loadingLittleStatus);
+
+        this.progressBar = document.createElement("progress");
+        this.progressBar.id = "loadProgress";
+        this.loadingDiv.appendChild(this.progressBar);
 
         window.collisionConfiguration_ = null;
         window.dispatcher_ 			   = null;
@@ -52,6 +66,7 @@ export class StartupState extends State
         function prepareThree()
         {
             console.log("Preparing Three.");
+            $("#loadingBigStatus").text("Preparing Three.js");
 
             window.renderer = new THREE.WebGLRenderer({
                 antialias: true,
@@ -96,6 +111,7 @@ export class StartupState extends State
             
             window.addEventListener('resize', (event) =>
             {
+                //  TODO: need to update CSS23D object here too.
                 camera.aspect = window.innerWidth / window.innerHeight;
                 camera.updateProjectionMatrix();
                 renderer.setSize(window.innerWidth, window.innerHeight);
@@ -124,6 +140,7 @@ export class StartupState extends State
         function prepareAmmo(lib)
         {
             console.log("Preparing Ammo.");
+            $("#loadingBigStatus").text("Preparing Ammo.js");
 
             let Ammo = lib;
             window.Ammo = lib;
@@ -142,20 +159,40 @@ export class StartupState extends State
 
         window.addEventListener('DOMContentLoaded', async () =>
         {
+            prepareThree();
+
             AmmoLib().then((lib) =>
             {
-                prepareThree();
                 prepareAmmo(lib);
 
-                new Promise(async (resolve) => {
-                    await loadModel("bottleKetchup");
-                    await loadModel("sodaCan");
-                    await loadModel("tomato");
+                new Promise(async (resolve) =>
+                {
+                    // TODO: have every model loaded automatically
+                    $("#loadingBigStatus").text("Loading models");
 
-                    resolve(true);
-                }).then(() => {
+                    const models = [
+                        "bottleKetchup",
+                        "sodaCan",
+                        "tomato"
+                    ];
+
+                    $("#loadProgress").attr("max", models.length);
+
+                    for (let i = 0; i < models.length; i++)
+                    {
+                        $("#loadProgress").attr("value", i + 1);
+
+                        const model = models[i];
+
+                        $("#loadingLittleStatus").text(model);
+                        await loadModel(model);
+                    }
+
                     console.log("all models loaded");
 
+                    resolve(true);
+                }).then(() =>
+                {
                     console.log("StartupState ready.");
 
                     //this.stateMachine.changeState(new MainMenuState());
