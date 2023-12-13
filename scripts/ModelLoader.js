@@ -9,29 +9,21 @@ dracoLoader.setDecoderPath('https://kerrishaus.com/assets/threejs/examples/js/li
 let loader = new GLTFLoader();
 loader.setDRACOLoader(dracoLoader);
 
-export function loadModel(modelName)
+export async function loadModel(modelName)
 {
     if (modelCache.has(modelName))
         return modelCache.get(modelName).clone();
 
-    console.log("loading model");
+    console.log("loading model " + modelName);
 
-    loader.load(`models/${modelName}.glb`, (gltf) =>
-    {
-        modelCache.set(modelName, gltf.scene);
+    const model = await loader.loadAsync(`models/${modelName}.glb`);
 
-        console.log("loaded model " + modelName);
-    }, undefined, function(e)
-    {
-        console.error("failed to load model for " + modelName, e);
-    });
+    modelCache.set(modelName, model.scene);
 
-    setTimeout(() => 
-    {
-        if (modelCache.get(modelName) == "unloaded")
-        {
-            modelCache.delete(modelName);
-            console.log("Failed to load model")
-        }
-    }, 5000);
+    console.log("loaded model " + modelName);
+}
+
+export function getModel(modelName)
+{
+    return modelCache.get(modelName)?.clone() ?? null;
 }

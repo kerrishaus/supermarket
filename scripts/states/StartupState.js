@@ -23,11 +23,14 @@ import { PhysicsScene } from "../PhysicsScene.js";
 import * as PageUtility from "../PageUtility.js";
 
 import { LoadSaveState } from "./LoadSaveState.js";
+import { loadModel } from "../ModelLoader.js";
 
 export class StartupState extends State
 {
     init(stateMachine)
     {
+        console.log("Initialising StartupState");
+
         this.stateMachine = stateMachine;
 
         PageUtility.addStyle("loading");
@@ -144,20 +147,32 @@ export class StartupState extends State
                 prepareThree();
                 prepareAmmo(lib);
 
-                //this.stateMachine.changeState(new MainMenuState());
-                this.stateMachine.changeState(new LoadSaveState());
+                new Promise(async (resolve) => {
+                    await loadModel("bottleKetchup");
+                    await loadModel("sodaCan");
+                    await loadModel("tomato");
+
+                    resolve(true);
+                }).then(() => {
+                    console.log("all models loaded");
+
+                    console.log("StartupState ready.");
+
+                    //this.stateMachine.changeState(new MainMenuState());
+                    this.stateMachine.changeState(new LoadSaveState());
+                });
             });
         });
-        
-        console.log("LoadingState ready.");
     }
     
     cleanup()
     {
+        console.log("Cleaning up StartupState.");
+
         PageUtility.removeStyle("loading");
         
         loadingDiv.remove();
         
-        console.log("LoadingState cleaned up.");
+        console.log("StartupState cleaned up.");
     }
 };
