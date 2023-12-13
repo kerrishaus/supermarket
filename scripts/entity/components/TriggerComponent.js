@@ -21,6 +21,8 @@ export class TriggerComponent extends EntityComponent
 
         this.triggeringEntitiesLastUpdate = [];
         this.triggeringEntities           = [];
+
+        this.triggerEnabled = true;
     }
 
     destructor()
@@ -35,6 +37,9 @@ export class TriggerComponent extends EntityComponent
         super.update(deltaTime);
 
         this.box.copy(this.triggerGeometry.geometry.boundingBox).applyMatrix4(this.triggerGeometry.matrixWorld);
+
+        if (!this.triggerEnabled)
+            return;
 
         this.triggerGeometry.material.color.setHex(this.triggeringEntities.length > 0 ? 0x0ff00 : 0xff0000);
 
