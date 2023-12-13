@@ -19,7 +19,7 @@ export class PlayState extends State
 
         $(document.body).append(`
             <div id='interface' class="gameInterfaceContainer">
-                <div id="pauseMenu" data-visibility="hidden">
+                <div id="pauseMenu" class="game-menu" data-visibility="hidden">
                     <button id="resetSave">reset save file</button>
                 </div>
                 <div id="businessStats">
@@ -36,7 +36,7 @@ export class PlayState extends State
                         <i class='fa fa-users'></i> Customers waiting to checkout: <span id="waitingCustomers">0</span>
                     </div>
                 </div>
-                <div id="buyMenu" data-visibility="hidden">
+                <div id="buyMenu" class="game-menu" data-visibility="hidden">
                     <div class="titlebar display-flex space-between">
                         <h1>Buy Menu</h1>
                         <div id="buyMenuClose">
@@ -92,10 +92,13 @@ export class PlayState extends State
             }
             else if (event.code == "Escape")
             {
-                if ($("#pauseMenu").attr("data-visibility") == "shown")
-                    this.closePauseMenu();
+                if ($("#buyMenu").attr("data-visibility") == "shown")
+                    this.closeBuyMenu();
                 else
-                    this.openPauseMenu();
+                    if ($("#pauseMenu").attr("data-visibility") == "shown")
+                        this.closePauseMenu();
+                    else
+                        this.openPauseMenu();
             }
         });
 
@@ -136,6 +139,8 @@ export class PlayState extends State
 
     openBuyMenu()
     {
+        $(".game-menu").attr("data-visibility", "hidden");
+
         $("#upgrades").empty();
 
         $("#upgrades").append("<h1>Containers</h1>");
@@ -155,9 +160,10 @@ export class PlayState extends State
         $("#upgrades").append("<hr/>");
 
         $("#upgrades").append("<h1>Employees</h1>");
+        $("#upgrades").append("<div id='employees'>");
         for (const employee in shop.employees)
         {
-            $("#upgrades").append("<div class='employee'>employee</div>");
+            $("#employees").append("<div class='employee'>employee</div>");
         }
 
         $("#buyMenu").attr("data-visibility", "shown");
@@ -173,6 +179,8 @@ export class PlayState extends State
 
     openPauseMenu()
     {
+        $(".game-menu").attr("data-visibility", "hidden");
+
         $("#pauseMenu").attr("data-visibility", "shown");
         player.disableMovement();
     }

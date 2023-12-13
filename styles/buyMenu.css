@@ -8,12 +8,13 @@
 
     position: absolute;
     z-index: 100;
-    top: calc(20vh + 10px);
+    top: calc(20vh);
     left: 10vw;
 
-    border-radius: 10px;
+    border-radius: 10px 10px 0 0;
     /* // TODO: don't show a border on mobile */
     border: 10px solid #000000bb;
+    border-bottom: 0;
 
     padding: 40px;
 
@@ -43,4 +44,21 @@
     background-color: gray;
     padding: 10px 20px;
     border-radius: 10px;
+}
+
+#employees
+{
+    display: flex;
+    gap: 20px;
+    flex-wrap: wrap;
+}
+
+#employees .employee
+{
+    width: 64px;
+    height: 128px;
+
+    background-color: gray;
+
+    border: 1px solid darkgray;
 }
