@@ -87,22 +87,17 @@ export class Shop extends Group
                     const tomatoTrigger   = tomatoStand.addComponent(new TriggerComponent);
                     tomatoTrigger.triggerEnabled = false;
                     const tomatoContainer = tomatoStand.addComponent(new ContainerComponent);
+                    tomatoContainer.name = "Tomato Stand";
+                    tomatoContainer.itemType = "tomato";
                     tomatoStand.addComponent(new GeometryComponent(
                         new BoxGeometry(1.5, 1.5, 1), 
                         new MeshStandardMaterial({ color: 0xff0000 })
                     )).mesh.position.z -= 0.5;
 
-                    tomatoStand.onStartTrigger = (object) => {
-                        console.log(object);
+                    tomatoStand.onTrigger = (object) => {
+                        if (object instanceof Player)
+                            tomatoContainer.transferFromCarrier(object);
                     };
-
-                    /*
-                    tomatoStand.onStartTrigger = (object) => {(function(object)
-                    {
-                        console.log("waa");
-                        console.log(this);
-                    }).call(tomatoPlant, object) };
-                    */
 
                     scene.add(tomatoStand);
                     return tomatoStand;
