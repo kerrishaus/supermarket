@@ -36,15 +36,12 @@ export class Employee extends Entity
         this.startPosition = new Vector3(0, 0, 0);
         this.targetPosition = new Vector3(0, 0, 0);
 
-        const labelDiv = document.createElement("div");
-        labelDiv.id = this.uuid;
-        labelDiv.className = 'buyableTileTitle';
-        labelDiv.textContent = name;
+        this.labelDiv = document.createElement("div");
+        this.labelDiv.textContent = "i am in pain";
 
-        this.label = new CSS2DObject(labelDiv);
-        this.label.color = "white";
-        this.add(this.label);
-        this.label.element.textContent = "i am in pain";
+        const label = new CSS2DObject(this.blabelDiv);
+        label.color = "white";
+        this.add(label);
     }
 
     pushAction(action)
@@ -78,7 +75,7 @@ export class Employee extends Entity
             this.setTarget(action.container.position, this.actionTime);
         } 
 
-        this.label.element.textContent = action.type;
+        this.labelDiv.textContent = action.type;
         
         console.debug("focused action");
     }
@@ -92,7 +89,7 @@ export class Employee extends Entity
         if (this.actions.length > 0)
             this.focusAction(this.actions[0]);
         else
-            this.label.element.textContent = "idle";
+            this.labelDiv.textContent = "idle";
     }
     
     setTarget(endPosition, actionTime)

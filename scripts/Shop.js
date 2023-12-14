@@ -58,7 +58,9 @@ export class Shop extends Group
         scene.add(backroomFloor);
 
         // shop north wall
-        scene.add(GeometryUtil.createCube(new Vector3(shopLength, wallThickness, 4), new Vector3(0, shopWidth / 2 - wallThickness / 2 + 1, 1.5), 0xbfbfbf));
+        const northWall = GeometryUtil.createCube(new Vector3(shopLength, wallThickness, 4), new Vector3(0, shopWidth / 2 - wallThickness / 2 + 1, 1.5), 0xbfbfbf);
+        scene.add(northWall);
+
         // west wall
         //scene.add(GeometryUtil.createCube(new Vector3(wallThickness, shopWidth, 4), new Vector3(shopWidth / 2 - wallThickness / 2 + 1, 0, 1.5), 0xbfbfbf));
         // east wall
@@ -67,7 +69,7 @@ export class Shop extends Group
         //const backroomFloor = new RigidBodyCube(new Vector3(shopWidth, shopLength / 2, wallThickness), 0x878787, new Vector3(0, -15, -1), new Quaternion(), 0);
         //scene.add(backroomFloor);
 
-        this.doors = new Door(new Vector3(-4, 10.491, 0.5), 0x0000ff);
+        this.doors = new Door(new Vector3(-4.1, northWall.position.y - 0.01, 1.25), 0x0000ff);
         scene.add(this.doors);
 
         this.containerTiles = new Array();
@@ -81,6 +83,7 @@ export class Shop extends Group
                 tile: null,
                 getTile: () => {
                     const register = new Register();
+                    register.getComponent("TriggerComponent").triggerEnabled = false;
                     for (let i = 0; i < 100; i++)
                         register.addMoney();
                     this.registerTiles.push(register);
@@ -120,6 +123,7 @@ export class Shop extends Group
                 getTile: () => {
                     const tomatoPlant          = new Entity();
                     const tomatoPlantTrigger   = tomatoPlant.addComponent(new TriggerComponent);
+                    tomatoPlantTrigger.triggerEnabled = false;
                     const tomatoPlantGenerator = tomatoPlant.addComponent(new GeneratorComponent("Tomato Plant", "tomato"));
                     tomatoPlant.addComponent(new GeometryComponent(
                         new BoxGeometry(1.5, 1.5, 1), 
@@ -155,8 +159,9 @@ export class Shop extends Group
                 name: "Soda Maker",
                 price: 125,
                 getTile: () => {
-                    const sodaMaker            = new Entity();
-                    sodaMaker.addComponent(new TriggerComponent);
+                    const sodaMaker        = new Entity();
+                    const sodaMakerTrigger = sodaMaker.addComponent(new TriggerComponent);
+                    sodaMakerTrigger.triggerEnabled = false;
 
                     const sodaMachineGenerator = sodaMaker.addComponent(new GeneratorComponent("Soda Maker", "soda"));
                     sodaMaker.addComponent(new GeometryComponent(
@@ -206,6 +211,7 @@ export class Shop extends Group
                 price: 100,
                 getTile: () => {
                     const recycleBin = new RecycleBin();
+                    recycleBin.getComponent("TriggerComponent").triggerEnabled = false;
                     scene.add(recycleBin);
                     return recycleBin;
                 }
@@ -280,6 +286,7 @@ export class Shop extends Group
             return;
         }
 
+        // have to re-disable player movement because it gets re-enabled when the buy menu is closed
         player.disableMovement();
 
         scene.add(this.gridHelper);
