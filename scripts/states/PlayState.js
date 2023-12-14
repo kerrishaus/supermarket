@@ -298,6 +298,10 @@ export class PlayState extends State
 
             // move the player their direction
             player.translateY(velocity);
+
+            // TODO: do this in Shop class maybe
+            shop.gridHelper.position.x = Math.floor(player.position.x / 2) * 2;
+            shop.gridHelper.position.y = Math.floor(player.position.y / 2) * 2;
         }
 
         if (!this.freeCam)
@@ -313,7 +317,7 @@ export class PlayState extends State
         // - customers
         // - employees
         // are in the trigger zone of an object
-        scene.children.forEach((object) =>
+        scene.traverse((object) =>
         {
             // if the object is a trigger, check if any geometry boxes are within it
             if (object instanceof Entity && object.hasComponent("TriggerComponent"))
