@@ -80,7 +80,7 @@ export class Shop extends Group
             },
             {
                 name: "Tomato Stand",
-                price: 100,
+                price: 50,
                 tile: null,
                 getTile: function() {
                     const tomatoStand     = new Entity();
@@ -105,7 +105,7 @@ export class Shop extends Group
             },
             {
                 name: "Tomato Plant",
-                price: 100,
+                price: 25,
                 tile: null,
                 getTile: () => {
                     const tomatoPlant          = new Entity();
@@ -143,22 +143,62 @@ export class Shop extends Group
             },
             {
                 name: "Soda Maker",
+                price: 125,
                 getTile: () => {
+                    const sodaMaker            = new Entity();
+                    sodaMaker.addComponent(new TriggerComponent);
 
+                    const sodaMachineGenerator = sodaMaker.addComponent(new GeneratorComponent("Soda Maker", "soda"));
+                    sodaMaker.addComponent(new GeometryComponent(
+                        new BoxGeometry(1, 1, 2), 
+                        new MeshStandardMaterial({ color: 0xff0000 })
+                    ));
+
+                    sodaMachineGenerator.createItem = () => { 
+                        return new SodaCan(sodaMaker.position);
+                    };
+
+                    sodaMaker.onTrigger = (object) => {
+                        if (object instanceof Player)
+                            sodaMachineGenerator.transferToCarrier(object);
+                    };
+
+                    scene.add(sodaMaker);
+                    return sodaMaker;
                 }
             },
             {
                 name: "Soda Stand",
+                price: 100,
                 getTile: () => {
+                    const sodaStand     = new Entity();
+                    const sodaTrigger   = sodaStand.addComponent(new TriggerComponent);
+                    sodaTrigger.triggerEnabled = false;
+                    const sodaContainer = sodaStand.addComponent(new ContainerComponent);
+                    sodaContainer.name = "Soda Stand";
+                    sodaContainer.itemType = "sodaCan";
+                    sodaStand.addComponent(new GeometryComponent(
+                        new BoxGeometry(1.5, 1.5, 1), 
+                        new MeshStandardMaterial({ color: 0xff0000 })
+                    )).mesh.position.z -= 0.5;
 
+                    sodaStand.onTrigger = (object) => {
+                        if (object instanceof Player)
+                            sodaContainer.transferFromCarrier(object);
+                    };
+
+                    scene.add(sodaStand);
+                    return sodaStand;
                 }
             },
+            /*
             {
                 name: "Door",
                 getTile: () => {
 
                 }
             },
+            */
         ];
 
         this.mousePos          = new Vector2(0, 0);

@@ -38,10 +38,17 @@ export class GeneratorComponent extends EntityComponent
         this.itemThickness = 0.1;
 
         const labelDiv = document.createElement("div");
-        labelDiv.id = this.uuid;
-        labelDiv.className = 'backstockTileLabel';
-        labelDiv.textContent = this.name;
+
+        this.titleLabelDiv = document.createElement("div");
+        this.titleLabelDiv.className = 'tileLabel';
+        this.titleLabelDiv.textContent = this.name;
+        labelDiv.append(this.titleLabelDiv);
         
+        this.countLabelDiv = document.createElement("div");
+        this.countLabelDiv.className = 'countLabel';
+        this.countLabelDiv.textContent = 0;
+        labelDiv.append(this.countLabelDiv);
+
         this.label = new CSS2DObject(labelDiv);
         this.label.color = "white";
         this.parentEntity.add(this.label);
@@ -97,8 +104,6 @@ export class GeneratorComponent extends EntityComponent
         }
 
         this.updateItems();
-
-        this.label.element.textContent = this.carriedItems.length;
     }
     
     transferToCarrier(carrier)
@@ -124,7 +129,6 @@ export class GeneratorComponent extends EntityComponent
         carrier.getComponent("ContainerComponent").carriedItems.push(item);
         
         this.carriedItems.pop();
-        this.label.element.textContent = this.carriedItems.length;
         
         // TODO: don't think this is necessary
         this.updateItems();
@@ -150,5 +154,7 @@ export class GeneratorComponent extends EntityComponent
             
             item.getComponent("CarryableComponent").setTarget(this.parentEntity.position, new Vector3(0, 0, carryPos));
         }
+
+        this.countLabelDiv.textContent = this.carriedItems.length;
     }
 }
