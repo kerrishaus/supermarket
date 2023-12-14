@@ -4,10 +4,10 @@ import { EntityComponent } from "./EntityComponent.js";
 
 export class TriggerComponent extends EntityComponent
 {
-    init()
+    init(x = 2, y = 2, z = 2)
     {
         this.triggerGeometry = new Mesh(
-            new BoxGeometry(2, 2, 2), 
+            new BoxGeometry(x, y, z),
             new MeshStandardMaterial({ color: 0xff0000, transparent: true, opacity: 0.2 })
         );
 

@@ -18,6 +18,7 @@ import { TriggerComponent } from "./entity/components/TriggerComponent.js";
 import { ContainerComponent } from "./entity/components/ContainerComponent.js";
 import { GeometryComponent } from "./entity/components/GeometryComponent.js";
 import { GeneratorComponent } from "./entity/components/GeneratorComponent.js";
+import { CarryableComponent } from "./entity/components/CarryableComponent.js";
 
 export class Shop extends Group
 {
@@ -74,9 +75,9 @@ export class Shop extends Group
         this.availableTiles = [
             {
                 name: "Cash Register",
-                getTile: () => {
-
-                }
+                price: 50,
+                tile: null,
+                getTile: () => {}
             },
             {
                 name: "Tomato Stand",
@@ -97,7 +98,7 @@ export class Shop extends Group
                     tomatoStand.onTrigger = (object) => {
                         if (object instanceof Player)
                             tomatoContainer.transferFromCarrier(object);
-                    };
+                    }
 
                     scene.add(tomatoStand);
                     return tomatoStand;
@@ -118,12 +119,12 @@ export class Shop extends Group
 
                     tomatoPlantGenerator.createItem = () => { 
                         return new Tomato(tomatoPlant.position);
-                    };
+                    }
 
                     tomatoPlant.onTrigger = (object) => {
                         if (object instanceof Player)
                             tomatoPlantGenerator.transferToCarrier(object);
-                    };
+                    }
 
                     scene.add(tomatoPlant);
                     return tomatoPlant;
@@ -152,16 +153,16 @@ export class Shop extends Group
                     sodaMaker.addComponent(new GeometryComponent(
                         new BoxGeometry(1, 1, 2), 
                         new MeshStandardMaterial({ color: 0xff0000 })
-                    ));
+                    ))
 
                     sodaMachineGenerator.createItem = () => { 
                         return new SodaCan(sodaMaker.position);
-                    };
+                    }
 
                     sodaMaker.onTrigger = (object) => {
                         if (object instanceof Player)
                             sodaMachineGenerator.transferToCarrier(object);
-                    };
+                    }
 
                     scene.add(sodaMaker);
                     return sodaMaker;
@@ -185,7 +186,7 @@ export class Shop extends Group
                     sodaStand.onTrigger = (object) => {
                         if (object instanceof Player)
                             sodaContainer.transferFromCarrier(object);
-                    };
+                    }
 
                     scene.add(sodaStand);
                     return sodaStand;

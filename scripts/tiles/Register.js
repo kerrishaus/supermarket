@@ -1,19 +1,19 @@
 import { BoxGeometry, Vector3, TextureLoader, MeshStandardMaterial } from "https://kerrishaus.com/assets/threejs/build/three.module.js";
 
-import { Triggerable } from "../geometry/Triggerable.js";
 import { Player      } from "../Player.js";
 import { Customer    } from "../Customer.js";
 import { Employee    } from "../Employee.js";
 
 import { Entity             } from "../entity/Entity.js";
 import { CarryableComponent } from "../entity/components/CarryableComponent.js";
+import { TriggerComponent   } from "../entity/components/TriggerComponent.js";
 import { GeometryComponent  } from "../entity/components/GeometryComponent.js";
 
-export class Register extends Triggerable
+export class Register extends Entity
 {
-    constructor()
+    init()
     {
-        super(6, 2, 8, 4, 0xad723e);
+        this.addComponent();
 
         this.name = "register";
         
