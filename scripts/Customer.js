@@ -1,18 +1,26 @@
-import { BoxGeometry, MeshStandardMaterial, Vector3, Box3 } from "https://kerrishaus.com/assets/threejs/build/three.module.js";
+import { BoxGeometry, MeshStandardMaterial, Vector3 } from "https://kerrishaus.com/assets/threejs/build/three.module.js";
 
 import * as MathUtility from "./MathUtility.js";
 
-import { ItemCarrier } from "./ItemCarrier.js";
+import { Entity } from "./entity/Entity.js";
+import { ContainerComponent } from "./entity/components/ContainerComponent.js";
+import { GeometryComponent } from "./entity/components/GeometryComponent.js";
 
-export class Customer extends ItemCarrier
+export class Customer extends Entity
 {
-    constructor()
+    constructor(shop)
     {
-        const geometry = new BoxGeometry(1, 1, 2);
-        const material = new MeshStandardMaterial({color: 0xaabbcc});
-        
-        super(geometry, material);
-        
+        super();
+
+        this.addComponent(new ContainerComponent);
+
+        this.addComponent(new GeometryComponent(
+            new BoxGeometry(1, 1, 2),
+            new MeshStandardMaterial({ color: 0xaabbcc })
+        ));
+
+        this.shop = shop;
+
         this.elapsedTime = 0;
         this.actionTime = 3;
         this.startPosition = new Vector3(0, 0, 0);
@@ -21,6 +29,8 @@ export class Customer extends ItemCarrier
         this.waitTime = 0;
         this.leaveTime = 10; // in seconds
         this.mood = 0;
+
+        this.checkedOut = false;
         
         this.actions = new Array();
     }
@@ -29,12 +39,9 @@ export class Customer extends ItemCarrier
     {
         this.actions.push(action);
 
-        if (action.type == "buy")
-            console.log("buying from " + action.container.name + " amount " + action.amount);
-        
         console.debug("added action:" + action.type);
         
-        if (this.actions.length <= 1)
+        if (this.actions.length < 1)
             this.focusAction(action);
     }
     
@@ -48,11 +55,12 @@ export class Customer extends ItemCarrier
         }
         else if (action.type == "buy")
         {
+            console.log("buying from " + action.container.name + " amount " + action.amount);
             this.actionTime = this.position.distanceTo(action.container.position) / 4;
             this.setTarget(action.container.position, this.actionTime);
         }
             
-        console.debug("focused action:" + action.type);
+        console.debug("focused action:" + action.type, action);
     }
 
     nextAction()
@@ -81,6 +89,17 @@ export class Customer extends ItemCarrier
         this.targetPosition.copy(endPosition);
         this.actionTime = actionTime;
     }
+
+    findNearestRegister()
+    {
+        let closestRegister = null;
+        let closestRegisterPosition = 99999999999;
+        for (const register of shop.registerTiles)
+            if (this.position.distanceTo(register.position) < closestRegisterPosition)
+                closestRegister = register;
+
+        return closestRegister;
+    }
     
     update(deltaTime)
     {
@@ -96,8 +115,8 @@ export class Customer extends ItemCarrier
 
                     this.actions.length = 0;
 
-                    if (this.carriedItems.length > 0)
-                        this.pushAction({type: "move", position: this.registerPosition});
+                    if (this.getComponent("ContainerComponent").carriedItems.length > 0)
+                        this.pushAction({type: "move", position: this.findNearestRegister().position});
 
                     this.pushAction({type: "move", position: this.readyPosition});
                     this.pushAction({type: "move", position: this.spawnPosition});
@@ -110,16 +129,16 @@ export class Customer extends ItemCarrier
                         this.nextAction();
                     else if (this.actions[0].type == "buy")
                     {
-                        if (this.actions[0].container.carriedItems.length > 0)
+                        if (this.actions[0].container.getComponent("ContainerComponent").carriedItems.length > 0)
                         {
-                            this.actions[0].container.transferToCarrier(this);
+                            this.actions[0].container.getComponent("ContainerComponent").transferToCarrier(this);
                             
-                            console.log(`Picked up item ${this.carriedItems.length} of ${this.actions[0].amount}`);
+                            console.log(`Picked up item ${this.getComponent("ContainerComponent").carriedItems.length} of ${this.actions[0].amount}`);
 
                             this.mood += 1;
                             
                             // once they have all their items, start the next action
-                            if (this.carriedItems.length >= this.actions[0].amount)
+                            if (this.getComponent("ContainerComponent").carriedItems.length >= this.actions[0].amount)
                                 this.nextAction();
                         }
                         else // keep waiting for enough items to become available
