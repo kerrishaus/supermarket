@@ -119,8 +119,7 @@ export class Register extends Entity
         
         this.calculateGrid();
         
-        player.money += 5;
-        $("#money").html(player.money);
+        player.addMoney(5);
     }
     
     calculateGrid()

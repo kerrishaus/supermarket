@@ -1,8 +1,8 @@
 import { Vector3, Vector2, Mesh, SphereGeometry, MeshPhongMaterial, BoxGeometry, MeshStandardMaterial, Plane, Raycaster } from "https://kerrishaus.com/assets/threejs/build/three.module.js";
 
-import { Entity } from "./entity/Entity.js";
-
 import * as GeometryUtil from "./geometry/GeometryUtility.js";
+
+import { Entity } from "./entity/Entity.js";
 import { GeometryComponent } from "./entity/components/GeometryComponent.js";
 import { ContainerComponent } from "./entity/components/ContainerComponent.js";
 
@@ -77,6 +77,23 @@ export class Player extends Entity
             
             money.getComponent("CarryableComponent").updateTarget(this.position, new Vector3(0, 0, 0.5));
         }
+    }
+
+    setMoney(amount)
+    {
+        this.money = amount;
+        $("#money").html(player.money);
+        return this.money;
+    }
+
+    takeMoney(amount)
+    {
+        return this.setMoney(this.money - amount);
+    }
+
+    addMoney(amount)
+    {
+        return this.setMoney(this.money + amount);
     }
 
     disableMovement()

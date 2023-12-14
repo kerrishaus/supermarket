@@ -66,10 +66,9 @@ export class BuyableTile extends Triggerable
         
         this.carriedMoney.push(money);
         this.pricePaid += 1;
-        player.money -= 1;
+        player.takeMoney(1);
         
         this.label.element.textContent = this.price - this.pricePaid;
-        $("#money").html(player.money);
 
         if (this.pricePaid == this.price)
             this.onFullyPaid();
