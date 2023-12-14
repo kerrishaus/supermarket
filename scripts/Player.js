@@ -54,8 +54,6 @@ export class Player extends Entity
                 opacity: 0.7,
             })
         );
-
-        scene.add(this.moveTarget);
         
         this.plane = new Plane(new Vector3(0, 0, 0.5), 0);
 
@@ -72,6 +70,7 @@ export class Player extends Entity
         {
             if (money.getComponent("CarryableComponent").elapsedTime > money.getComponent("CarryableComponent").moveTime)
             {
+                console.log("destroying money");
                 money.destructor();
                 this.carriedMoney.splice(this.carriedMoney.indexOf(money), 1);
                 continue;
@@ -150,6 +149,8 @@ export class Player extends Entity
         player.pointerMoveOrigin.y = - ( event.touches[0].clientY / window.innerHeight ) * 2 + 1;
 
         player.move = player.MoveType.Touch;
+
+        scene.add(player.moveTarget);
     }
     
     mousedown(event)
@@ -161,6 +162,8 @@ export class Player extends Entity
         player.pointerMoveOrigin.y = - ( event.clientY / window.innerHeight ) * 2 + 1;
 
         player.move = player.MoveType.Mouse;
+
+        scene.add(player.moveTarget);
     }
 
     keydown(event)
@@ -183,6 +186,7 @@ export class Player extends Entity
                 break; // remove this when keyboard movement is allowed
                 player.move = MoveType.Keyboard;
                 player.moveTarget.quaternion.copy(player.quaternion);
+                scene.add(player.moveTarget);
                 break;
         };
     }
@@ -200,7 +204,7 @@ export class Player extends Entity
               player.keys["KeyA"] || player.keys["ArrowLeft"] ||
               player.keys["KeyS"] || player.keys["ArrowDown"] ||
               player.keys["KeyD"] || player.keys["ArrowRight"]))
-              player.move = null;
+              this.moveEnd();
     }
 
     moveEnd(event)
@@ -209,5 +213,7 @@ export class Player extends Entity
             return;
 
         player.move = null;
+
+        scene.remove(player.moveTarget);
     }
 };
