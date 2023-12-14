@@ -75,7 +75,8 @@ export class Player extends Entity
                 continue;
             }
             
-            money.getComponent("CarryableComponent").updateTarget(this.position, new Vector3(0, 0, 0.5));
+            if ('forPlayer' in money)
+                money.getComponent("CarryableComponent").updateTarget(this.position, new Vector3(0, 0, 0.5));
         }
     }
 

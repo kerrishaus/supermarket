@@ -20,6 +20,7 @@ import { TriggerComponent } from "./entity/components/TriggerComponent.js";
 import { ContainerComponent } from "./entity/components/ContainerComponent.js";
 import { GeometryComponent } from "./entity/components/GeometryComponent.js";
 import { GeneratorComponent } from "./entity/components/GeneratorComponent.js";
+import { CarryableComponent } from "./entity/components/CarryableComponent.js";
 
 export class Shop extends Group
 {
@@ -357,6 +358,21 @@ export class Shop extends Group
         //this.newTile.finishTile(this.newTile.tile);
 
         player.takeMoney(this.newTile.price);
+
+        for (let i = 0; i < this.newTile.price; i++)
+        {
+            const pos = this.newTile.tile.position.clone();
+
+            setTimeout(() => {
+                const money = GeometryUtil.createMoney();
+
+                money.position.copy(player.position);
+                money.getComponent("CarryableComponent").setTarget(pos, new Vector3(0, 0, 0));
+                
+                scene.add(money);
+                player.carriedMoney.push(money);
+            }, 5 * i);
+        }
 
         this.finallyTilePlacement();
     }

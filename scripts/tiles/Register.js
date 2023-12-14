@@ -1,5 +1,7 @@
 import { BoxGeometry, Vector3, TextureLoader, MeshStandardMaterial } from "https://kerrishaus.com/assets/threejs/build/three.module.js";
 
+import { createMoney } from "../geometry/GeometryUtility.js";
+
 import { Player      } from "../Player.js";
 import { Customer    } from "../Customer.js";
 import { Employee    } from "../Employee.js";
@@ -36,9 +38,6 @@ export class Register extends Entity
         this.moneyLength = 0.4;
         this.moneyWidth = 0.2;
         this.moneyThickness = 0.1;
-        
-        this.moneyTexture = new TextureLoader().load('textures/dollar_placeholder.jpeg');
-        this.moneyMaterial = new MeshStandardMaterial({ map: this.moneyTexture });
 
         this.waitingCustomers = new Map();
 
@@ -77,20 +76,14 @@ export class Register extends Entity
         super.update(deltaTime);
     }
     
-    addMoney(position = this.position)
+    addMoney()
     {
         this.calculateGrid();
         
-        const money = new Entity();
-        money.addComponent(new CarryableComponent);
-        money.addComponent(new GeometryComponent(
-            new BoxGeometry(this.moneyLength, this.moneyWidth, this.moneyThickness),
-            this.moneyMaterial
-        ));
-
-        money.dontTrigger = true;
+        const money = createMoney();
+        money.forPlayer   = true;
         
-        money.position.copy(position);
+        money.position.copy(this.position);
         money.getComponent("CarryableComponent").setTarget(this.position, new Vector3(this.column_ * this.moneyLength - 0.6 - 1,
                                                             this.row_ * this.moneyWidth - 0.5,
                                                             this.position.z - (this.scale.z / 2) + (this.layer_ * this.moneyThickness) + this.moneyThickness / 2));
