@@ -85,11 +85,14 @@ export class Shop extends Group
                 getTile: () => {
                     const register = new Register();
                     register.getComponent("TriggerComponent").triggerEnabled = false;
-                    for (let i = 0; i < 100; i++)
-                        register.addMoney();
                     this.registerTiles.push(register);
                     scene.add(register);
                     return register;
+                },
+                onAfterPlace: function() {
+                    console.log(this);
+                    for (let i = 0; i < 100; i++)
+                        this.tile.addMoney();
                 }
             },
             {
@@ -355,6 +358,8 @@ export class Shop extends Group
         }
 
         this.newTile.tile.getComponent("TriggerComponent").triggerEnabled = true;
+
+        this.newTile.onAfterPlace?.();
 
         player.takeMoney(this.newTile.price);
 
