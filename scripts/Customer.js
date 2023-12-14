@@ -40,9 +40,15 @@ export class Customer extends Entity
     {
         this.actions.push(action);
 
-        console.debug("added action:" + action.type);
+        console.debug("added action: " + action.type);
         
-        if (this.actions.length < 1)
+        // if there are no actions,
+        // focus this action immediately
+        // TODO: make this < 1
+        // it has to be <= because of a bug that causes customers to spawn in the middle of the store,
+        // then walk to their ready position,
+        // then do their shopping
+        if (this.actions.length <= 1)
             this.focusAction(action);
     }
     
@@ -71,10 +77,7 @@ export class Customer extends Entity
         this.actions.shift();
                 
         if (this.actions.length > 0)
-        {
             this.focusAction(this.actions[0]);
-            return; // prevents jumping to endPosition and then doing the movement
-        }
     }
     
     setTarget(endPosition, actionTime)

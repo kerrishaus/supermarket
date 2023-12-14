@@ -51,15 +51,7 @@ export class Employee extends Entity
     {
         this.actions.push(action);
 
-        /*
-        if (action.type == "move")
-        {
-            this.actionTime = this.position.distanceTo(action.position) / this.speedModifier;
-            this.setTarget(action.position, this.actionTime);
-        }
-        */
-        
-        console.debug("added action");
+        console.debug("added action: " + action.type);
         
         // if there are no actions,
         // focus this action immediately
@@ -71,26 +63,22 @@ export class Employee extends Entity
     {
         if (action.type == "move")
         {
-            console.log("moving to", action.position);
+            console.debug("moving to", action.position);
             this.actionTime = this.position.distanceTo(action.position) / this.speedModifier;
             this.setTarget(action.position, this.actionTime);
-
-            this.label.element.textContent = "moving";
         }
         else if (action.type == "pick")
         {
             this.actionTime = this.position.distanceTo(action.container.position) / this.speedModifier;
             this.setTarget(action.container.position, this.actionTime);
-
-            this.label.element.textContent = "picking";
         }
         else if (action.type == "stock")
         {
             this.actionTime = this.position.distanceTo(action.container.position) / this.speedModifier;
             this.setTarget(action.container.position, this.actionTime);
-
-            this.label.element.textContent = "stocking";
         } 
+
+        this.label.element.textContent = action.type;
         
         console.debug("focused action");
     }

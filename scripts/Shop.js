@@ -77,10 +77,12 @@ export class Shop extends Group
         this.availableTiles = [
             {
                 name: "Cash Register",
-                price: 50,
+                price: 0,
                 tile: null,
                 getTile: () => {
                     const register = new Register();
+                    for (let i = 0; i < 100; i++)
+                        register.addMoney();
                     this.registerTiles.push(register);
                     scene.add(register);
                     return register;
@@ -258,6 +260,12 @@ export class Shop extends Group
 
     beginTilePlacement(tile)
     {
+        if (player.money < tile.price)
+        {
+            console.log("Not enough money!");
+            return;
+        }
+
         document.dispatchEvent(new CustomEvent("closeBuyMenu"));
 
         if (this.newTile?.tile instanceof Entity)
@@ -324,6 +332,7 @@ export class Shop extends Group
 
     confirmTilePlacement()
     {
+        // tile must be an instanceof Entity, or something went wrong.
         if (!(this.newTile?.tile instanceof Entity))
         {
             console.error("Trying to finish tile placement, but newTile is invalid!", this.newTile);
@@ -331,14 +340,20 @@ export class Shop extends Group
             return false;
         }
 
-        if (this.newTile.tile.hasComponent("ContainerComponent"))
-            this.containerTiles.push(this.newTile.tile);
+        // TODO: a more elegant fix for this
+        if (!(this.newTile.tile instanceof RecycleBin))
+        {
+            if (this.newTile.tile.hasComponent("ContainerComponent"))
+                this.containerTiles.push(this.newTile.tile);
 
-        if (this.newTile.tile.hasComponent("GeneratorComponent"))
-            this.generatorTiles.push(this.newTile.tile);
+            if (this.newTile.tile.hasComponent("GeneratorComponent"))
+                this.generatorTiles.push(this.newTile.tile);
+        }
 
         this.newTile.tile.getComponent("TriggerComponent").triggerEnabled = true;
         //this.newTile.finishTile(this.newTile.tile);
+
+        player.takeMoney(this.newTile.price);
 
         this.finallyTilePlacement();
     }
@@ -377,7 +392,6 @@ export class Shop extends Group
     spawnCustomer()
     {
         let customer = new Customer(this);
-        scene.add(customer);
         customer.targetPosition.copy(this.spawnPosition);
         customer.position.copy(this.spawnPosition);
         customer.pushAction({type: "move", position: this.readyPosition});
@@ -418,6 +432,7 @@ export class Shop extends Group
         //customer.pushAction({type: "move", position: this.spawnPosition});
 
         this.addCustomer(customer);
+        scene.add(customer);
     }
 
     addEmployee(employee = null)
@@ -430,7 +445,7 @@ export class Shop extends Group
 
         this.employees.push(employee);
 
-        $("#employees").prepend("<div class='employee'>");
+        $("#employees").prepend("<div class='employee' data-employeeId='" + employee.uuid + "'>");
 
         console.log("added employee to shop");
 
