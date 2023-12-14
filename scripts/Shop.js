@@ -3,8 +3,9 @@ import { BoxGeometry, Vector3, Vector2, Raycaster, Plane, GridHelper, Group, Pla
 import * as GeometryUtil from "./geometry/GeometryUtility.js";
 import * as MathUtility from "./MathUtility.js";
 
-import { Door     } from "./Door.js";
-import { Register } from "./tiles/Register.js";
+import { Door       } from "./Door.js";
+import { Register   } from "./tiles/Register.js";
+import { RecycleBin } from "./tiles/RecycleBin.js";
 
 import { Tomato  } from "./items/Tomato.js";
 import { Ketchup } from "./items/Ketchup.js";
@@ -19,7 +20,6 @@ import { TriggerComponent } from "./entity/components/TriggerComponent.js";
 import { ContainerComponent } from "./entity/components/ContainerComponent.js";
 import { GeometryComponent } from "./entity/components/GeometryComponent.js";
 import { GeneratorComponent } from "./entity/components/GeneratorComponent.js";
-import { CarryableComponent } from "./entity/components/CarryableComponent.js";
 
 export class Shop extends Group
 {
@@ -199,6 +199,15 @@ export class Shop extends Group
                     return sodaStand;
                 }
             },
+            {
+                name: "Recycle Bin",
+                price: 100,
+                getTile: () => {
+                    const recycleBin = new RecycleBin();
+                    scene.add(recycleBin);
+                    return recycleBin;
+                }
+            },
             /*
             {
                 name: "Door",
@@ -369,8 +378,8 @@ export class Shop extends Group
     {
         let customer = new Customer(this);
         scene.add(customer);
-        customer.position.copy(this.spawnPosition);
         customer.targetPosition.copy(this.spawnPosition);
+        customer.position.copy(this.spawnPosition);
         customer.pushAction({type: "move", position: this.readyPosition});
 
         let atLeastOneTileSelected = false;
