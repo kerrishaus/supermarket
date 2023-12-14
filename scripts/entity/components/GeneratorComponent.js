@@ -113,7 +113,7 @@ export class GeneratorComponent extends EntityComponent
 
         // TODO: figure out if this check can be replaced with carrier instanceof ItemCarrier
         if (carrier instanceof Player || carrier instanceof Employee)
-            if (carrier.getComponent("ContainerComponent").carriedItems.length > carrier.getComponent("ContainerComponent").carryLimit)
+            if (carrier.getComponent("ContainerComponent").carriedItems.length > carrier.getComponent("ContainerComponent").maxItems)
                 return;
             
         const item = this.carriedItems[this.carriedItems.length - 1];

@@ -367,23 +367,19 @@ export class Shop extends Group
         this.employees = new Array();
         this.customers = new Array();
 
-        /*
-        this.maxCustomers                     = shopData.maxCustomers;
-        this.timeUntilNextCustomer            = shopData.timeUntilNextCustomer;
-        this.timeSinceLastCustomer            = shopData.timeSinceLastCustomer;
-        this.maxTimeUntilNextCustomer         = shopData.maxTimeUntilNextCustomer;
-        this.minTimeUntilNextCustomer         = shopData.minTimeUntilNextCustomer;
+        this.maxCustomers                     = 20;
+        this.timeUntilNextCustomer            = 14;
+        this.timeSinceLastCustomer            = 0;
+        this.maxTimeUntilNextCustomer         = 20;
+        this.minTimeUntilNextCustomer         = 7;
         this.customerWaitReputationMultiplier = 0.1;
 
-        this.lifeSales                        = shopData.lifeSales;
-        this.lifeCustomers                    = shopData.lifeCustomers;
-        this.lifeReputation                   = shopData.lifeReputation;
-        */
+        this.lifeSales                        = 0;
+        this.lifeCustomers                    = 0;
+        this.lifeReputation                   = 0;
 
         this.spawnPosition    = new Vector3(-4, 14, 0);
         this.readyPosition    = new Vector3(-4, 7, 0);
-        
-        //this.registerPosition = new Vector3(this.register.position.x, this.register.position.y + 2, 0);
     }
 
     beginTilePlacement(tile)
@@ -509,6 +505,7 @@ export class Shop extends Group
         let customer = new Customer(this);
         scene.add(customer);
         customer.position.copy(this.spawnPosition);
+        customer.targetPosition.copy(this.spawnPosition);
         customer.pushAction({type: "move", position: this.readyPosition});
 
         let atLeastOneTileSelected = false;
@@ -518,11 +515,11 @@ export class Shop extends Group
 
             if (chance > 50)
             {
-                const amount = MathUtility.getRandomInt(0, customer.carryLimit) + 1;
+                const amount = MathUtility.getRandomInt(0, customer.getComponent("ContainerComponent").maxItems) + 1;
 
-                if (amount > customer.carryLimit)
+                if (amount > customer.getComponent("ContainerComponent").maxItems)
                 {
-                    console.error(`Amount is greater than carry limit! Amount: ${amount} carryLimit: ${customer.carryLimit}`);
+                    console.error(`Amount is greater than carry limit! Amount: ${amount} maxItems: ${customer.getComponent("ContainerComponent").maxItems}`);
                     return;
                 }
                 else
@@ -538,10 +535,10 @@ export class Shop extends Group
             customer.pushAction({
                 type: "buy",
                 container: this.containerTiles[0],
-                amount: MathUtility.getRandomInt(0, customer.carryLimit) + 1
+                amount: MathUtility.getRandomInt(0, customer.getComponent("ContainerComponent").maxItems) + 1
             });
         
-        customer.pushAction({type: "move", position: this.registerPosition});
+        customer.pushAction({type: "move", position: customer.findNearestRegister().position});
         customer.pushAction({type: "waitToCheckout" });
         //customer.pushAction({type: "move", position: this.readyPosition});
         //customer.pushAction({type: "move", position: this.spawnPosition});
@@ -570,7 +567,7 @@ export class Shop extends Group
     {
         if (this.timeSinceLastCustomer > this.timeUntilNextCustomer)
         {
-            if (this.containerTiles.length > 0 && this.customers.length < this.maxCustomers)
+            if (this.registerTiles.length > 0 && this.containerTiles.length > 0 && this.customers.length < this.maxCustomers)
             {
                 this.spawnCustomer();
 
@@ -596,7 +593,7 @@ export class Shop extends Group
             // TODO: make sure the customer actually made it to the register
             if (customer.actions.length <= 0)
             {
-                for (const carriedItem of customer.carriedItems)
+                for (const carriedItem of customer.getComponent("ContainerComponent").carriedItems)
                     carriedItem.destructor();
 
                 this.updateReputation(customer.mood);
@@ -615,8 +612,8 @@ export class Shop extends Group
 
                 customer.actions.length = 0;
 
-                if (customer.carriedItems.length > 0)
-                    customer.pushAction({type: "move", position: this.registerPosition});
+                if (customer.getComponent("ContainerComponent").carriedItems.length > 0)
+                    customer.pushAction({type: "move", position: customer.findNearestRegister().position});
 
                 customer.pushAction({type: "move", position: this.readyPosition});
                 customer.pushAction({type: "move", position: this.spawnPosition});

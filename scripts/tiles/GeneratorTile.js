@@ -104,7 +104,7 @@ export class GeneratorTile extends Triggerable
 
         // TODO: figure out if this check can be replaced with carrier instanceof ItemCarrier
         if (carrier instanceof Player || carrier instanceof Employee)
-            if (carrier.carriedItems.length > carrier.carryLimit)
+            if (carrier.carriedItems.length > carrier.maxLi)
                 return;
             
         const item = this.carriedItems[this.carriedItems.length - 1];

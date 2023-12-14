@@ -4,16 +4,22 @@ import { CSS2DObject } from "https://kerrishaus.com/assets/threejs/examples/jsm/
 
 import * as MathUtility from "./MathUtility.js";
 
-import { ItemCarrier } from "./ItemCarrier.js";
+import { Entity } from "./entity/Entity.js";
+import { ContainerComponent } from "./entity/components/ContainerComponent.js";
+import { GeometryComponent } from "./entity/components/GeometryComponent.js";
 
-export class Employee extends ItemCarrier
+export class Employee extends Entity
 {
     constructor(shop)
     {
-        super(
+        super();
+
+        this.addComponent(new ContainerComponent);
+
+        this.addComponent(new GeometryComponent(
             new BoxGeometry(1, 1, 2),
             new MeshStandardMaterial({color: 0x42b6f5})
-        );
+        ));
 
         this.shop = shop;
 
@@ -88,7 +94,7 @@ export class Employee extends ItemCarrier
         
         console.debug("focused action");
     }
-ch
+
     nextAction()
     {
         console.debug("action complete");
@@ -159,22 +165,22 @@ ch
                         this.nextAction();   
                     else if (action.type == "pick")
                     {
-                        action.container.transferToCarrier(this);
+                        action.container.getComponent("ContainerComponent").transferToCarrier(this);
 
                         // go to next action if we are carrying as much as we can OR
                         // if the container is now empty.
-                        if (this.carriedItems.length >= this.carryLimit ||
-                            action.container.carriedItems.length <= 0)
+                        if (this.getComponent("ContainerComponent").carriedItems.length >= this.getComponent("ContainerComponent").maxItems ||
+                            action.container.getComponent("ContainerComponent").carriedItems.length <= 0)
                             this.nextAction();
                     }
                     else if (action.type == "stock")
                     {
-                        action.container.transferFromCarrier(this);
+                        action.container.getComponent("ContainerComponent").transferFromCarrier(this);
 
                         // go to next action after stocking all carried items
-                        if (this.carriedItems.length <= 0)
+                        if (this.getComponent("ContainerComponent").carriedItems.length <= 0)
                         {
-                            action.container.handledByEmployee = null;
+                            action.container.getComponent("ContainerComponent").handledByEmployee = null;
                             this.nextAction();
                         }
                     }
@@ -204,8 +210,10 @@ ch
                 let lowestContainer = null;
 
                 // looks for the container with the lowest items, in order to fill it
-                for (const container of this.shop.containerTiles)
+                for (let container of this.shop.containerTiles)
                 {
+                    container = container.getComponent("ContainerComponent");
+
                     // TODO: change this to a not null check
                     if (container.handledByEmployee instanceof Employee)
                         continue;
@@ -243,9 +251,9 @@ ch
             }
         }
 
-        super.update(deltaTime);
-
         this.elapsedTime += deltaTime;
+
+        super.update(deltaTime);
     }
 };
 

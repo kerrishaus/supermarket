@@ -48,23 +48,23 @@ export class Register extends Entity
     
     update(deltaTime)
     {
-        super.update(deltaTime);
-
         if (this.waitingCustomers.size > 0 && (this.playerIsInContact || this.employeeIsInContact))
         {
             console.log("taking care of customers at the register");
-
+            
             // TODO: don't do this all in one go in the future
-
+            
             this.waitingCustomers.forEach((customer, uuid, map) => 
             {
-                console.log("selling " + customer.carriedItems.length + " items");
-
-                for (let i = 0; i < customer.carriedItems.length; i++)
+                console.log("selling " + customer.getComponent("ContainerComponent").carriedItems.length + " items");
+                
+                for (let i = 0; i < customer.getComponent("ContainerComponent").carriedItems.length; i++)
                     this.addMoney(customer.position);
 
                 this.waitingCustomers.delete(uuid);
 
+                customer.checkedOut = true;
+                
                 // FIXME: this is a hack to stop customers from freezing in place.
                 // if you're in the register trigger at the same time that a customer
                 // is added to the waitingCustomers list, they will freeze.
@@ -75,9 +75,11 @@ export class Register extends Entity
                 // their current action should be waitToCheckout
                 customer.nextAction();
             });
-
+            
             $("#waitingCustomers").text(this.waitingCustomers.size);
         }
+
+        super.update(deltaTime);
     }
     
     addMoney(position = this.position)
@@ -166,14 +168,15 @@ export class Register extends Entity
             }
 
         if (object instanceof Customer)
-            if (!this.waitingCustomers.has(object.uuid))
-            {
-                console.log("customer is now waiting to check out");
-                
-                this.waitingCustomers.set(object.uuid, object);
+            if (!object.checkedOut)
+                if (!this.waitingCustomers.has(object.uuid))
+                {
+                    console.log("customer is now waiting to check out");
+                    
+                    this.waitingCustomers.set(object.uuid, object);
 
-                $("#waitingCustomers").text(this.waitingCustomers.size);
-            }
+                    $("#waitingCustomers").text(this.waitingCustomers.size);
+                }
     }
     
     onStopTrigger(object)

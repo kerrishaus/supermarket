@@ -1,6 +1,7 @@
 import { Vector3 } from "https://kerrishaus.com/assets/threejs/build/three.module.js";
 
 import { Player } from "../../Player.js";
+import { Customer } from "../../Customer.js";
 
 import { EntityComponent } from "./EntityComponent.js";
 
@@ -58,9 +59,9 @@ export class ContainerComponent extends EntityComponent
         if (this.carriedItems.length <= 0)
             return;
 
-        if (carrier.getComponent("ContainerComponent").carriedItems.length > carrier.carryLimit)
+        if (carrier.getComponent("ContainerComponent").carriedItems.length > carrier.maxItems)
         {
-            console.warn(`Carrier has too many items! Carrying: ${carrier.getComponent("ContainerComponent").carriedItems.length}, Limit: ${carrier.getComponent("ContainerComponent").carryLimit}`);
+            console.warn(`Carrier has too many items! Carrying: ${carrier.getComponent("ContainerComponent").carriedItems.length}, Limit: ${carrier.getComponent("ContainerComponent").maxItems}`);
             return;
         }
 

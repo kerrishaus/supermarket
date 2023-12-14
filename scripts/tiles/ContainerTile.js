@@ -57,9 +57,9 @@ export class ContainerTile extends Triggerable
         if (this.carriedItems.length <= 0)
             return;
 
-        if (carrier.carriedItems.length > carrier.carryLimit)
+        if (carrier.getComponent("ContainerComponent").carriedItems.length > carrier.maxItems)
         {
-            console.warn(`Carrier has too many items! Carrying: ${carrier.carriedItems.length}, Limit: ${carrier.carryLimit}`);
+            console.warn(`Carrier has too many items! Carrying: ${carrier.carriedItems.length}, Limit: ${carrier.getComponent("ContainerComponent").maxI}`);
             return;
         }
 
@@ -68,7 +68,7 @@ export class ContainerTile extends Triggerable
             this.carriedItems[0].getComponent("CarryableComponent").setTarget(carrier.position, new Vector3(0, 0, 0));
             this.carriedItems[0].autoPositionAfterAnimation = false;
 
-            carrier.carriedItems.push(this.carriedItems[0]);
+            carrier.getComponent("ContainerComponent").carriedItems.push(this.carriedItems[0]);
             this.carriedItems.shift();
 
             this.calculateGrid();
