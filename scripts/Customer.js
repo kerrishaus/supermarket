@@ -12,7 +12,8 @@ export class Customer extends Entity
     {
         super();
 
-        this.addComponent(new ContainerComponent);
+        let containerComponent = this.addComponent(new ContainerComponent);
+        containerComponent.maxItems = 4;
 
         this.addComponent(new GeometryComponent(
             new BoxGeometry(1, 1, 2),
