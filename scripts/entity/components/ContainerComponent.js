@@ -13,6 +13,7 @@ export class ContainerComponent extends EntityComponent
         this.maxItems = 9;
 
         this.name     = null;
+        // if item type is not specified, the container will take any itemtype
         this.itemType = null;
 
         this.lifeSales = 0;
@@ -41,7 +42,8 @@ export class ContainerComponent extends EntityComponent
         
         for (const item of carrier.getComponent("ContainerComponent").carriedItems)
         {
-            if (item.type == this.itemType)
+            // if the item is not specified, it will take any item
+            if (item.type == (this.itemType ?? item.type))
             {
                 carrier.getComponent("ContainerComponent").carriedItems.splice(carrier.getComponent("ContainerComponent").carriedItems.indexOf(item), 1);
                 this.carriedItems.push(item);
