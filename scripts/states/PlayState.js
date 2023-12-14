@@ -342,55 +342,6 @@ export class PlayState extends State
                 });
             }
 
-            /*
-            if (object instanceof Triggerable)
-            {
-                // first check if the player intersects this object
-                if (player.box.intersectsBox(object.trigger))
-                    object.onTrigger(player);
-                else if (object.triggeringObjects.includes(player))
-                    object.onStopTrigger(player);
-
-                // then check if any customers intersect this object
-                for (const customer of shop.customers)
-                {
-                    // customer intersects with Triggerable's trigger
-                    if (object.trigger.intersectsBox(customer.box))
-                    {
-                        // object is not currently triggered by the customer
-                        if (!object.triggeringObjects.includes(customer))
-                            object.onTrigger(customer);
-                    }
-                    // customer is not intersecting with this trigger
-                    else
-                    {
-                        // if this trigger is triggered by the customer, stop triggering
-                        if (object.triggeringObjects.includes(customer))
-                            object.onStopTrigger(customer);
-                    }
-                }
-
-                // finally check if any employees intersect this object
-                for (const employee of shop.employees)
-                {
-                    // employee intersects with Triggerable's trigger
-                    if (object.trigger.intersectsBox(employee.box))
-                    {
-                        // object is not currently triggered by the employee
-                        if (!object.triggeringObjects.includes(employee))
-                            object.onTrigger(employee);
-                    }
-                    // employee is not intersecting with this trigger
-                    else
-                    {
-                        // if this trigger is triggered by the employee, stop triggering
-                        if (object.triggeringObjects.includes(employee))
-                            object.onStopTrigger(employee);
-                    }
-                }
-            }
-            */
-
             if ('update' in object)
                 object.update(deltaTime);
         });

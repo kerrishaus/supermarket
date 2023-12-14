@@ -53,7 +53,7 @@ export class Door extends Entity
         this.rightDoor.add(createCube(new Vector3(1.6, 0.1, 0.2), new Vector3(0, -0.55, -1.65), 0x919191));
         
         // the black "void" behind the doors
-        this.add(createCube(new Vector3(4, 1, 3.5), new Vector3(0, 0.005, 0), 0x000000));
+        this.add(createCube(new Vector3(4, 1, 3.5), new Vector3(0, 0.0005, 0), 0x000000));
 
         this.position.copy(position);
     }

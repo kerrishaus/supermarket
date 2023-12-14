@@ -69,7 +69,7 @@ export class Shop extends Group
         //const backroomFloor = new RigidBodyCube(new Vector3(shopWidth, shopLength / 2, wallThickness), 0x878787, new Vector3(0, -15, -1), new Quaternion(), 0);
         //scene.add(backroomFloor);
 
-        this.doors = new Door(new Vector3(-4.1, northWall.position.y - 0.01, 1.25), 0x0000ff);
+        this.doors = new Door(new Vector3(-4.1, northWall.position.y - 0.001, 1.25), 0x0000ff);
         scene.add(this.doors);
 
         this.containerTiles = new Array();
