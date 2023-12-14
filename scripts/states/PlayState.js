@@ -324,7 +324,8 @@ export class PlayState extends State
                 {
                     if (object2 == object ||
                         object2.parentEntity == object ||
-                        object.parentEntity == object2)
+                        object.parentEntity == object2 ||
+                        object2.dontTrigger)
                         return;
 
                     if (object2 instanceof Entity && object2.hasComponent("GeometryComponent"))
