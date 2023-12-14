@@ -312,11 +312,6 @@ export class PlayState extends State
             camera.lookAt(player.position);
         }
 
-        // this only checks if
-        // - players
-        // - customers
-        // - employees
-        // are in the trigger zone of an object
         scene.traverse((object) =>
         {
             // if the object is a trigger, check if any geometry boxes are within it

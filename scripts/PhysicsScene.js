@@ -9,6 +9,19 @@ export class PhysicsScene extends Scene
         super();
     }
 
+    // this is a very important override of Object3D#traverse,
+    // becasue it prevents traverse from being called on children
+    // which may no longer exist in the scene.
+    traverse = function(callback)
+    {
+        callback(this);
+
+        const children = this.children;
+
+        for (let i = 0, l = children.length; i < l; i++)
+            children[i]?.traverse(callback);
+    }
+
     add(object)
     {
         super.add(object);
