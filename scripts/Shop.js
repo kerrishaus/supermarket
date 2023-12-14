@@ -99,9 +99,7 @@ export class Shop extends Group
                     const tomatoStand     = new Entity();
                     const tomatoTrigger   = tomatoStand.addComponent(new TriggerComponent);
                     tomatoTrigger.triggerEnabled = false;
-                    const tomatoContainer = tomatoStand.addComponent(new ContainerComponent);
-                    tomatoContainer.name = "Tomato Stand";
-                    tomatoContainer.itemType = "tomato";
+                    const tomatoContainer = tomatoStand.addComponent(new ContainerComponent("Tomato Stand", "tomato"));
                     tomatoStand.addComponent(new GeometryComponent(
                         new BoxGeometry(1.5, 1.5, 1), 
                         new MeshStandardMaterial({ color: 0xff0000 })
@@ -163,7 +161,7 @@ export class Shop extends Group
                     const sodaMakerTrigger = sodaMaker.addComponent(new TriggerComponent);
                     sodaMakerTrigger.triggerEnabled = false;
 
-                    const sodaMachineGenerator = sodaMaker.addComponent(new GeneratorComponent("Soda Maker", "soda"));
+                    const sodaMachineGenerator = sodaMaker.addComponent(new GeneratorComponent("Soda Maker", "sodaCan"));
                     sodaMaker.addComponent(new GeometryComponent(
                         new BoxGeometry(1, 1, 2), 
                         new MeshStandardMaterial({ color: 0xff0000 })
@@ -189,9 +187,7 @@ export class Shop extends Group
                     const sodaStand     = new Entity();
                     const sodaTrigger   = sodaStand.addComponent(new TriggerComponent);
                     sodaTrigger.triggerEnabled = false;
-                    const sodaContainer = sodaStand.addComponent(new ContainerComponent);
-                    sodaContainer.name = "Soda Stand";
-                    sodaContainer.itemType = "sodaCan";
+                    const sodaContainer = sodaStand.addComponent(new ContainerComponent("Soda Stand", "sodaCan"));
                     sodaStand.addComponent(new GeometryComponent(
                         new BoxGeometry(1.5, 1.5, 1), 
                         new MeshStandardMaterial({ color: 0xff0000 })
@@ -260,8 +256,8 @@ export class Shop extends Group
         this.lifeCustomers                    = 0;
         this.lifeReputation                   = 0;
 
-        this.spawnPosition    = new Vector3(-4, 14, 0);
-        this.readyPosition    = new Vector3(-4, 7, 0);
+        this.spawnPosition    = new Vector3(-4, 14, 0.5);
+        this.readyPosition    = new Vector3(-4, 7, 0.5);
     }
 
     beginTilePlacement(tile)
@@ -399,9 +395,10 @@ export class Shop extends Group
     spawnCustomer()
     {
         let customer = new Customer(this);
+        customer.startPosition.copy(this.spawnPosition);
         customer.targetPosition.copy(this.spawnPosition);
         customer.position.copy(this.spawnPosition);
-        customer.pushAction({type: "move", position: this.readyPosition});
+        customer.pushAction({ type: "move", position: this.readyPosition, debug: "to ready position" });
 
         let atLeastOneTileSelected = false;
         for (const containerTile of this.containerTiles)
@@ -433,8 +430,9 @@ export class Shop extends Group
                 amount: MathUtility.getRandomInt(0, customer.getComponent("ContainerComponent").maxItems) + 1
             });
         
-        customer.pushAction({type: "move", position: customer.findNearestRegister().position});
-        customer.pushAction({type: "waitToCheckout" });
+        customer.pushAction({ type: "move", position: customer.findNearestRegister().position, debug: "to register" });
+        customer.pushAction({ type: "waitToCheckout" });
+
         //customer.pushAction({type: "move", position: this.readyPosition});
         //customer.pushAction({type: "move", position: this.spawnPosition});
 

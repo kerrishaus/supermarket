@@ -7,14 +7,14 @@ import { EntityComponent } from "./EntityComponent.js";
 
 export class ContainerComponent extends EntityComponent
 {
-    init()
+    init(name = null, itemType = null)
     {
         this.carriedItems = new Array();
         this.maxItems = 9;
 
-        this.name     = null;
+        this.name     = name;
         // if item type is not specified, the container will take any itemtype
-        this.itemType = null;
+        this.itemType = itemType;
 
         this.lifeSales = 0;
 

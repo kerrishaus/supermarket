@@ -65,15 +65,10 @@ export class Register extends Entity
 
                 customer.checkedOut = true;
                 
-                // FIXME: this is a hack to stop customers from freezing in place.
-                // if you're in the register trigger at the same time that a customer
-                // is added to the waitingCustomers list, they will freeze.
+                // clear the customer's actions and then set it to leave
                 customer.actions.length = 0;
-                customer.pushAction({type: "move", position: shop.readyPosition});
-                customer.pushAction({type: "move", position: shop.spawnPosition});
-
-                // their current action should be waitToCheckout
-                customer.nextAction();
+                customer.pushAction({ type: "move", position: shop.readyPosition, debug: "to ready position" });
+                customer.pushAction({ type: "move", position: shop.spawnPosition, debug: "to spawn position"});
             });
             
             $("#waitingCustomers").text(this.waitingCustomers.size);

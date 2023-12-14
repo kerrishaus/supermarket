@@ -1,5 +1,7 @@
 import { BoxGeometry, MeshStandardMaterial, Vector3 } from "https://kerrishaus.com/assets/threejs/build/three.module.js";
 
+import { CSS2DObject } from "https://kerrishaus.com/assets/threejs/examples/jsm/renderers/CSS2DRenderer.js";
+
 import * as MathUtility from "./MathUtility.js";
 
 import { Entity } from "./entity/Entity.js";
@@ -34,22 +36,38 @@ export class Customer extends Entity
         this.checkedOut = false;
         
         this.actions = new Array();
+
+        this.labelDiv = document.createElement("div");
+        this.labelDiv.textContent = "i am in pain";
+
+        const label = new CSS2DObject(this.labelDiv);
+        label.color = "white";
+        this.add(label);
+    }
+
+    // TODO: the label should automatically be destroyed when Customer is destroyed
+    destructor()
+    {
+        this.remove(label);
     }
 
     pushAction(action)
     {
-        this.actions.push(action);
-
-        console.debug("added action: " + action.type);
-        
         // if there are no actions,
         // focus this action immediately
         // TODO: make this < 1
         // it has to be <= because of a bug that causes customers to spawn in the middle of the store,
         // then walk to their ready position,
         // then do their shopping
-        if (this.actions.length <= 1)
+        if (this.actions.length < 1)
+        {
+            console.debug("focused action because there are no other actions", action);
             this.focusAction(action);
+        }
+
+        this.actions.push(action);
+
+        console.debug("added action: " + action.type, action);
     }
     
     focusAction(action)
@@ -107,6 +125,8 @@ export class Customer extends Entity
     
     update(deltaTime)
     {
+        this.labelDiv.textContent = this.actions[0]?.debug ?? "no debug info";
+
         if (this.elapsedTime > this.actionTime)
         {
             if (this.actions.length > 0)
@@ -120,10 +140,7 @@ export class Customer extends Entity
                     this.actions.length = 0;
 
                     if (this.getComponent("ContainerComponent").carriedItems.length > 0)
-                        this.pushAction({type: "move", position: this.findNearestRegister().position});
-
-                    this.pushAction({type: "move", position: this.readyPosition});
-                    this.pushAction({type: "move", position: this.spawnPosition});
+                        this.pushAction({type: "move", position: this.findNearestRegister().position, debug: "angrily move to the register" });
 
                     this.mood -= 8;
                 }

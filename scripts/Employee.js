@@ -33,8 +33,8 @@ export class Employee extends Entity
         // actionTime is the amount of time it will take to get
         // from the current position to the position of the action
         this.actionTime = 0;
-        this.startPosition = new Vector3(0, 0, 0);
-        this.targetPosition = new Vector3(0, 0, 0);
+        this.startPosition = new Vector3(0, 0, 0.5);
+        this.targetPosition = new Vector3(0, 0, 0.5);
 
         this.labelDiv = document.createElement("div");
         this.labelDiv.textContent = "i am in pain";
@@ -46,14 +46,17 @@ export class Employee extends Entity
 
     pushAction(action)
     {
-        this.actions.push(action);
-
-        console.debug("added action: " + action.type);
-        
         // if there are no actions,
         // focus this action immediately
         if (this.actions.length < 1)
+        {
+            console.debug("focused action because there are no other actions", action);
             this.focusAction(action);
+        }
+        
+        this.actions.push(action);
+
+        console.debug("added action: " + action.type, action);
     }
     
     focusAction(action)
@@ -150,12 +153,12 @@ export class Employee extends Entity
                         this.nextAction();   
                     else if (action.type == "pick")
                     {
-                        action.container.getComponent("ContainerComponent").transferToCarrier(this);
+                        action.container.getComponent("GeneratorComponent").transferToCarrier(this);
 
                         // go to next action if we are carrying as much as we can OR
                         // if the container is now empty.
                         if (this.getComponent("ContainerComponent").carriedItems.length >= this.getComponent("ContainerComponent").maxItems ||
-                            action.container.getComponent("ContainerComponent").carriedItems.length <= 0)
+                            action.container.getComponent("GeneratorComponent").carriedItems.length <= 0)
                             this.nextAction();
                     }
                     else if (action.type == "stock")
@@ -183,21 +186,22 @@ export class Employee extends Entity
         }
         else // no more actions, find a new one
         {
-            /*
-            if (this.shop.register.waitingCustomers.size > 0 && this.canCheckoutCustomers)
+            if (this.canCheckoutCustomers)
             {
-                console.log("moving to checkout customers");
-                this.pushAction({type: "move", position: this.shop.registerPosition});
+                for (const register of this.shop.registerTiles)
+                {
+                    console.log("moving to checkout customers");
+                    this.pushAction({ type: "move", position: register.position });
+                }
             }
             else // nobody is waiting at the register
-            */
             {
                 let lowestContainer = null;
 
-                // looks for the container with the lowest items, in order to fill it
-                for (let container of this.shop.containerTiles)
+                // looks for container with least items
+                for (const tile of this.shop.containerTiles)
                 {
-                    container = container.getComponent("ContainerComponent");
+                    const container = tile.getComponent("ContainerComponent");
 
                     // TODO: change this to a not null check
                     if (container.handledByEmployee instanceof Employee)
@@ -206,29 +210,34 @@ export class Employee extends Entity
                     if (container.carriedItems.length < container.maxItems)
                     {
                         if (lowestContainer === null)
-                            lowestContainer = container;
+                            lowestContainer = tile;
 
-                        if (container.carriedItems.length < lowestContainer.carriedItems.length)
-                            lowestContainer = container;
+                        if (container.carriedItems.length < lowestContainer.getComponent("ContainerComponent").carriedItems.length)
+                            lowestContainer = tile;
                     }
                 }
 
+                // now look for generator with highest count of desired item
                 if (lowestContainer !== null)
                 {
                     let highestGenerator = null;
                     
-                    for (const generator of this.shop.generatorTiles)
-                        if (generator.itemType == lowestContainer.itemType)
+                    for (const tile of this.shop.generatorTiles)
+                    {
+                        const generator = tile.getComponent("GeneratorComponent");
+
+                        if (generator.itemType == lowestContainer.getComponent("ContainerComponent").itemType)
                         {
-                            if (generator.carriedItems.length <= 0)
+                            if (generator.carriedItems.length < 1)
                                 continue;
 
                             if (highestGenerator === null)
-                                highestGenerator = generator;
+                                highestGenerator = tile;
 
-                            if (generator.carriedItems.length > highestGenerator.carriedItems.length)
-                                highestGenerator = generator;
+                            if (generator.carriedItems.length > highestGenerator.getComponent("GeneratorComponent").carriedItems.length)
+                                highestGenerator = tile;
                         }
+                    }
 
                     if (highestGenerator !== null)
                         this.gatherItemsFromAndTakeTo(highestGenerator, lowestContainer);

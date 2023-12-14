@@ -2,7 +2,8 @@ import { BoxGeometry, MeshStandardMaterial, Vector3 } from "https://kerrishaus.c
 
 import { CSS2DObject } from "https://kerrishaus.com/assets/threejs/examples/jsm/renderers/CSS2DRenderer.js";
 
-import { Player          } from "../../Player.js";
+import { Player   } from "../../Player.js";
+import { Employee } from "../../Employee.js";
 
 import { Entity             } from "../Entity.js";
 import { EntityComponent    } from "./EntityComponent.js";
