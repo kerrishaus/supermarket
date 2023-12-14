@@ -355,7 +355,6 @@ export class Shop extends Group
         }
 
         this.newTile.tile.getComponent("TriggerComponent").triggerEnabled = true;
-        //this.newTile.finishTile(this.newTile.tile);
 
         player.takeMoney(this.newTile.price);
 
