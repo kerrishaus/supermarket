@@ -4,9 +4,11 @@ import { ModelComponent     } from "../entity/components/ModelComponent.js";
 
 export class Tomato extends Entity
 {
-    constructor()
+    constructor(position)
     {
         super();
+
+        this.position.copy(position);
 
         this.addComponent(new ModelComponent("tomato"));
         this.addComponent(new CarryableComponent);

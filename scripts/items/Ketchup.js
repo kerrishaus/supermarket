@@ -4,9 +4,11 @@ import { ModelComponent     } from "../entity/components/ModelComponent.js";
 
 export class Ketchup extends Entity
 {
-    constructor()
+    constructor(position)
     {
         super();
+
+        this.position.copy(position);
 
         this.addComponent(new ModelComponent("bottleKetchup"));
         this.addComponent(new CarryableComponent);

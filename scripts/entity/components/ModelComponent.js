@@ -13,7 +13,8 @@ export class ModelComponent extends EntityComponent
         this.model = getModel(modelName);
         this.model.rotation.x = 1.5708;
         this.model.scale.copy(size ?? new Vector3(1, 1, 1));
-        scene.add(this.model);
+
+        this.parentEntity.add(this.model);
     }
 
     destructor()
@@ -28,6 +29,5 @@ export class ModelComponent extends EntityComponent
         super.update(deltaTime);
 
         this.model.rotation.y += 0.01;
-        this.model.position.copy(this.parentEntity.position);
     }
 }
