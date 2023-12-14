@@ -23,6 +23,8 @@ export class TriggerComponent extends EntityComponent
         this.triggeringEntities           = [];
 
         this.triggerEnabled = true;
+
+        this.triggered = false;
     }
 
     destructor()
@@ -41,7 +43,8 @@ export class TriggerComponent extends EntityComponent
         if (!this.triggerEnabled)
             return;
 
-        this.triggerGeometry.material.color.setHex(this.triggeringEntities.length > 0 ? 0x0ff00 : 0xff0000);
+        this.triggered = this.triggeringEntities.length > 0;
+        this.triggerGeometry.material.color.setHex(this.triggered > 0 ? 0x0ff00 : 0xff0000);
 
         // TODO: maybe skip all this if both triggering arrays are empty
         // TODO: when object.trigger?.(this.parentEntity)
