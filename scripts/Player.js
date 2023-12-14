@@ -70,7 +70,6 @@ export class Player extends Entity
         {
             if (money.getComponent("CarryableComponent").elapsedTime > money.getComponent("CarryableComponent").moveTime)
             {
-                console.log("destroying money");
                 money.destructor();
                 this.carriedMoney.splice(this.carriedMoney.indexOf(money), 1);
                 continue;

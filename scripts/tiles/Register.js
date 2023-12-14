@@ -11,9 +11,16 @@ import { GeometryComponent  } from "../entity/components/GeometryComponent.js";
 
 export class Register extends Entity
 {
-    init()
+    constructor()
     {
-        this.addComponent();
+        super();
+
+        const trigger = this.addComponent(new TriggerComponent(7, 3, 2));
+
+        this.addComponent(new GeometryComponent(
+            new BoxGeometry(6, 2, 1), 
+            new MeshStandardMaterial({ color: 0xB27641 })
+        )).mesh.position.z -= 0.5;
 
         this.name = "register";
         
@@ -83,11 +90,13 @@ export class Register extends Entity
             new BoxGeometry(this.moneyLength, this.moneyWidth, this.moneyThickness),
             this.moneyMaterial
         ));
+
+        money.dontTrigger = true;
         
         money.position.copy(position);
         money.getComponent("CarryableComponent").setTarget(this.position, new Vector3(this.column_ * this.moneyLength - 0.6 - 1,
                                                             this.row_ * this.moneyWidth - 0.5,
-                                                            (this.scale.z / 2) + (this.layer_ * this.moneyThickness) + this.moneyThickness / 2));
+                                                            this.position.z - (this.scale.z / 2) + (this.layer_ * this.moneyThickness) + this.moneyThickness / 2));
         
         scene.add(money);
         this.money.push(money);
@@ -138,8 +147,6 @@ export class Register extends Entity
     
     onTrigger(object)
     {
-        super.onTrigger(object);
-
         if (object instanceof Player)
         {
             this.transferMoney(object);
@@ -171,12 +178,16 @@ export class Register extends Entity
     
     onStopTrigger(object)
     {
-        super.onStopTrigger(object);
-
         if (object instanceof Player)
+        {
+            console.log("player has left the register");
             this.playerIsInContact = false;
+        }
 
         if (object instanceof Employee)
+        {
+            console.log("employee has left the register");
             this.employeeIsInContact = false;
+        }
     }
 };

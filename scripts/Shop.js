@@ -3,7 +3,8 @@ import { BoxGeometry, Vector3, Vector2, Raycaster, Plane, GridHelper, Group, Pla
 import * as GeometryUtil from "./geometry/GeometryUtility.js";
 import * as MathUtility from "./MathUtility.js";
 
-import { Door        } from "./Door.js";
+import { Door     } from "./Door.js";
+import { Register } from "./tiles/Register.js";
 
 import { Tomato  } from "./items/Tomato.js";
 import { Ketchup } from "./items/Ketchup.js";
@@ -71,13 +72,19 @@ export class Shop extends Group
 
         this.containerTiles = new Array();
         this.generatorTiles = new Array();
+        this.registerTiles  = new Array();
 
         this.availableTiles = [
             {
                 name: "Cash Register",
                 price: 50,
                 tile: null,
-                getTile: () => {}
+                getTile: () => {
+                    const register = new Register();
+                    this.registerTiles.push(register);
+                    scene.add(register);
+                    return register;
+                }
             },
             {
                 name: "Tomato Stand",
