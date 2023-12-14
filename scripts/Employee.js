@@ -39,7 +39,7 @@ export class Employee extends Entity
         this.labelDiv = document.createElement("div");
         this.labelDiv.textContent = "i am in pain";
 
-        const label = new CSS2DObject(this.blabelDiv);
+        const label = new CSS2DObject(this.labelDiv);
         label.color = "white";
         this.add(label);
     }
