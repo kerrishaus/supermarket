@@ -1,7 +1,8 @@
 import { Vector3 } from "https://kerrishaus.com/assets/threejs/build/three.module.js";
 
-import { Player } from "../../Player.js";
+import { Player   } from "../../Player.js";
 import { Customer } from "../../Customer.js";
+import { Employee } from "../../Employee.js";
 
 import { EntityComponent } from "./EntityComponent.js";
 
@@ -112,7 +113,9 @@ export class ContainerComponent extends EntityComponent
         super.update(deltaTime);
 
         // TODO: this is kind of a hack, but it'll work for now
-        if (this.parentEntity instanceof Player)
+        if (this.parentEntity instanceof Player ||
+            this.parentEntity instanceof Customer ||
+            this.parentEntity instanceof Employee)
         {
             for (let i = 0; i < this.carriedItems.length; i++)
             {

@@ -112,7 +112,7 @@ export class GeneratorComponent extends EntityComponent
         if (this.carriedItems.length <= 0)
             return;
 
-        // TODO: figure out if this check can be replaced with carrier instanceof ItemCarrier
+        // TODO: figure out if this check can be replaced carrier.hasComponent("ContainerComponent")
         if (carrier instanceof Player || carrier instanceof Employee)
             if (carrier.getComponent("ContainerComponent").carriedItems.length > carrier.getComponent("ContainerComponent").maxItems)
                 return;
@@ -131,7 +131,6 @@ export class GeneratorComponent extends EntityComponent
         
         this.carriedItems.pop();
         
-        // TODO: don't think this is necessary
         this.updateItems();
     }
     
