@@ -44,6 +44,13 @@ export class Employee extends Entity
         this.add(label);
     }
 
+    destructor()
+    {
+        super.destructor();
+
+        this.labelDiv.remove();
+    }
+
     pushAction(action)
     {
         // if there are no actions,

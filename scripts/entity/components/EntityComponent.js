@@ -15,7 +15,6 @@ export class EntityComponent
 
     destructor()
     {
-        
     }
 
     setParentEntity(entity)

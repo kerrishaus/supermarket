@@ -20,8 +20,8 @@ export class ModelComponent extends EntityComponent
     destructor()
     {
         super.destructor();
-
-        scene.remove(this.model);
+        
+        this.parentEntity.remove(this.model);
     }
 
     update(deltaTime)

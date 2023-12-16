@@ -507,13 +507,11 @@ export class Shop extends Group
             // TODO: make sure the customer actually made it to the register
             if (customer.actions.length <= 0)
             {
-                for (const carriedItem of customer.getComponent("ContainerComponent").carriedItems)
-                    carriedItem.destructor();
-
                 this.updateReputation(customer.mood);
 
-                this.customers.splice(this.customers.indexOf(customer), 1);
+                customer.destructor();
                 scene.remove(customer);
+                this.customers.splice(this.customers.indexOf(customer), 1);
 
                 $("#customerCount").text(this.customers.length);
             }
