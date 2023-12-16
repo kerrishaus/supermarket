@@ -197,6 +197,9 @@ export class Employee extends Entity
             {
                 for (const register of this.shop.registerTiles)
                 {
+                    if (register.waitingCustomers.length < 1)
+                        continue;
+
                     console.log("moving to checkout customers");
                     this.pushAction({ type: "move", position: register.position });
                 }
