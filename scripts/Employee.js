@@ -44,6 +44,13 @@ export class Employee extends Entity
         this.add(label);
     }
 
+    destructor()
+    {
+        super.destructor();
+
+        this.labelDiv.remove();
+    }
+
     pushAction(action)
     {
         // if there are no actions,
@@ -190,6 +197,9 @@ export class Employee extends Entity
             {
                 for (const register of this.shop.registerTiles)
                 {
+                    if (register.waitingCustomers.length < 1)
+                        continue;
+
                     console.log("moving to checkout customers");
                     this.pushAction({ type: "move", position: register.position });
                 }

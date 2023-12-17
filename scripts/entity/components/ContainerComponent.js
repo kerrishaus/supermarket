@@ -34,6 +34,9 @@ export class ContainerComponent extends EntityComponent
     destructor()
     {
         super.destructor();
+
+        for (const item of this.carriedItems)
+            item.destructor();
     }
 
     transferFromCarrier(carrier)

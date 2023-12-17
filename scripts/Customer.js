@@ -48,17 +48,15 @@ export class Customer extends Entity
     // TODO: the label should automatically be destroyed when Customer is destroyed
     destructor()
     {
-        this.remove(label);
+        super.destructor();
+
+        this.labelDiv.remove();
     }
 
     pushAction(action)
     {
         // if there are no actions,
         // focus this action immediately
-        // TODO: make this < 1
-        // it has to be <= because of a bug that causes customers to spawn in the middle of the store,
-        // then walk to their ready position,
-        // then do their shopping
         if (this.actions.length < 1)
         {
             console.debug("focused action because there are no other actions", action);
