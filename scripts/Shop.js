@@ -505,32 +505,15 @@ export class Shop extends Group
         {
             // if the customer has no actions
             // TODO: make sure the customer actually made it to the register
-            if (customer.actions.length <= 0)
+            if (customer.actions.length <= 0 && customer.checkedOut)
             {
-                for (const carriedItem of customer.getComponent("ContainerComponent").carriedItems)
-                    carriedItem.destructor();
-
                 this.updateReputation(customer.mood);
 
-                this.customers.splice(this.customers.indexOf(customer), 1);
+                customer.destructor();
                 scene.remove(customer);
+                this.customers.splice(this.customers.indexOf(customer), 1);
 
                 $("#customerCount").text(this.customers.length);
-            }
-            // if the customer does have actions
-            else if (customer.waitTime > customer.leaveTime)
-            {
-                customer.waitTime = 0;
-
-                console.log("Customer waited too long and is leaving.");
-
-                customer.actions.length = 0;
-
-                if (customer.getComponent("ContainerComponent").carriedItems.length > 0)
-                    customer.pushAction({type: "move", position: customer.findNearestRegister().position});
-
-                customer.pushAction({type: "move", position: this.readyPosition});
-                customer.pushAction({type: "move", position: this.spawnPosition});
             }
         }
     }

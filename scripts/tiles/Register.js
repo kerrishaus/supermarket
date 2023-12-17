@@ -44,7 +44,7 @@ export class Register extends Entity
         this.playerIsInContact   = false;
         this.employeeIsInContact = false;
     }
-    
+
     update(deltaTime)
     {
         if (this.waitingCustomers.size > 0 && (this.playerIsInContact || this.employeeIsInContact))
@@ -66,8 +66,8 @@ export class Register extends Entity
                 
                 // clear the customer's actions and then set it to leave
                 customer.actions.length = 0;
-                customer.pushAction({ type: "move", position: shop.readyPosition, debug: "to ready position" });
-                customer.pushAction({ type: "move", position: shop.spawnPosition, debug: "to spawn position"});
+                customer.pushAction({ type: "move", position: shop.readyPosition, debug: "to ready position, leaving" });
+                customer.pushAction({ type: "move", position: shop.spawnPosition, debug: "to spawn position, leaving" });
             });
             
             $("#waitingCustomers").text(this.waitingCustomers.size);
