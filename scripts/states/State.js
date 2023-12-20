@@ -1,8 +1,14 @@
 export class State
 {
-    init(stateMachine)
+    constructor(...args)
     {
-        this.stateMachine = stateMachine;
+        this.stateMachine = null;
+
+        this.constructorArgs = args;
+    }
+
+    init()
+    {
     }
     
     cleanup()

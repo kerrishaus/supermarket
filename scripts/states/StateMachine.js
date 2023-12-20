@@ -25,21 +25,30 @@ export class StateMachine
         if (this.states > 1)
             this.states[this.states.length - 1].pause();
             
+        state.stateMachine = this;
         this.states.push(state);
-        this.states[this.states.length - 1].init(this);
-        
-        console.log("Pushed new state.");
+
+        console.log("StateMachine: Initialising " + state.constructor.name + "...");
+        state.init.apply(state, state.constructorArgs);
+        console.log("StateMachine: Finished initialising " + state.constructor.name + ".");
+
+        $("#debug-state").text(state.constructor.name);
     }
     
     popState()
     {
-        this.states[this.states.length - 1].cleanup();
+        const state = this.states[this.states.length - 1];
+
+        console.log("StateMachine: Cleaning up " + state.constructor.name + "...");
+        state.cleanup();
+        console.log("StateMachine: Cleaned up " + state.constructor.name + ".");
+
         this.states.pop();
         
         if (this.states.length > 0)
             this.states[this.states.length - 1].resume();
             
-        console.log("Popped state.");
+        console.log("StateMachine: Popped state.");
     }
     
     changeState(state)

@@ -28,12 +28,8 @@ import { PlayState } from "./PlayState.js";
 
 export class StartupState extends State
 {
-    init(stateMachine)
+    init()
     {
-        console.log("Initialising StartupState");
-
-        this.stateMachine = stateMachine;
-
         PageUtility.addStyle("loading");
 
         this.loadingDiv = document.createElement("div");
@@ -194,7 +190,7 @@ export class StartupState extends State
                     resolve(true);
                 }).then(() =>
                 {
-                    console.log("StartupState ready.");
+                    console.log("Loading complete.");
 
                     //this.stateMachine.changeState(new MainMenuState());
                     this.stateMachine.changeState(new PlayState());
@@ -205,12 +201,8 @@ export class StartupState extends State
     
     cleanup()
     {
-        console.log("Cleaning up StartupState.");
-
         PageUtility.removeStyle("loading");
         
         loadingDiv.remove();
-        
-        console.log("StartupState cleaned up.");
     }
 };

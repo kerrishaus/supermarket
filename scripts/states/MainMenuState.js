@@ -7,10 +7,8 @@ import { SettingsState } from "./SettingsState.js";
 
 export class MainMenuState extends State
 {
-    init(stateMachine)
+    init()
     {
-        this.stateMachine = stateMachine;
-
         PageUtility.addStyle("mainMenu");
 
         this.mainMenu = document.createElement("div");
@@ -35,8 +33,6 @@ export class MainMenuState extends State
             this.stateMachine.pushState(new SettingsState());
         });
         this.mainMenu.appendChild(settingsButton);
-
-        console.log("MainMenuState ready.");
     }
 
     cleanup()
@@ -44,7 +40,5 @@ export class MainMenuState extends State
         PageUtility.removeStyle("mainMenu");
 
         this.mainMenu.remove();
-
-        console.log("MainMenuState cleaned up.");
     }
 };

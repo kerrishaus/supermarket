@@ -145,8 +145,6 @@ export class PlayState extends State
         };
         */
 
-        console.log("PlayState is ready.");
-
         $(renderer.domElement).show();
         $(htmlRenderer.domElement).show();
         
@@ -164,8 +162,6 @@ export class PlayState extends State
         player.removeEventListeners();
 
         window.onbeforeunload = null;
-
-        console.log("Cleaned up PlayState.");
     }
 
     openBuyMenu()
