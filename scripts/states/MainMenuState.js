@@ -1,6 +1,6 @@
 import { State } from "./State.js";
 
-import * as PageUtility from "../PageUtility.js";
+import { addStyle, removeStyle } from "../PageUtility.js";
 
 import { PlayState } from "./PlayState.js";
 import { SettingsState } from "./SettingsState.js";
@@ -9,7 +9,7 @@ export class MainMenuState extends State
 {
     init()
     {
-        PageUtility.addStyle("mainMenu");
+        addStyle("MainMenuState");
 
         this.mainMenu = document.createElement("div");
         this.mainMenu.id = "mainMenu";
@@ -37,7 +37,7 @@ export class MainMenuState extends State
 
     cleanup()
     {
-        PageUtility.removeStyle("mainMenu");
+        removeStyle("MainMenuState");
 
         this.mainMenu.remove();
     }
