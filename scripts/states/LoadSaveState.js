@@ -18,10 +18,8 @@ import * as SaveLoader from "../SaveLoader.js";
 
 export class LoadSaveState extends State
 {
-    init(stateMachine)
+    init()
     {
-        this.stateMachine = stateMachine;
-
         PageUtility.addStyle("loading");
 
         this.loadingDiv = document.createElement("div");
@@ -85,8 +83,6 @@ export class LoadSaveState extends State
         }
         */
 
-        console.log("LoadSaveState complete.");
-
         this.stateMachine.changeState(new PlayState());
     }
     
@@ -95,8 +91,6 @@ export class LoadSaveState extends State
         PageUtility.removeStyle("loading");
         
         loadingDiv.remove();
-        
-        console.log("LoadingState cleaned up.");
     }
 
     loadCarriedItem(carrier, itemType)

@@ -4,10 +4,8 @@ import * as PageUtility from "../PageUtility.js";
 
 export class SettingsState extends State
 {
-    init(stateMachine)
+    init()
     {
-        this.stateMachine = stateMachine;
-
         PageUtility.addStyle("settings");
 
         this.settingsMenu = document.createElement("div");
@@ -23,8 +21,6 @@ export class SettingsState extends State
             this.stateMachine.popState();
         });
         this.settingsMenu.appendChild(button);
-
-        console.log("SettingsState ready.");
     }
 
     cleanup()
@@ -32,7 +28,5 @@ export class SettingsState extends State
         PageUtility.removeStyle("settings");
 
         this.settingsMenu.remove();
-
-        console.log("SettingsState cleaned up.");
     }
 };
