@@ -236,9 +236,14 @@ export class Shop extends Group
         {
             const tileContainer = $("<div class='tile'>").appendTo("#tiles");
             tileContainer.append(`<div class='tile-name'>${tile.name}</div>`);
-            tileContainer.append(`<div class='tile-price'>$${tile.price}</div>`);
 
-            const buyTileButton = $("<button class='tile-buy'>buy</button>").appendTo(tileContainer).click(() => 
+            const tileBottomBar = $(`
+                <div class='tile-bottom-bar'>
+                    <div class='tile-price'>$${tile.price}</div>
+                </div>
+            `).appendTo(tileContainer);
+
+            $("<button class='tile-buy'>Buy</button>").appendTo(tileBottomBar).click(() => 
             {
                 this.beginTilePlacement(tile);
             });

@@ -42,19 +42,50 @@
 
 #buyMenu #tiles
 {
-    gap: 20px;
+    gap: 10px;
 }
 
 #buyMenu #tiles .tile
 {
-    background-color: gray;
+    border-radius: 5px;
 
+    background-color: whitesmoke;
+    border: 1px solid gray;
+
+    overflow: hidden;
+
+    min-width: 10vw;
+    flex-grow: 1;
+}
+
+#buyMenu #tiles .tile .tile-name
+{
+    padding: 5px 10px;
+}
+
+#buyMenu #tiles .tile .tile-bottom-bar
+{
+    display: flex;
+}
+
+#buyMenu #tiles .tile .tile-bottom-bar .tile-price
+{
+    background-color: #6c757d;
+    color: white;
     padding: 5px;
 }
 
-#buyMenu #tiles .tile .tile-buy
+#buyMenu #tiles .tile .tile-bottom-bar .tile-buy
 {
-    width: 100%;
+    background-color: #28a745;
+    color: white;
+    border: none;
+    flex-grow: 1;
+}
+
+#buyMenu #tiles .tile .tile-bottom-bar .tile-buy:hover
+{
+    background-color: #1e7e34;
 }
 
 #buyMenu #upgrades
