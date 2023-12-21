@@ -488,7 +488,7 @@ export class Shop extends Group
                 else
                     console.log(`Customer will buy ${amount} from ${containerTile.name}`);
 
-                customer.pushAction({type: "buy", container: containerTile, amount: amount})
+                customer.pushAction({type: "buy", container: containerTile, amount: amount, debug: "buy from " + containerTile.type })
 
                 atLeastOneTileSelected = true;
             }
@@ -498,14 +498,12 @@ export class Shop extends Group
             customer.pushAction({
                 type: "buy",
                 container: this.containerTiles[0],
-                amount: MathUtility.getRandomInt(0, customer.getComponent("ContainerComponent").maxItems) + 1
+                amount: MathUtility.getRandomInt(0, customer.getComponent("ContainerComponent").maxItems) + 1,
+                debug: "buying (from only one) container " + this.containerTiles[0].type
             });
         
         customer.pushAction({ type: "move", position: customer.findNearestRegister().position, debug: "to register" });
-        customer.pushAction({ type: "waitToCheckout" });
-
-        //customer.pushAction({type: "move", position: this.readyPosition});
-        //customer.pushAction({type: "move", position: this.spawnPosition});
+        customer.pushAction({ type: "waitToCheckout", debug: "waiting to checkout" });
 
         this.addCustomer(customer);
         scene.add(customer);
