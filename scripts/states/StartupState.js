@@ -20,7 +20,7 @@ import AmmoLib from "https://kerrishaus.com/assets/ammojs/ammo.module.js";
 
 import { PhysicsScene } from "../PhysicsScene.js";
 
-import * as PageUtility from "../PageUtility.js";
+import { addStyle, removeStyle } from "../PageUtility.js";
 
 import { LoadSaveState } from "./LoadSaveState.js";
 import { loadModel } from "../ModelLoader.js";
@@ -30,27 +30,24 @@ export class StartupState extends State
 {
     init()
     {
-        PageUtility.addStyle("loading");
+        addStyle("StartupState");
 
-        this.loadingDiv = document.createElement("div");
-        this.loadingDiv.id = "loadingDiv";
-        this.loadingDiv.classList = "display-flex align-center justify-center flex-column";
-        this.loadingDiv.style.color = "black";
-        document.body.appendChild(this.loadingDiv);
-
-        this.loadingBigStatus = document.createElement("h1");
-        this.loadingBigStatus.id = "loadingBigStatus";
-        this.loadingBigStatus.textContent = "Loading";
-        this.loadingDiv.appendChild(this.loadingBigStatus);
-
-        this.loadingLittleStatus = document.createElement("h2");
-        this.loadingLittleStatus.id = "loadingLittleStatus";
-        this.loadingLittleStatus.textContent = "Getting started...";
-        this.loadingDiv.appendChild(this.loadingLittleStatus);
-
-        this.progressBar = document.createElement("progress");
-        this.progressBar.id = "loadProgress";
-        this.loadingDiv.appendChild(this.progressBar);
+        $("body").prepend(
+            `<div id='loadingCover'>
+                 <div id='status'>
+                     <img id='kerris' src='https://kerrishaus.com/assets/logo/text-big.png'></img>
+                     <img id='threejs' src='https://raw.githubusercontent.com/mrdoob/three.js/43ec48015f23bda9c2a86533343ab3a2e104bfd6/files/icon.svg'></img>
+                     <img id='webgl' src='https://upload.wikimedia.org/wikipedia/commons/thumb/2/25/WebGL_Logo.svg/1024px-WebGL_Logo.svg.png'></img>
+                 </div>
+                 <div id='progressContainer'>
+                     <progress id="progress"></progress>
+                     <h1 id="progressText">Loading...</h1>
+                 </div>
+                 <div id='help'>
+                     Copyright &copy;&nbsp;<span translate='no'>Kerris Haus</span>
+                 </div>
+             </div>`
+        );
 
         window.collisionConfiguration_ = null;
         window.dispatcher_ 			   = null;
@@ -63,7 +60,7 @@ export class StartupState extends State
         function prepareThree()
         {
             console.log("Preparing Three.");
-            $("#loadingBigStatus").text("Preparing Three.js");
+            $("#progressText").text("Preparing Three.js");
 
             window.renderer = new THREE.WebGLRenderer({
                 antialias: true,
@@ -137,7 +134,7 @@ export class StartupState extends State
         function prepareAmmo(lib)
         {
             console.log("Preparing Ammo.");
-            $("#loadingBigStatus").text("Preparing Ammo.js");
+            $("#progressText").text("Preparing Ammo.js");
 
             let Ammo = lib;
             window.Ammo = lib;
@@ -165,7 +162,7 @@ export class StartupState extends State
                 new Promise(async (resolve) =>
                 {
                     // TODO: have every model loaded automatically
-                    $("#loadingBigStatus").text("Loading models");
+                    $("#progressText").text("Loading models");
 
                     const models = [
                         "bottleKetchup",
@@ -173,15 +170,19 @@ export class StartupState extends State
                         "tomato"
                     ];
 
-                    $("#loadProgress").attr("max", models.length);
+                    $("#progress").attr("max", models.length);
 
+                    // a traditional for loop is used here
+                    // instead of a for...of loop because
+                    // we can use i + 1 to conveniently
+                    // increment the progress bar.
                     for (let i = 0; i < models.length; i++)
                     {
-                        $("#loadProgress").attr("value", i + 1);
+                        $("#progress").attr("value", i + 1);
 
                         const model = models[i];
 
-                        $("#loadingLittleStatus").text(model);
+                        $("#progressText").text(model);
                         await loadModel(model);
                     }
 
@@ -190,10 +191,9 @@ export class StartupState extends State
                     resolve(true);
                 }).then(() =>
                 {
-                    console.log("Loading complete.");
-
-                    //this.stateMachine.changeState(new MainMenuState());
-                    this.stateMachine.changeState(new PlayState());
+                    console.log("Loading is complete.");
+                    $("#progressText").text("Ready!");
+                    this.stateMachine.popState();
                 });
             });
         });
@@ -201,8 +201,15 @@ export class StartupState extends State
     
     cleanup()
     {
-        PageUtility.removeStyle("loading");
-        
-        loadingDiv.remove();
+        setTimeout(() => {
+            // load the new state first so that all the assets are loaded
+            // and we don't get super bad popping
+            this.stateMachine.pushState(new PlayState());
+    
+            $("#loadingCover").fadeOut(1000, function() {
+                $(this).remove(); 
+                $("#loadingStyles").remove();
+            });
+        }, 1000);
     }
 };
