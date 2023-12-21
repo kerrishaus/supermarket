@@ -31,6 +31,7 @@ export class TriggerComponent extends EntityComponent
     {
         super.destructor();
 
+        // TODO: this is not properly disposed of
         scene.remove(this.triggerGeometry);
     }
 

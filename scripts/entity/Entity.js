@@ -15,6 +15,8 @@ export class Entity extends Object3D
         this.components.forEach((component, componentType, map) => {
             component.destructor();
         })
+
+        scene.remove(this);
     }
 
     update(deltaTime)

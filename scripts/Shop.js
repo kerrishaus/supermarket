@@ -332,7 +332,7 @@ export class Shop extends Group
             return false;
         }
 
-        scene.remove(this.newTile.tile);
+        this.newTile.tile.destructor();
 
         this.finallyTilePlacement();
     }
@@ -387,6 +387,7 @@ export class Shop extends Group
 
         player.enableMovement();
 
+        // TODO: this is not properly disposed of
         scene.remove(this.gridHelper);
 
         $("#newTileMouseCatcher").remove();
@@ -510,7 +511,6 @@ export class Shop extends Group
                 this.updateReputation(customer.mood);
 
                 customer.destructor();
-                scene.remove(customer);
                 this.customers.splice(this.customers.indexOf(customer), 1);
 
                 $("#customerCount").text(this.customers.length);
