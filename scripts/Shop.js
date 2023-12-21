@@ -3,12 +3,12 @@ import { BoxGeometry, Vector3, Vector2, Raycaster, Plane, GridHelper, Group, Pla
 import * as GeometryUtil from "./geometry/GeometryUtility.js";
 import * as MathUtility from "./MathUtility.js";
 
-import { Door       } from "./Door.js";
-import { Register   } from "./tiles/Register.js";
-import { RecycleBin } from "./tiles/RecycleBin.js";
+import { Door           } from "./Door.js";
+import { Register       } from "./tiles/Register.js";
+import { RecycleBin     } from "./tiles/RecycleBin.js";
+import { KetchupMachine } from "./tiles/KetchupMachine.js";
 
 import { Tomato  } from "./items/Tomato.js";
-import { Ketchup } from "./items/Ketchup.js";
 import { SodaCan } from "./items/SodaCan.js";
 
 import { Player   } from "./Player.js";
@@ -20,7 +20,6 @@ import { TriggerComponent } from "./entity/components/TriggerComponent.js";
 import { ContainerComponent } from "./entity/components/ContainerComponent.js";
 import { GeometryComponent } from "./entity/components/GeometryComponent.js";
 import { GeneratorComponent } from "./entity/components/GeneratorComponent.js";
-import { CarryableComponent } from "./entity/components/CarryableComponent.js";
 
 export class Shop extends Group
 {
@@ -86,13 +85,21 @@ export class Shop extends Group
                     const register = new Register();
                     register.getComponent("TriggerComponent").triggerEnabled = false;
                     this.registerTiles.push(register);
-                    scene.add(register);
                     return register;
                 },
                 onAfterPlace: function() {
                     console.log(this);
                     for (let i = 0; i < 100; i++)
                         this.tile.addMoney();
+                }
+            },
+            {
+                name: "Recycle Bin",
+                price: 25,
+                getTile: () => {
+                    const recycleBin = new RecycleBin();
+                    recycleBin.getComponent("TriggerComponent").triggerEnabled = false;
+                    return recycleBin;
                 }
             },
             {
@@ -103,6 +110,7 @@ export class Shop extends Group
                     const tomatoStand     = new Entity();
                     const tomatoTrigger   = tomatoStand.addComponent(new TriggerComponent);
                     tomatoTrigger.triggerEnabled = false;
+
                     const tomatoContainer = tomatoStand.addComponent(new ContainerComponent("Tomato Stand", "tomato"));
                     tomatoStand.addComponent(new GeometryComponent(
                         new BoxGeometry(1.5, 1.5, 1), 
@@ -114,7 +122,6 @@ export class Shop extends Group
                             tomatoContainer.transferFromCarrier(object);
                     }
 
-                    scene.add(tomatoStand);
                     return tomatoStand;
                 }
             },
@@ -126,6 +133,7 @@ export class Shop extends Group
                     const tomatoPlant          = new Entity();
                     const tomatoPlantTrigger   = tomatoPlant.addComponent(new TriggerComponent);
                     tomatoPlantTrigger.triggerEnabled = false;
+
                     const tomatoPlantGenerator = tomatoPlant.addComponent(new GeneratorComponent("Tomato Plant", "tomato"));
                     tomatoPlant.addComponent(new GeometryComponent(
                         new BoxGeometry(1.5, 1.5, 1), 
@@ -141,20 +149,29 @@ export class Shop extends Group
                             tomatoPlantGenerator.transferToCarrier(object);
                     }
 
-                    scene.add(tomatoPlant);
                     return tomatoPlant;
                 }
             },
             {
-                name: "Ketchup Stand",
+                name: "Soda Stand",
+                price: 100,
                 getTile: () => {
+                    const sodaStand     = new Entity();
+                    const sodaTrigger   = sodaStand.addComponent(new TriggerComponent);
+                    sodaTrigger.triggerEnabled = false;
 
-                }
-            },
-            {
-                name: "Ketchup Machine",
-                getTile: () => {
+                    const sodaContainer = sodaStand.addComponent(new ContainerComponent("Soda Stand", "sodaCan"));
+                    sodaStand.addComponent(new GeometryComponent(
+                        new BoxGeometry(1.5, 1.5, 1), 
+                        new MeshStandardMaterial({ color: 0xff0000 })
+                    )).mesh.position.z -= 0.5;
 
+                    sodaStand.onTrigger = (object) => {
+                        if (object instanceof Player)
+                            sodaContainer.transferFromCarrier(object);
+                    }
+
+                    return sodaStand;
                 }
             },
             {
@@ -180,40 +197,38 @@ export class Shop extends Group
                             sodaMachineGenerator.transferToCarrier(object);
                     }
 
-                    scene.add(sodaMaker);
                     return sodaMaker;
                 }
             },
             {
-                name: "Soda Stand",
-                price: 100,
+                name: "Ketchup Stand",
+                price: 150,
                 getTile: () => {
-                    const sodaStand     = new Entity();
-                    const sodaTrigger   = sodaStand.addComponent(new TriggerComponent);
-                    sodaTrigger.triggerEnabled = false;
-                    const sodaContainer = sodaStand.addComponent(new ContainerComponent("Soda Stand", "sodaCan"));
-                    sodaStand.addComponent(new GeometryComponent(
+                    const ketchupStand   = new Entity();
+                    const ketchupTrigger = ketchupStand.addComponent(new TriggerComponent);
+                    ketchupTrigger.triggerEnabled = false;
+
+                    const ketchupContainer = ketchupStand.addComponent(new ContainerComponent("Ketchup Stand", "ketchup"));
+                    ketchupStand.addComponent(new GeometryComponent(
                         new BoxGeometry(1.5, 1.5, 1), 
                         new MeshStandardMaterial({ color: 0xff0000 })
                     )).mesh.position.z -= 0.5;
 
-                    sodaStand.onTrigger = (object) => {
+                    ketchupStand.onTrigger = (object) => {
                         if (object instanceof Player)
-                            sodaContainer.transferFromCarrier(object);
+                            ketchupContainer.transferFromCarrier(object);
                     }
 
-                    scene.add(sodaStand);
-                    return sodaStand;
+                    return ketchupStand;
                 }
             },
             {
-                name: "Recycle Bin",
-                price: 100,
+                name: "Ketchup Machine",
+                price: 200,
                 getTile: () => {
-                    const recycleBin = new RecycleBin();
-                    recycleBin.getComponent("TriggerComponent").triggerEnabled = false;
-                    scene.add(recycleBin);
-                    return recycleBin;
+                    const ketchupMachine = new KetchupMachine();
+                    ketchupMachine.getComponent("TriggerComponent").triggerEnabled = false;
+                    return ketchupMachine;
                 }
             },
             /*
@@ -299,9 +314,32 @@ export class Shop extends Group
         $("#interface").append("<div id='newTileMouseCatcher' class='mouse-catcher mouse-pass-through'>");
 
         // TODO: support touch
-        $("#newTileMouseCatcher").on("mousemove", (event) => { this.updateTilePlacement(event) });
-        $("#newTileMouseCatcher").on("mousedown", () => { this.confirmTilePlacement() });
-        // TODO: press escape to cancel tile placement
+        $("#newTileMouseCatcher").on("mousemove", (event) => { this.updateTilePlacement(event); });
+
+        $("#newTileMouseCatcher").on("mousedown", (event) => 
+        {
+            if (event.button == 0)
+                this.confirmTilePlacement();
+            else if (event.button == 2)
+                this.cancelTilePlacement();
+        });
+
+        $("#newTileMouseCatcher").keydown((event) => 
+        {
+            console.log(event);
+
+            if (event.code == "KeyR")
+                this.newTile.tile.rotateX(Math.PI / 2);
+            else if (event.code == "Escape")
+                this.cancelTilePlacement();
+        });
+
+        // TODO: run this once before adding the tile to the scene
+        // so that the tile is in the correct mouse position instead of starting
+        // in the center of the map
+        //this.updateTilePlacement();
+
+        scene.add(this.newTile.tile);
 
         console.log("Started placement of entity", this.newTile);
     }
@@ -314,8 +352,8 @@ export class Shop extends Group
             return false;
         }
 
-        this.mousePos.x = ( event.clientX / window.innerWidth ) * 2 - 1;
-        this.mousePos.y = - ( event.clientY / window.innerHeight ) * 2 + 1;
+        this.mousePos.x = (event.clientX / window.innerWidth) * 2 - 1;
+        this.mousePos.y = - (event.clientY / window.innerHeight) * 2 + 1;
 
         this.raycaster.setFromCamera(this.mousePos, camera);
         this.raycaster.ray.intersectPlane(this.intersectionPlane, this.intersectionPos);
@@ -355,8 +393,10 @@ export class Shop extends Group
         // TODO: a more elegant fix for this
         if (!(this.newTile.tile instanceof RecycleBin))
         {
-            if (this.newTile.tile.hasComponent("ContainerComponent"))
-                this.containerTiles.push(this.newTile.tile);
+            // the ketchup container is used to hold items until they are turned into ketchup
+            if (!(this.newTile.tile instanceof KetchupMachine))
+                if (this.newTile.tile.hasComponent("ContainerComponent"))
+                    this.containerTiles.push(this.newTile.tile);
 
             if (this.newTile.tile.hasComponent("GeneratorComponent"))
                 this.generatorTiles.push(this.newTile.tile);
@@ -368,10 +408,15 @@ export class Shop extends Group
 
         player.takeMoney(this.newTile.price);
 
+        // create a copy of the tile position instead of
+        // of referring to it in the loop, because
+        // during the timeout it will get deleted
+        const pos = this.newTile.tile.position.clone();
+        
+        // create a money prop for each dollar of the tile price
+        // and have it fly from the player into the prop, then despawn
         for (let i = 0; i < this.newTile.price; i++)
         {
-            const pos = this.newTile.tile.position.clone();
-
             setTimeout(() => {
                 const money = GeometryUtil.createMoney();
 

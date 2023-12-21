@@ -22,8 +22,7 @@ export class StateMachine
     
     pushState(state)
     {
-        if (this.states > 1)
-            this.states[this.states.length - 1].pause();
+        this.states[this.states.length - 1]?.pause();
             
         state.stateMachine = this;
         this.states.push(state);
@@ -45,8 +44,7 @@ export class StateMachine
 
         this.states.pop();
         
-        if (this.states.length > 0)
-            this.states[this.states.length - 1].resume();
+        this.states[this.states.length - 1]?.resume();
             
         console.log("StateMachine: Popped state.");
     }
@@ -61,7 +59,6 @@ export class StateMachine
     
     update(deltaTime)
     {
-        if (this.states.length > 0)
-            this.states[this.states.length - 1].update(deltaTime);
+        this.states[this.states.length - 1]?.update(deltaTime);
     }
 };

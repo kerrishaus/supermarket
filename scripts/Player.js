@@ -24,7 +24,7 @@ export class Player extends Entity
         nose.position.y = 0.5;
         this.add(nose);
         
-        this.money = 0;
+        this.money = 1000;
         this.carriedMoney = new Array();
 
         //this.camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 200);

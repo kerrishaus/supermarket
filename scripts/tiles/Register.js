@@ -17,7 +17,7 @@ export class Register extends Entity
     {
         super();
 
-        const trigger = this.addComponent(new TriggerComponent(7, 3, 2));
+        this.addComponent(new TriggerComponent(7, 3, 2));
 
         this.addComponent(new GeometryComponent(
             new BoxGeometry(6, 2, 1), 
