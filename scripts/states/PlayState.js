@@ -102,6 +102,8 @@ export class PlayState extends State
             {
                 this.freeCam = !this.freeCam;
                 freeControls.enabled = this.freeCam;
+                freeControls.target.copy(player.position);
+                freeControls.update();
 
                 camera.position.z = 10;
                 camera.position.y = -12;
