@@ -76,8 +76,8 @@ export class Shop extends Group
         this.generatorTiles = new Array();
         this.registerTiles  = new Array();
 
-        this.availableTiles = [
-            {
+        this.availableTiles = {
+            cashRegister: {
                 name: "Cash Register",
                 price: 0,
                 tile: null,
@@ -88,12 +88,11 @@ export class Shop extends Group
                     return register;
                 },
                 onAfterPlace: function() {
-                    console.log(this);
                     for (let i = 0; i < 100; i++)
                         this.tile.addMoney();
                 }
             },
-            {
+            recycleBin: {
                 name: "Recycle Bin",
                 price: 25,
                 getTile: () => {
@@ -102,10 +101,9 @@ export class Shop extends Group
                     return recycleBin;
                 }
             },
-            {
+            tomatoStand: {
                 name: "Tomato Stand",
                 price: 50,
-                tile: null,
                 getTile: function() {
                     const tomatoStand     = new Entity();
                     const tomatoTrigger   = tomatoStand.addComponent(new TriggerComponent);
@@ -125,10 +123,9 @@ export class Shop extends Group
                     return tomatoStand;
                 }
             },
-            {
+            tomatoPlant: {
                 name: "Tomato Plant",
                 price: 25,
-                tile: null,
                 getTile: () => {
                     const tomatoPlant          = new Entity();
                     const tomatoPlantTrigger   = tomatoPlant.addComponent(new TriggerComponent);
@@ -152,7 +149,7 @@ export class Shop extends Group
                     return tomatoPlant;
                 }
             },
-            {
+            sodaStand: {
                 name: "Soda Stand",
                 price: 100,
                 getTile: () => {
@@ -174,7 +171,7 @@ export class Shop extends Group
                     return sodaStand;
                 }
             },
-            {
+            sodaMaker: {
                 name: "Soda Maker",
                 price: 125,
                 getTile: () => {
@@ -200,7 +197,7 @@ export class Shop extends Group
                     return sodaMaker;
                 }
             },
-            {
+            ketchupStand: {
                 name: "Ketchup Stand",
                 price: 150,
                 getTile: () => {
@@ -222,7 +219,7 @@ export class Shop extends Group
                     return ketchupStand;
                 }
             },
-            {
+            ketchupMachine: {
                 name: "Ketchup Machine",
                 price: 200,
                 getTile: () => {
@@ -232,14 +229,14 @@ export class Shop extends Group
                 }
             },
             /*
-            {
+            door: {
                 name: "Door",
                 getTile: () => {
 
                 }
             },
             */
-        ];
+        };
 
         this.mousePos          = new Vector2(0, 0);
         this.mouseWorldPos     = new Vector3();
@@ -247,7 +244,8 @@ export class Shop extends Group
         this.intersectionPlane = new Plane(shopFloor.position, 0);
         this.raycaster         = new Raycaster();
 
-        for (const tile of this.availableTiles)
+        for (const [tileName, tile] of Object.entries(this.availableTiles))
+        //for (const tile of this.availableTiles)
         {
             const tileContainer = $("<div class='tile'>").appendTo("#tiles");
             tileContainer.append(`<div class='tile-name'>${tile.name}</div>`);

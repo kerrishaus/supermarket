@@ -21,7 +21,7 @@ export const saveDataRaw =
                     "y":0,
                     "z":0
                 },
-                "amount":0
+                "amount":3
             },
             {
                 "type":"recycleBin",
@@ -29,8 +29,7 @@ export const saveDataRaw =
                     "x":-9,
                     "y":9,
                     "z":0
-                },
-                "amount":0
+                }
             }
         ],
         "customers":[

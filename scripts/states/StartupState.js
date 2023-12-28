@@ -24,7 +24,6 @@ import { addStyle, removeStyle } from "../PageUtility.js";
 
 import { LoadSaveState } from "./LoadSaveState.js";
 import { loadModel } from "../ModelLoader.js";
-import { PlayState } from "./PlayState.js";
 
 export class StartupState extends State
 {
@@ -204,7 +203,7 @@ export class StartupState extends State
         setTimeout(() => {
             // load the new state first so that all the assets are loaded
             // and we don't get super bad popping
-            this.stateMachine.pushState(new PlayState());
+            this.stateMachine.pushState(new LoadSaveState());
     
             $("#loadingCover").fadeOut(1000, function() {
                 $(this).remove(); 

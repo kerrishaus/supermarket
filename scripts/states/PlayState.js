@@ -85,15 +85,6 @@ export class PlayState extends State
             return false;
         };
 
-        window.shop = new Shop();
-        scene.add(shop);
-
-        window.player = new Player();
-        player.position.z = 0.5;
-        scene.add(player);
-
-        player.registerEventListeners();
-
         $("#hireEmployee").click(() => { shop.addEmployee() });
 
         window.addEventListener("keydown", (event) =>
