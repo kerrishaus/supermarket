@@ -1,4 +1,6 @@
-import { Mesh, Box3, BoxGeometry, MeshStandardMaterial } from "https://kerrishaus.com/assets/threejs/build/three.module.js";
+import { Mesh, BoxGeometry, MeshStandardMaterial } from "https://kerrishaus.com/assets/threejs/build/three.module.js";
+
+import { OBB } from 'https://kerrishaus.com/assets/threejs/examples/jsm/math/OBB.js';
 
 import { EntityComponent } from "./EntityComponent.js";
 
@@ -12,18 +14,18 @@ export class TriggerComponent extends EntityComponent
         );
 
         this.triggerGeometry.geometry.computeBoundingBox();
+        this.triggerGeometry.geometry.userData.obb = new OBB().fromBox3(this.triggerGeometry.geometry.boundingBox);
+
+        this.triggerGeometry.userData.obb = new OBB();
 
         // TODO: make sure it gets removed from the scene properly.
         // right now it just sits around wherever it was last
         this.parentEntity.attach(this.triggerGeometry);
 
-        this.box = new Box3();
-
         this.triggeringEntitiesLastUpdate = [];
         this.triggeringEntities           = [];
 
         this.triggerEnabled = true;
-
         this.triggered = false;
     }
 
@@ -39,7 +41,8 @@ export class TriggerComponent extends EntityComponent
     {
         super.update(deltaTime);
 
-        this.box.copy(this.triggerGeometry.geometry.boundingBox).applyMatrix4(this.triggerGeometry.matrixWorld);
+        this.triggerGeometry.userData.obb.copy(this.triggerGeometry.geometry.userData.obb);
+        this.triggerGeometry.userData.obb.applyMatrix4(this.triggerGeometry.matrixWorld);
 
         if (!this.triggerEnabled)
             return;

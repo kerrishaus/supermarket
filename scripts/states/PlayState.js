@@ -320,16 +320,16 @@ export class PlayState extends State
                 scene.children.forEach((object2) =>
                 {
                     if (object2 == object ||
+                        object2.dontTrigger ||
                         object2.parentEntity == object ||
-                        object.parentEntity == object2 ||
-                        object2.dontTrigger)
+                        object.parentEntity == object2)
                         return;
 
                     if (object2 instanceof Entity && object2.hasComponent("GeometryComponent"))
                     {
                         const geometryComponent = object2.getComponent("GeometryComponent");
 
-                        if (triggerComponent.box.intersectsBox(geometryComponent.box))
+                        if (triggerComponent.triggerGeometry.userData.obb.intersectsOBB(geometryComponent.mesh.userData.obb))
                             triggerComponent.triggeringEntities.push(object2);
                     }
                 });
