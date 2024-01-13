@@ -4,7 +4,6 @@ export const saveDataRaw =
     "version":1,
     "shop":{
         "type":1,
-        "money":25,
         "maxCustomers":20,
         "timeUntilNextCustomer":14,
         "timeSinceLastCustomer":0,
@@ -19,7 +18,7 @@ export const saveDataRaw =
                 "position":{
                     "x":0,
                     "y":0,
-                    "z":0
+                    "z":0.5
                 },
                 "amount":3
             },
@@ -28,7 +27,7 @@ export const saveDataRaw =
                 "position":{
                     "x":-9,
                     "y":9,
-                    "z":0
+                    "z":0.5
                 }
             }
         ],
@@ -38,7 +37,7 @@ export const saveDataRaw =
                 "position":{
                     "x":0,
                     "y":0,
-                    "z":0
+                    "z":0.5
                 },
                 "rotation":{
                     "x":0,
@@ -91,6 +90,7 @@ export const saveDataRaw =
         ]
     },
     "player":{
+        "money":1000,
         "position":{
             "x":0,
             "y":0,

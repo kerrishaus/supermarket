@@ -4,8 +4,6 @@ import * as THREE from "https://kerrishaus.com/assets/threejs/build/three.module
 
 import { CSS2DRenderer } from "https://kerrishaus.com/assets/threejs/examples/jsm/renderers/CSS2DRenderer.js";
 
-import * as PageUtility from "../PageUtility.js";
-
 import { PlayState } from "./PlayState.js";
 import { Shop } from "../Shop.js";
 import { Player } from "../Player.js";
@@ -13,28 +11,71 @@ import { Customer } from "../Customer.js";
 import { Employee } from "../Employee.js";
 import { Tomato } from "../items/Tomato.js";
 import { SodaCan } from "../items/SodaCan.js";
-import { RecycleBin } from "../tiles/RecycleBin.js";
 import * as SaveLoader from "../SaveLoader.js";
 import { Ketchup } from "../items/Ketchup.js";
-import { Entity } from "../entity/Entity.js";
 
 export class LoadSaveState extends State
 {
     init()
     {
-        PageUtility.addStyle("loading");
-
-        this.loadingDiv = document.createElement("div");
-        this.loadingDiv.id = "loadingDiv";
-        this.loadingDiv.classList = "display-flex align-center justify-center";
-        this.loadingDiv.textContent = "Loading...";
-        document.body.appendChild(this.loadingDiv);
+        // these are created here because player and shop need themb
+        $(document.body).append(`
+            <div id='interface' class="gameInterfaceContainer">
+                <div id="pauseMenu" class="game-menu" data-visibility="hidden">
+                    <button id="resetSave">reset save file</button>
+                </div>
+                <div id="businessStats">
+                    <div id="moneyContainer">
+                        <i class='fa fa-money'></i> Money: $<span id='money'>0</span>
+                    </div>
+                    <div id="reputationContainer">
+                        <i class='fa fa-shield'></i> Reputation: <span id='reputation'>0</span>
+                    </div>
+                    <div>
+                        <i class='fa fa-users'></i> Customers in store: <span id="customerCount">0</span>
+                    </div>
+                    <div>
+                        <i class='fa fa-users'></i> Customers waiting to checkout: <span id="waitingCustomers">0</span>
+                    </div>
+                </div>
+                <div id="buyMenu" class="game-menu" data-visibility="hidden">
+                    <div class="titlebar display-flex space-between">
+                        <h1>Buy Menu</h1>
+                        <div id="buyMenuClose">
+                            <i class="fas fa-times"></i>
+                        </div>
+                    </div>
+                    <hr />
+                    <div class="buy-menu-container">
+                        <h1>Shop Upgrades</h1>
+                        <div id="shopUpgrades">
+                        </div>
+                    </div>
+                    <div class="buy-menu-container">
+                        <h1>Tiles</h1>
+                        <div id="tiles" class="display-flex flex-wrap">
+                        </div>
+                    </div>
+                    <div class="buy-menu-container">
+                        <h1>Employees</h1>
+                        <button id="hireEmployee">Hire Employee</button>
+                        <div id="employees">
+                        </div>
+                    </div>
+                </div>
+                <div id="saveIcon">
+                    <i class="fas fa-spinner fa-spin"></i>
+                </div>
+            </div>
+        `);
 
         const saveVersion = 1;
 
         const saveData = JSON.parse(SaveLoader.saveDataRaw);
 
         window.player = new Player();
+
+        player.setMoney(saveData.player.money);
 
         player.position.set(
             saveData.player.position.x,
@@ -97,9 +138,6 @@ export class LoadSaveState extends State
     
     cleanup()
     {
-        PageUtility.removeStyle("loading");
-        
-        loadingDiv.remove();
     }
 
     loadCarriedItem(carrier, itemType)
@@ -113,11 +151,12 @@ export class LoadSaveState extends State
 
         if (!'price' in tile)
         {
-            console.error("tile.newTile was not an instance of Entity, skipping. Tile type: " + tileData.type, tile);
+            console.error("tile did not contain price, skipping. Tile type: " + tileData.type, tile);
             return null;
         }
 
-        player.money += tile.price;
+        // add the price of the tile to the player's money, because it will be spent by beginTilePlacement
+        player.addMoney(tile.price);
 
         shop.beginTilePlacement(tile);
 
@@ -129,7 +168,10 @@ export class LoadSaveState extends State
 
         shop.confirmTilePlacement();
 
-        return tile.newTile;
+        for (let i = 0; i < tileData.amount ?? 0; i++)
+            tile.tile.getComponent("GeneratorComponent")?.createItem();
+
+        return tile.tile;
     }
     
     loadCustomer(customerData)
@@ -138,16 +180,18 @@ export class LoadSaveState extends State
         
         let customer = new Customer(shop);
         
-        customer.position.x = customerData.position.x;
-        customer.position.y = customerData.position.y;
-        customer.position.z = customerData.position.z;
+        customer.position.set(
+            customerData.position.x,
+            customerData.position.y,
+            customerData.position.z
+        );
         
         customer.rotation.x = customerData.rotation.x;
         customer.rotation.y = customerData.rotation.y;
         customer.rotation.z = customerData.rotation.z;
         
         for (const item of customerData.carriedItems)
-        this.loadCarriedItem(customer, item);
+            this.loadCarriedItem(customer, item);
     
         for (const action of customerData.actions)
             this.loadCustomerAction(action);

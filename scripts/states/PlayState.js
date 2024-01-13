@@ -5,9 +5,6 @@ import * as THREE from "https://kerrishaus.com/assets/threejs/build/three.module
 import * as MathUtility from "../MathUtility.js";
 import * as PageUtility from "../PageUtility.js";
 
-import { Shop   } from "../Shop.js";
-import { Player } from "../Player.js";
-
 import { Entity } from "../entity/Entity.js";
 
 export class PlayState extends State
@@ -20,57 +17,7 @@ export class PlayState extends State
         PageUtility.addStyle("buyMenu");
         PageUtility.addStyle("pauseMenu");
 
-        $(document.body).append(`
-            <div id='interface' class="gameInterfaceContainer">
-                <div id="pauseMenu" class="game-menu" data-visibility="hidden">
-                    <button id="resetSave">reset save file</button>
-                </div>
-                <div id="businessStats">
-                    <div id="moneyContainer">
-                        <i class='fa fa-money'></i> Money: $<span id='money'>0</span>
-                    </div>
-                    <div id="reputationContainer">
-                        <i class='fa fa-shield'></i> Reputation: <span id='reputation'>0</span>
-                    </div>
-                    <div>
-                        <i class='fa fa-users'></i> Customers in store: <span id="customerCount">0</span>
-                    </div>
-                    <div>
-                        <i class='fa fa-users'></i> Customers waiting to checkout: <span id="waitingCustomers">0</span>
-                    </div>
-                </div>
-                <div id="buyMenu" class="game-menu" data-visibility="hidden">
-                    <div class="titlebar display-flex space-between">
-                        <h1>Buy Menu</h1>
-                        <div id="buyMenuClose">
-                            <i class="fas fa-times"></i>
-                        </div>
-                    </div>
-                    <hr />
-                    <div class="buy-menu-container">
-                        <h1>Shop Upgrades</h1>
-                        <div id="shopUpgrades">
-                        </div>
-                    </div>
-                    <div class="buy-menu-container">
-                        <h1>Tiles</h1>
-                        <div id="tiles" class="display-flex flex-wrap">
-                        </div>
-                    </div>
-                    <div class="buy-menu-container">
-                        <h1>Employees</h1>
-                        <button id="hireEmployee">Hire Employee</button>
-                        <div id="employees">
-                        </div>
-                    </div>
-                </div>
-                <div id="saveIcon">
-                    <i class="fas fa-spinner fa-spin"></i>
-                </div>
-            </div>
-        `);
-
-        shop.populateTilesInBuyMenu();
+        // game ui is added in load save state, because player and shop need it when they are constructed
 
         $("#resetSave").click(() => 
         {

@@ -87,10 +87,6 @@ export class Shop extends Group
                     this.registerTiles.push(register);
                     return register;
                 },
-                onAfterPlace: function() {
-                    for (let i = 0; i < 100; i++)
-                        this.tile.addMoney();
-                }
             },
             recycleBin: {
                 name: "Recycle Bin",
@@ -237,6 +233,8 @@ export class Shop extends Group
             },
             */
         };
+
+        this.populateTilesInBuyMenu();
 
         this.mousePos          = new Vector2(0, 0);
         this.mouseWorldPos     = new Vector3();
