@@ -244,8 +244,29 @@ export class Shop extends Group
         this.intersectionPlane = new Plane(shopFloor.position, 0);
         this.raycaster         = new Raycaster();
 
+        this.employees = new Array();
+        this.customers = new Array();
+
+        this.maxCustomers                     = 20;
+        this.timeUntilNextCustomer            = 14;
+        this.timeSinceLastCustomer            = 0;
+        this.maxTimeUntilNextCustomer         = 20;
+        this.minTimeUntilNextCustomer         = 7;
+        this.customerWaitReputationMultiplier = 0.1;
+
+        this.lifeSales                        = 0;
+        this.lifeCustomers                    = 0;
+        this.lifeReputation                   = 0;
+
+        this.spawnPosition    = new Vector3(-4, 14, 0.5);
+        this.readyPosition    = new Vector3(-4, 7, 0.5);
+    }
+
+    populateTilesInBuyMenu()
+    {
+        $("#tiles").empty();
+
         for (const [tileName, tile] of Object.entries(this.availableTiles))
-        //for (const tile of this.availableTiles)
         {
             const tileContainer = $("<div class='tile'>").appendTo("#tiles");
             tileContainer.append(`<div class='tile-name'>${tile.name}</div>`);
@@ -263,23 +284,6 @@ export class Shop extends Group
 
             console.log("added tile to buy menu");
         }
-        
-        this.employees = new Array();
-        this.customers = new Array();
-
-        this.maxCustomers                     = 20;
-        this.timeUntilNextCustomer            = 14;
-        this.timeSinceLastCustomer            = 0;
-        this.maxTimeUntilNextCustomer         = 20;
-        this.minTimeUntilNextCustomer         = 7;
-        this.customerWaitReputationMultiplier = 0.1;
-
-        this.lifeSales                        = 0;
-        this.lifeCustomers                    = 0;
-        this.lifeReputation                   = 0;
-
-        this.spawnPosition    = new Vector3(-4, 14, 0.5);
-        this.readyPosition    = new Vector3(-4, 7, 0.5);
     }
 
     beginTilePlacement(tile)

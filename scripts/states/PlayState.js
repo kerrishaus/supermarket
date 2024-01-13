@@ -70,6 +70,8 @@ export class PlayState extends State
             </div>
         `);
 
+        shop.populateTilesInBuyMenu();
+
         $("#resetSave").click(() => 
         {
             localStorage.clear();
