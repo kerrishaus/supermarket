@@ -71,7 +71,12 @@ export class LoadSaveState extends State
 
         const saveVersion = 1;
 
-        const saveData = JSON.parse(SaveLoader.saveDataRaw);
+        let saveData = SaveLoader.getSaveData();
+
+        /*
+        if (saveData.version != saveVersion)
+            saveData = SaveLoader.getDefaultSave();
+        */
 
         window.player = new Player();
 

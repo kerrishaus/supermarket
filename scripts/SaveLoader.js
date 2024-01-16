@@ -1,4 +1,4 @@
-export const saveDataRaw = 
+const saveDataRaw = 
 `
 {
     "version":1,
@@ -16,17 +16,33 @@ export const saveDataRaw =
             {
                 "type":"tomatoStand",
                 "position":{
-                    "x":0,
-                    "y":0,
+                    "x":5,
+                    "y":5,
                     "z":0.5
                 },
                 "amount":3
             },
             {
+                "type":"tomatoPlant",
+                "position":{
+                    "x":5,
+                    "y":1,
+                    "z":0.5
+                }
+            },
+            {
+                "type":"cashRegister",
+                "position":{
+                    "x":-7,
+                    "y":-5,
+                    "z":0.5
+                }
+            },
+            {
                 "type":"recycleBin",
                 "position":{
                     "x":-9,
-                    "y":9,
+                    "y":-11,
                     "z":0.5
                 }
             }
@@ -114,3 +130,17 @@ export const saveDataRaw =
     }
 }
 `;
+
+export function getSaveData()
+{
+    try
+    {
+        return JSON.parse(localStorage.getItem("shopSave") ?? saveDataRaw);
+    }
+    catch (exception)
+    {
+        console.error("An exception occured while loading save data. We will return a default save, and the previous save will be overwritten.", exception);
+
+        return JSON.parse(saveDataRaw);
+    }
+}

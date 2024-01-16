@@ -87,6 +87,8 @@ export class PlayState extends State
         };
         */
 
+        setInterval(this.saveGame, 3000);
+
         $(renderer.domElement).show();
         $(htmlRenderer.domElement).show();
         
@@ -104,6 +106,28 @@ export class PlayState extends State
         player.removeEventListeners();
 
         window.onbeforeunload = null;
+    }
+
+    saveGame()
+    {
+        console.debug("Saving game...");
+
+        $("#saveIcon").show();
+
+        let saveData = {
+            version: 1
+        };
+
+        saveData.player = {
+            position: player.position,
+            rotation: player.rotation
+        };
+
+        localStorage.setItem("shopSave", JSON.stringify(saveData));
+
+        $("#saveIcon").hide();
+
+        console.log("Saved game.");
     }
 
     openBuyMenu()
