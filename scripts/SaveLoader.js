@@ -31,7 +31,7 @@ const saveDataRaw =
                 }
             },
             {
-                "type":"cashRegister",
+                "type":"register",
                 "position":{
                     "x":-7,
                     "y":-5,
@@ -119,12 +119,7 @@ const saveDataRaw =
         },
         "carriedItems":[
             {
-                "type":"tomato",
-                "position":{
-                    "x":0,
-                    "y":0,
-                    "z":0
-                }
+                "type":"tomato"
             }
         ]
     }

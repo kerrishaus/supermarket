@@ -77,7 +77,7 @@ export class Shop extends Group
         this.registerTiles  = new Array();
 
         this.availableTiles = {
-            cashRegister: {
+            register: {
                 name: "Cash Register",
                 price: 0,
                 tile: null,
@@ -102,6 +102,8 @@ export class Shop extends Group
                 price: 50,
                 getTile: function() {
                     const tomatoStand     = new Entity();
+                    tomatoStand.name = "tomatoStand";
+
                     const tomatoTrigger   = tomatoStand.addComponent(new TriggerComponent);
                     tomatoTrigger.triggerEnabled = false;
 
@@ -123,7 +125,9 @@ export class Shop extends Group
                 name: "Tomato Plant",
                 price: 25,
                 getTile: () => {
-                    const tomatoPlant          = new Entity();
+                    const tomatoPlant = new Entity();
+                    tomatoPlant.name = "tomatoPlant";
+
                     const tomatoPlantTrigger   = tomatoPlant.addComponent(new TriggerComponent);
                     tomatoPlantTrigger.triggerEnabled = false;
 
@@ -150,6 +154,8 @@ export class Shop extends Group
                 price: 100,
                 getTile: () => {
                     const sodaStand     = new Entity();
+                    sodaStand.name = "sodaStand";
+
                     const sodaTrigger   = sodaStand.addComponent(new TriggerComponent);
                     sodaTrigger.triggerEnabled = false;
 
@@ -171,7 +177,9 @@ export class Shop extends Group
                 name: "Soda Maker",
                 price: 125,
                 getTile: () => {
-                    const sodaMaker        = new Entity();
+                    const sodaMaker = new Entity();
+                    sodaMaker.name = "sodaMaker";
+
                     const sodaMakerTrigger = sodaMaker.addComponent(new TriggerComponent);
                     sodaMakerTrigger.triggerEnabled = false;
 
@@ -197,7 +205,9 @@ export class Shop extends Group
                 name: "Ketchup Stand",
                 price: 150,
                 getTile: () => {
-                    const ketchupStand   = new Entity();
+                    const ketchupStand = new Entity();
+                    ketchupStand.name = "ketchupStand";
+
                     const ketchupTrigger = ketchupStand.addComponent(new TriggerComponent);
                     ketchupTrigger.triggerEnabled = false;
 

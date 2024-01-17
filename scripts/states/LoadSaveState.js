@@ -88,11 +88,11 @@ export class LoadSaveState extends State
             saveData.player.position.z
         );
 
-        // TODO: see if this can match the above style.
-        // i'm not super sure if rotation has a set method.
-        player.rotation.x = saveData.player.rotation.x;
-        player.rotation.y = saveData.player.rotation.y;
-        player.rotation.z = saveData.player.rotation.z;
+        player.rotation.set(
+            saveData.player.rotation.x,
+            saveData.player.rotation.y,
+            saveData.player.rotation.z
+        );
 
         player.registerEventListeners();
 
@@ -127,14 +127,17 @@ export class LoadSaveState extends State
 
         window.shop = new Shop();
 
-        for (const tile of saveData.shop.tiles)
-            this.loadTile(tile);
+        if ('tiles' in saveData.shop)
+            for (const tile of saveData.shop.tiles)
+                this.loadTile(tile);
 
-        for (const customer of saveData.shop.customers)
-            this.loadCustomer(customer);
+        if ('customers' in saveData.shop)
+            for (const customer of saveData.shop.customers)
+                this.loadCustomer(customer);
 
-        for (const employee of saveData.shop.employees)
-            this.loadEmployee(employee);
+        if ('employees' in saveData.shop)
+            for (const employee of saveData.shop.employees)
+                this.loadEmployee(employee);
 
         scene.add(shop);
 
@@ -191,9 +194,11 @@ export class LoadSaveState extends State
             customerData.position.z
         );
         
-        customer.rotation.x = customerData.rotation.x;
-        customer.rotation.y = customerData.rotation.y;
-        customer.rotation.z = customerData.rotation.z;
+        customer.rotation.set(
+            customerData.rotation.x,
+            customerData.rotation.y,
+            customerData.rotation.z
+        );
         
         for (const item of customerData.carriedItems)
             this.loadCarriedItem(customer, item);
@@ -216,13 +221,17 @@ export class LoadSaveState extends State
         
         const employee = new Employee(shop);
         
-        employee.position.x = employeeData.position.x;
-        employee.position.y = employeeData.position.y;
-        employee.position.z = employeeData.position.z;
+        employee.position.set(
+            employeeData.position.x,
+            employeeData.position.y,
+            employeeData.position.z
+        );
         
-        employee.rotation.x = employeeData.rotation.x;
-        employee.rotation.y = employeeData.rotation.y;
-        employee.rotation.z = employeeData.rotation.z;
+        employee.rotation.set(
+            employeeData.rotation.x,
+            employeeData.rotation.y,
+            employeeData.rotation.z
+        );
         
         for (const item of employeeData.carriedItems)
             this.loadCarriedItem(employee, item);

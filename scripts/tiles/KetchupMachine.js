@@ -17,6 +17,8 @@ export class KetchupMachine extends Entity
     {
         super();
 
+        this.name = "ketchupMachine";
+
         this.trigger = this.addComponent(new TriggerComponent(7, 3, 2));
 
         this.addComponent(new GeometryComponent(

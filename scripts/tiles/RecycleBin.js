@@ -13,6 +13,8 @@ export class RecycleBin extends Entity
     {
         super();
 
+        this.name = "recycleBin";
+
         this.addComponent(new TriggerComponent);
 
         const recycleBinContainer = this.addComponent(new ContainerComponent);

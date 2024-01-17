@@ -115,13 +115,70 @@ export class PlayState extends State
         $("#saveIcon").show();
 
         let saveData = {
-            version: 1
+            version: 1,
+            player: {
+                position: player.position,
+                rotation: {
+                    x: player.rotation.x,
+                    y: player.rotation.y,
+                    z: player.rotation.z
+                },
+                carriedItems: []
+            }
         };
 
-        saveData.player = {
-            position: player.position,
-            rotation: player.rotation
+        for (const item of player.getComponent("ContainerComponent").carriedItems)
+            saveData.player.carriedItems.push({
+                type: item.type
+            });
+
+        saveData.shop = {
+            maxCustomers: shop.maxCustomers,
+            timeUntilNextCustomer: shop.timeUntilNextCustomer,
+            timeSinceLastCustomer: shop.timeSinceLastCustomer,
+            maxTimeUntilNextCustomer: shop.maxTimeUntilNextCustomer,
+            minTimeUntilNextCustomer: shop.minTimeUntilNextCustomer,
+            customerWaitReputationMultiplier: shop.customerWaitReputationMultiplier,
+            lifeSales: shop.lifeSales,
+            lifeCustomers: shop.lifeCustomers,
+            lifeReputation: shop.lifeReputation,
+            
+            tiles: []
         };
+
+        for (const tile of shop.containerTiles)
+            saveData.shop.tiles.push({
+                type: tile.name,
+                position: tile.position
+            });
+
+        for (const tile of shop.generatorTiles)
+            saveData.shop.tiles.push({
+                type: tile.name,
+                position: tile.position
+            });
+
+        for (const tile of shop.registerTiles)
+            saveData.shop.tiles.push({
+                type: tile.name,
+                position: tile.position
+            });
+
+        saveData.customers = [];
+
+        for (const customer of shop.customers)
+            saveData.customers.push({
+                position: customer.position,
+                rotation: customer.rotation
+            });
+
+        saveData.employees = [];
+
+        for (const employee of shop.employees)
+            saveData.employees.push({
+                position: employee.position,
+                rotation: employee.rotation
+            });
 
         localStorage.setItem("shopSave", JSON.stringify(saveData));
 
