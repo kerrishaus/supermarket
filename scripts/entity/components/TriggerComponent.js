@@ -41,6 +41,7 @@ export class TriggerComponent extends EntityComponent
     {
         super.update(deltaTime);
 
+        // TODO: this kind of thing needs to be updated immediately when the object is moved, otherwise
         this.triggerGeometry.userData.obb.copy(this.triggerGeometry.geometry.userData.obb);
         this.triggerGeometry.userData.obb.applyMatrix4(this.triggerGeometry.matrixWorld);
 

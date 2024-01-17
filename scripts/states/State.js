@@ -25,9 +25,4 @@ export class State
     {
         
     }
-    
-    update(deltaTime)
-    {
-        
-    }
 };

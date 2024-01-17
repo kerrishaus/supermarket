@@ -86,12 +86,12 @@ export class PlayState extends State
             return 'You will lose unsaved progress, are you sure?';
         };
         */
-
+ 
         setInterval(this.saveGame, 3000);
 
         $(renderer.domElement).show();
         $(htmlRenderer.domElement).show();
-        
+
         this.animate();
     }
 
@@ -312,7 +312,6 @@ export class PlayState extends State
             }
 
             // set the player's direction
-            //player.rotation.z = Math.atan2(y2 - y1, x2 - x1) - 1.5708;
             player.rotation.z = MathUtility.angleToPoint(position, target);
 
             // clamp the player's velocity
@@ -336,28 +335,32 @@ export class PlayState extends State
 
         scene.traverse((object) =>
         {
-            // if the object is a trigger, check if any geometry boxes are within it
-            if (object instanceof Entity && object.hasComponent("TriggerComponent"))
-            {
-                const triggerComponent = object.getComponent("TriggerComponent");
-
-                scene.children.forEach((object2) =>
+            // TODO: this is a really ugly hack, but it prevents
+            // anything from being triggered during the first 3 frames of the game
+            // giving the oriented bounding boxes time to update into their proper positions.
+            if (this.clock.getElapsedTime() > 2)
+                // if the object is a trigger, check if any geometry boxes are within it
+                if (object instanceof Entity && object.hasComponent("TriggerComponent"))
                 {
-                    if (object2 == object ||
-                        object2.dontTrigger ||
-                        object2.parentEntity == object ||
-                        object.parentEntity == object2)
-                        return;
+                    const triggerComponent = object.getComponent("TriggerComponent");
 
-                    if (object2 instanceof Entity && object2.hasComponent("GeometryComponent"))
+                    scene.children.forEach((object2) =>
                     {
-                        const geometryComponent = object2.getComponent("GeometryComponent");
+                        if (object2 == object ||
+                            object2.dontTrigger ||
+                            object2.parentEntity == object ||
+                            object.parentEntity == object2)
+                            return;
 
-                        if (triggerComponent.triggerGeometry.userData.obb.intersectsOBB(geometryComponent.mesh.userData.obb))
-                            triggerComponent.triggeringEntities.push(object2);
-                    }
-                });
-            }
+                        if (object2 instanceof Entity && object2.hasComponent("GeometryComponent"))
+                        {
+                            const geometryComponent = object2.getComponent("GeometryComponent");
+
+                            if (triggerComponent.triggerGeometry.userData.obb.intersectsOBB(geometryComponent.mesh.userData.obb))
+                                triggerComponent.triggeringEntities.push(object2);
+                        }
+                    });
+                }
 
             if ('update' in object)
                 object.update(deltaTime);
@@ -368,10 +371,10 @@ export class PlayState extends State
         if (this.freeCam)
             freeControls.update();
 
-            /*
+        /*
         if (mixer)
             mixer.update(deltaTime);
-            */
+        */
         
         composer.render();
         htmlRenderer.render(scene, camera);

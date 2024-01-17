@@ -56,9 +56,4 @@ export class StateMachine
         
         console.log("Changed state.");
     }
-    
-    update(deltaTime)
-    {
-        this.states[this.states.length - 1]?.update(deltaTime);
-    }
 };

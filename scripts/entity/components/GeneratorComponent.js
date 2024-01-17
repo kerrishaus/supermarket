@@ -132,6 +132,8 @@ export class GeneratorComponent extends EntityComponent
         this.carriedItems.pop();
         
         this.updateItems();
+
+        console.log("Generator transferred to carrier.");
     }
     
     updateItems()
