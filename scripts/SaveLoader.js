@@ -28,7 +28,8 @@ const saveDataRaw =
                     "x":5,
                     "y":1,
                     "z":0.5
-                }
+                },
+                "amount":3
             },
             {
                 "type":"register",

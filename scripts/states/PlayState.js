@@ -117,6 +117,7 @@ export class PlayState extends State
         let saveData = {
             version: 1,
             player: {
+                money: player.money,
                 position: player.position,
                 rotation: {
                     x: player.rotation.x,
@@ -150,12 +151,14 @@ export class PlayState extends State
             saveData.shop.tiles.push({
                 type: tile.name,
                 position: tile.position
+                // TODO: amount
             });
 
         for (const tile of shop.generatorTiles)
             saveData.shop.tiles.push({
                 type: tile.name,
-                position: tile.position
+                position: tile.position,
+                amount: tile.getComponent("GeneratorComponent")?.carriedItems.length ?? 0
             });
 
         for (const tile of shop.registerTiles)

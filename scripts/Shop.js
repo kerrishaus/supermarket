@@ -83,7 +83,6 @@ export class Shop extends Group
                 tile: null,
                 getTile: () => {
                     const register = new Register();
-                    register.getComponent("TriggerComponent").triggerEnabled = false;
                     this.registerTiles.push(register);
                     return register;
                 },
@@ -93,7 +92,6 @@ export class Shop extends Group
                 price: 25,
                 getTile: () => {
                     const recycleBin = new RecycleBin();
-                    recycleBin.getComponent("TriggerComponent").triggerEnabled = false;
                     return recycleBin;
                 }
             },
@@ -104,8 +102,7 @@ export class Shop extends Group
                     const tomatoStand     = new Entity();
                     tomatoStand.name = "tomatoStand";
 
-                    const tomatoTrigger   = tomatoStand.addComponent(new TriggerComponent);
-                    tomatoTrigger.triggerEnabled = false;
+                    tomatoStand.addComponent(new TriggerComponent);
 
                     const tomatoContainer = tomatoStand.addComponent(new ContainerComponent("Tomato Stand", "tomato"));
                     tomatoStand.addComponent(new GeometryComponent(
@@ -128,8 +125,7 @@ export class Shop extends Group
                     const tomatoPlant = new Entity();
                     tomatoPlant.name = "tomatoPlant";
 
-                    const tomatoPlantTrigger   = tomatoPlant.addComponent(new TriggerComponent);
-                    tomatoPlantTrigger.triggerEnabled = false;
+                    tomatoPlant.addComponent(new TriggerComponent);
 
                     const tomatoPlantGenerator = tomatoPlant.addComponent(new GeneratorComponent("Tomato Plant", "tomato"));
                     tomatoPlant.addComponent(new GeometryComponent(
@@ -156,8 +152,7 @@ export class Shop extends Group
                     const sodaStand     = new Entity();
                     sodaStand.name = "sodaStand";
 
-                    const sodaTrigger   = sodaStand.addComponent(new TriggerComponent);
-                    sodaTrigger.triggerEnabled = false;
+                    sodaStand.addComponent(new TriggerComponent);
 
                     const sodaContainer = sodaStand.addComponent(new ContainerComponent("Soda Stand", "sodaCan"));
                     sodaStand.addComponent(new GeometryComponent(
@@ -180,8 +175,7 @@ export class Shop extends Group
                     const sodaMaker = new Entity();
                     sodaMaker.name = "sodaMaker";
 
-                    const sodaMakerTrigger = sodaMaker.addComponent(new TriggerComponent);
-                    sodaMakerTrigger.triggerEnabled = false;
+                    sodaMaker.addComponent(new TriggerComponent);
 
                     const sodaMachineGenerator = sodaMaker.addComponent(new GeneratorComponent("Soda Maker", "sodaCan"));
                     sodaMaker.addComponent(new GeometryComponent(
@@ -208,8 +202,7 @@ export class Shop extends Group
                     const ketchupStand = new Entity();
                     ketchupStand.name = "ketchupStand";
 
-                    const ketchupTrigger = ketchupStand.addComponent(new TriggerComponent);
-                    ketchupTrigger.triggerEnabled = false;
+                    ketchupStand.addComponent(new TriggerComponent);
 
                     const ketchupContainer = ketchupStand.addComponent(new ContainerComponent("Ketchup Stand", "ketchup"));
                     ketchupStand.addComponent(new GeometryComponent(
@@ -230,7 +223,6 @@ export class Shop extends Group
                 price: 200,
                 getTile: () => {
                     const ketchupMachine = new KetchupMachine();
-                    ketchupMachine.getComponent("TriggerComponent").triggerEnabled = false;
                     return ketchupMachine;
                 }
             },
@@ -315,6 +307,8 @@ export class Shop extends Group
             console.error("Tried to start tile placement process for " + tile.name + " but was not provided with a proper tile Entity.");
             return;
         }
+
+        this.newTile.tile.getComponent("TriggerComponent").triggerEnabled = false;
 
         // have to re-disable player movement because it gets re-enabled when the buy menu is closed
         player.disableMovement();

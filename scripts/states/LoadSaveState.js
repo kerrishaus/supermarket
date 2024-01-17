@@ -176,8 +176,9 @@ export class LoadSaveState extends State
 
         shop.confirmTilePlacement();
 
-        for (let i = 0; i < tileData.amount ?? 0; i++)
-            tile.tile.getComponent("GeneratorComponent")?.createItem();
+        // TODO: this has an error where the tile usually ends up with amount - 1 objects.
+        // I think it's because other objects are snatching them up
+        tile.tile.getComponent("GeneratorComponent")?.addItem(tileData.amount);
 
         return tile.tile;
     }
