@@ -6,6 +6,7 @@ import * as MathUtility from "../MathUtility.js";
 import * as PageUtility from "../PageUtility.js";
 
 import { Entity } from "../entity/Entity.js";
+import { RigidBodyCubeComponent } from "../entity/components/RigidBodyCubeComponent.js";
 
 export class PlayState extends State
 {
@@ -230,40 +231,13 @@ export class PlayState extends State
             const pos3 = new THREE.Vector3(pos.x(), pos.y(), pos.z());
             const quat3 = new THREE.Quaternion(quat.x(), quat.y(), quat.z(), quat.w());
             
-            object.position.copy(pos3);
-            object.quaternion.copy(quat3);
-        }
-
-        detectCollision();
-    }
-
-    detectCollision()
-    {
-        let dispatcher = physicsWorld.getDispatcher();
-        let numManifolds = dispatcher.getNumManifolds();
-
-        for ( let i = 0; i < numManifolds; i ++ )
-        {
-            let contactManifold = dispatcher.getManifoldByIndexInternal( i );
-            let numContacts = contactManifold.getNumContacts();
-
-            for ( let j = 0; j < numContacts; j++ )
-            {
-                let contactPoint = contactManifold.getContactPoint( j );
-                let distance = contactPoint.getDistance();
-
-                if (distance > 0.0)
-                    continue;
-
-                //console.log({manifoldIndex: i, contactIndex: j, distance: distance});
-            }
+            object.parentEntity.position.copy(pos3);
+            object.parentEntity.quaternion.copy(quat3);
         }
     }
     
     animate()
     {
-        requestAnimationFrame(() => this.animate());
-
         const deltaTime = this.clock.getDelta();
 
         if (!this.freeCam && player.move !== null)
@@ -366,7 +340,7 @@ export class PlayState extends State
                 object.update(deltaTime);
         });
 
-        //physicsStep(deltaTime);
+        this.physicsStep(deltaTime);
 
         if (this.freeCam)
             freeControls.update();
@@ -378,5 +352,7 @@ export class PlayState extends State
         
         composer.render();
         htmlRenderer.render(scene, camera);
+
+        requestAnimationFrame(() => this.animate());
     };
 }

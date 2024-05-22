@@ -1,6 +1,6 @@
 import { Scene } from "https://kerrishaus.com/assets/threejs/build/three.module.js";
 
-import { RigidBodyMesh } from "./geometry/RigidBodyMesh.js";
+import { Entity } from "./entity/Entity.js";
 
 export class PhysicsScene extends Scene
 {
@@ -26,25 +26,27 @@ export class PhysicsScene extends Scene
     {
         super.add(object);
 
-        if (object instanceof RigidBodyMesh)
+        if (object instanceof Entity && object.hasComponent("RigidBodyCubeComponent"))
         {
-            physicsBodies.push(object);
-            physicsWorld.addRigidBody(object.body);
+            const physComp = object.getComponent("RigidBodyCubeComponent");
+
+            physicsBodies.push(physComp);
+            physicsWorld.addRigidBody(physComp.body);
         }
     }
 
     remove(object)
     {
-        super.remove(object);
-
-        if (object instanceof RigidBodyMesh)
+        if (object instanceof Entity && object.hasComponent("RigidBodyCubeComponent"))
         {
             // TODO: probably make physicsBodies and physicsWorld maps
             // remove from physicsBodies
             // remove from physicsWorld
-
+            
             console.error("Remove physics bodies from the scene!");
         }
+
+        super.remove(object);
     }
 }
 
