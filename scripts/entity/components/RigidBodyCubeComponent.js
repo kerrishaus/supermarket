@@ -8,6 +8,9 @@ export class RigidBodyCubeComponent extends EntityComponent
 {
     init(geometry, material)
     {
+        geometry.computeBoundingBox();
+        geometry.userData.obb = new OBB().fromBox3(geometry.boundingBox);
+        
         this.mesh = new Mesh(geometry, material);
 
         this.mesh.castShadow = true;
@@ -78,6 +81,9 @@ export class RigidBodyCubeComponent extends EntityComponent
     update(deltaTime)
     {
         super.update(deltaTime);
+
+        this.mesh.userData.obb.copy(this.mesh.geometry.userData.obb);
+        this.mesh.userData.obb.applyMatrix4(this.mesh.matrixWorld);
     }
 
     setKinematic(kinematic = true)
