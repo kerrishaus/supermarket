@@ -13,6 +13,8 @@ export class RigidBodyCubeComponent extends EntityComponent
         
         this.mesh = new Mesh(geometry, material);
 
+        this.mesh.userData.obb = new OBB();
+
         this.mesh.castShadow = true;
         this.mesh.receiveShadow = true;
 
