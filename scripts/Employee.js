@@ -2,32 +2,34 @@ import { BoxGeometry, MeshStandardMaterial, Vector3 } from "https://kerrishaus.c
 
 import { CSS2DObject } from "https://kerrishaus.com/assets/threejs/examples/jsm/renderers/CSS2DRenderer.js";
 
-import * as MathUtility from "./MathUtility.js";
-
 import { Entity } from "./entity/Entity.js";
 import { ContainerComponent } from "./entity/components/ContainerComponent.js";
 import { GeometryComponent } from "./entity/components/GeometryComponent.js";
+
+import * as MathUtility from "./MathUtility.js";
 
 export class Employee extends Entity
 {
     constructor(shop)
     {
         super();
-
+        
         this.addComponent(new ContainerComponent);
-
+        
         this.addComponent(new GeometryComponent(
             new BoxGeometry(1, 1, 2),
             new MeshStandardMaterial({color: 0x42b6f5})
         ));
-
+        
         this.shop = shop;
-
+        
         this.speedModifier = 4;
-        this.canCheckoutCustomers = false;
-
+        
+        // TODO: add a $50 button to train them to enable this
+        this.canCheckoutCustomers = true;
+        
         this.actions = new Array();
-
+        
         // time since last action was started
         this.elapsedTime = 0;
         // actionTime is the amount of time it will take to get
@@ -35,10 +37,10 @@ export class Employee extends Entity
         this.actionTime = 0;
         this.startPosition = new Vector3(0, 0, 0.5);
         this.targetPosition = new Vector3(0, 0, 0.5);
-
+        
         this.labelDiv = document.createElement("div");
         this.labelDiv.textContent = "i am in pain";
-
+        
         const label = new CSS2DObject(this.labelDiv);
         label.color = "white";
         this.add(label);
@@ -47,7 +49,7 @@ export class Employee extends Entity
     destructor()
     {
         super.destructor();
-
+        
         this.labelDiv.remove();
     }
 
@@ -62,7 +64,7 @@ export class Employee extends Entity
         }
         
         this.actions.push(action);
-
+        
         console.debug("added action: " + action.type, action);
     }
     
@@ -70,7 +72,6 @@ export class Employee extends Entity
     {
         if (action.type == "move")
         {
-            console.debug("moving to", action.position);
             this.actionTime = this.position.distanceTo(action.position) / this.speedModifier;
             this.setTarget(action.position, this.actionTime);
         }
@@ -84,7 +85,7 @@ export class Employee extends Entity
             this.actionTime = this.position.distanceTo(action.container.position) / this.speedModifier;
             this.setTarget(action.container.position, this.actionTime);
         } 
-
+        
         this.labelDiv.textContent = action.type;
         
         console.debug("focused action");
@@ -93,7 +94,9 @@ export class Employee extends Entity
     nextAction()
     {
         console.debug("action complete");
-
+        
+        this.actions[0].onFinish?.();
+        
         this.actions.shift();
                 
         if (this.actions.length > 0)
@@ -115,31 +118,38 @@ export class Employee extends Entity
         this.targetPosition.copy(endPosition);
         this.actionTime = actionTime;
     }
-
+    
     gatherItemsFromAndTakeTo(from, to)
     {
         console.log(`Gathering items from ${from.name} for ${to.name}.`);
-
-        to.handledByEmployee = this;
-
+        
+        from.getComponent("GeneratorComponent").handledByEmployee = this;
+        to.getComponent("ContainerComponent").handledByEmployee   = this;
+        
         this.pushAction({
             type: "move",
             position: from.position,
         });
-
+        
         this.pushAction({
             type: "pick",
             container: from,
+            onFinish: () => {
+                from.getComponent("GeneratorComponent").handledByEmployee = null;
+            }
         });
-
+        
         this.pushAction({
             type: "move",
             position: to.position
         });
-
+        
         this.pushAction({
             type: "stock",
             container: to,
+            onFinish: () => {
+                to.getComponent("ContainerComponent").handledByEmployee = null;
+            }
         });
     }
     
@@ -148,20 +158,20 @@ export class Employee extends Entity
         if (this.actions.length > 0)
         {
             // carry out the actions queue
-
+            
             if (this.elapsedTime > this.actionTime)
             {
                 // finish the current action, and move on to the next
                 if (this.actions.length > 0)
                 {
                     const action = this.actions[0];
-
+                    
                     if (action.type == "move")
                         this.nextAction();   
                     else if (action.type == "pick")
                     {
                         action.container.getComponent("GeneratorComponent").transferToCarrier(this);
-
+                        
                         // go to next action if we are carrying as much as we can OR
                         // if the container is now empty.
                         if (this.getComponent("ContainerComponent").carriedItems.length >= this.getComponent("ContainerComponent").maxItems ||
@@ -171,13 +181,10 @@ export class Employee extends Entity
                     else if (action.type == "stock")
                     {
                         action.container.getComponent("ContainerComponent").transferFromCarrier(this);
-
+                        
                         // go to next action after stocking all carried items
                         if (this.getComponent("ContainerComponent").carriedItems.length <= 0)
-                        {
-                            action.container.getComponent("ContainerComponent").handledByEmployee = null;
                             this.nextAction();
-                        }
                     }
                 }
                 // there are no remaining actions, do nothing
@@ -187,46 +194,64 @@ export class Employee extends Entity
             else // the action time has not elapsed, meaning we should still be moving
             {
                 this.position.lerpVectors(this.startPosition, this.targetPosition, this.elapsedTime / this.actionTime);
-
+                
                 this.rotation.z = MathUtility.angleToPoint(this.position, this.targetPosition);
             }
         }
         else // no more actions, find a new one
         {
-            if (this.canCheckoutCustomers)
+            let unattendedRegister = null;
+            
+            // have to do this regardless of whether or not the employee
+            // is allowed to check out customers, because the two checks
+            // (canCheckoutCustomers and whether or not an unattended register exists)
+            // must be in the same statement, otherwise the employee will never
+            // do any other tasks if he is allowed to checkout customers
+            for (const register of this.shop.registerTiles)
             {
-                for (const register of this.shop.registerTiles)
+                if (register.waitingCustomers.length > 0)
                 {
-                    if (register.waitingCustomers.length < 1)
+                    if (register.handledByEmployee !== null)
                         continue;
-
-                    console.log("moving to checkout customers");
-                    this.pushAction({ type: "move", position: register.position });
+                    
+                    register.handledByEmployee = this;
+                    unattendedRegister = register;
+                    break;
                 }
+            }
+            
+            if (this.canCheckoutCustomers && unattendedRegister !== null)
+            {
+                this.pushAction({
+                    type: "move",
+                    position: unattendedRegister.position,
+                    onFinish: () => {
+                        unattendedRegister.handledByEmployee = null;
+                    } 
+                });
             }
             else // nobody is waiting at the register
             {
                 let lowestContainer = null;
-
+                
                 // looks for container with least items
                 for (const tile of this.shop.containerTiles)
                 {
                     const container = tile.getComponent("ContainerComponent");
-
-                    // TODO: change this to a not null check
-                    if (container.handledByEmployee instanceof Employee)
+                    
+                    if (container.handledByEmployee !== null)
                         continue;
-
+                    
                     if (container.carriedItems.length < container.maxItems)
                     {
                         if (lowestContainer === null)
                             lowestContainer = tile;
-
+                        
                         if (container.carriedItems.length < lowestContainer.getComponent("ContainerComponent").carriedItems.length)
                             lowestContainer = tile;
                     }
                 }
-
+                
                 // now look for generator with highest count of desired item
                 if (lowestContainer !== null)
                 {
@@ -235,20 +260,23 @@ export class Employee extends Entity
                     for (const tile of this.shop.generatorTiles)
                     {
                         const generator = tile.getComponent("GeneratorComponent");
-
+                        
                         if (generator.itemType == lowestContainer.getComponent("ContainerComponent").itemType)
                         {
                             if (generator.carriedItems.length < 1)
                                 continue;
-
+                                
+                            if (generator.handledByEmployee !== null)
+                                continue;
+                            
                             if (highestGenerator === null)
                                 highestGenerator = tile;
-
+                            
                             if (generator.carriedItems.length > highestGenerator.getComponent("GeneratorComponent").carriedItems.length)
                                 highestGenerator = tile;
                         }
                     }
-
+                    
                     if (highestGenerator !== null)
                         this.gatherItemsFromAndTakeTo(highestGenerator, lowestContainer);
                 }

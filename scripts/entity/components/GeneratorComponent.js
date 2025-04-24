@@ -37,6 +37,10 @@ export class GeneratorComponent extends EntityComponent
         this.itemLength = 0.4;
         this.itemWidth = 0.2;
         this.itemThickness = 0.1;
+        
+        // this is set by employees when they are targetting this container,
+        // so that it is not targetted by multiple employees
+        this.handledByEmployee = null;
 
         const labelDiv = document.createElement("div");
 

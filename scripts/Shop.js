@@ -1,8 +1,5 @@
 import { BoxGeometry, Vector3, Vector2, Raycaster, Plane, GridHelper, Group, PlaneGeometry, MeshStandardMaterial, Mesh, FrontSide } from "https://kerrishaus.com/assets/threejs/build/three.module.js";
 
-import * as GeometryUtil from "./geometry/GeometryUtility.js";
-import * as MathUtility from "./MathUtility.js";
-
 import { Door           } from "./Door.js";
 import { Register       } from "./tiles/Register.js";
 import { RecycleBin     } from "./tiles/RecycleBin.js";
@@ -20,6 +17,9 @@ import { TriggerComponent } from "./entity/components/TriggerComponent.js";
 import { ContainerComponent } from "./entity/components/ContainerComponent.js";
 import { GeometryComponent } from "./entity/components/GeometryComponent.js";
 import { GeneratorComponent } from "./entity/components/GeneratorComponent.js";
+
+import * as GeometryUtil from "./geometry/GeometryUtility.js";
+import * as MathUtility from "./MathUtility.js";
 
 export class Shop extends Group
 {
@@ -474,16 +474,16 @@ export class Shop extends Group
         customer.targetPosition.copy(this.spawnPosition);
         customer.position.copy(this.spawnPosition);
         customer.pushAction({ type: "move", position: this.readyPosition, debug: "to ready position" });
-
+        
         let atLeastOneTileSelected = false;
         for (const containerTile of this.containerTiles)
         {
             const chance = MathUtility.getRandomInt(0, 100) + 1;
-
+            
             if (chance > 50)
             {
                 const amount = MathUtility.getRandomInt(0, customer.getComponent("ContainerComponent").maxItems) + 1;
-
+                
                 if (amount > customer.getComponent("ContainerComponent").maxItems)
                 {
                     console.error(`Amount is greater than carry limit! Amount: ${amount} maxItems: ${customer.getComponent("ContainerComponent").maxItems}`);
@@ -491,13 +491,13 @@ export class Shop extends Group
                 }
                 else
                     console.log(`Customer will buy ${amount} from ${containerTile.name}`);
-
+                
                 customer.pushAction({type: "buy", container: containerTile, amount: amount, debug: "buy from " + containerTile.type })
-
+                
                 atLeastOneTileSelected = true;
             }
         }
-
+        
         if (!atLeastOneTileSelected)
             customer.pushAction({
                 type: "buy",
@@ -508,7 +508,7 @@ export class Shop extends Group
         
         customer.pushAction({ type: "move", position: customer.findNearestRegister().position, debug: "to register" });
         customer.pushAction({ type: "waitToCheckout", debug: "waiting to checkout" });
-
+        
         this.addCustomer(customer);
         scene.add(customer);
     }
@@ -537,14 +537,15 @@ export class Shop extends Group
             if (this.registerTiles.length > 0 && this.containerTiles.length > 0 && this.customers.length < this.maxCustomers)
             {
                 this.spawnCustomer();
-
+                
                 this.timeSinceLastCustomer = 0;
                 console.log("added customer");
-        
+                
                 this.timeUntilNextCustomer = MathUtility.getRandomInt(this.minTimeUntilNextCustomer, this.maxTimeUntilNextCustomer);
-
+                
+                // TODO: make customers come faster 
                 //this.timeUntilNextCustomer += this.customerWaitReputationMultiplier * this.lifeReputation;
-
+                
                 if (this.timeUntilNextCustomer > this.maxTimeUntilNextCustomer)
                     this.timeUntilNextCustomer = this.maxTimeUntilNextCustomer;
                 
@@ -553,20 +554,27 @@ export class Shop extends Group
         }
         else
             this.timeSinceLastCustomer += deltaTime;
-
+        
         for (const customer of this.customers)
         {
-            // if the customer has no actions
-            // TODO: make sure the customer actually made it to the register
-            if (customer.actions.length <= 0 && customer.checkedOut)
+            // if the customer has no actions, delete them.
+            if (customer.actions.length <= 0)
             {
                 this.updateReputation(customer.mood);
-
+                
                 customer.destructor();
                 this.customers.splice(this.customers.indexOf(customer), 1);
-
+                
                 $("#customerCount").text(this.customers.length);
             }
         }
+        
+        // TODO: optimise this
+        let waitingCustomerCount = 0;
+        
+        for (const register of this.registerTiles)
+            waitingCustomerCount += register.waitingCustomers.length;
+        
+        $("#waitingCustomers").text(waitingCustomerCount);
     }
 }
