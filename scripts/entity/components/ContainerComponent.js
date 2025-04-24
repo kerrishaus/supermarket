@@ -93,8 +93,6 @@ export class ContainerComponent extends EntityComponent
         
         for (let i = 0; i < this.carriedItems.length; i++)
         {
-            this.column_ += 1;
-            
             if (this.column_ >= this.gridColumns)
             {
                 this.column_ = 0;
@@ -108,6 +106,8 @@ export class ContainerComponent extends EntityComponent
             }
             
             this.carriedItems[i].getComponent("CarryableComponent").setTarget(this.parentEntity.position, new Vector3(this.column_ - 1, this.row_ - 1, this.layer_ + 1));
+            
+            this.column_ += 1;
         }
     }
 
