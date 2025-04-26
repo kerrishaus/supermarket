@@ -97,6 +97,7 @@ export class GeneratorComponent extends EntityComponent
     createItem()
     {
         const entity = new Entity;
+        
         entity.addComponent(new CarryableComponent);
         entity.addComponent(new GeometryComponent(
             new BoxGeometry(this.itemLength, this.itemWidth, this.itemThickness),

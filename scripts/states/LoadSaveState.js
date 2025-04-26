@@ -96,6 +96,8 @@ export class LoadSaveState extends State
 
         player.registerEventListeners();
 
+        scene.add(player);
+
         console.log("loading player's carried items");
  
         for (const item of saveData.player.carriedItems)
@@ -118,10 +120,9 @@ export class LoadSaveState extends State
                     continue;
             }
  
-            player.getComponent("ContainerComponent").carriedItems.push(newItem);
+            scene.add(newItem);
+            player.getComponent("ContainerComponent").addItem(newItem);
         }
-
-        scene.add(player);
 
         console.log("loading shop");
 
