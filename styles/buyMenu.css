@@ -5,10 +5,12 @@
     /* // TODO: use entire screen on mobile */
     width: 80vw;
     height: 80vh;
+    
+    overflow-y: scroll;
 
     position: absolute;
     z-index: 100;
-    top: calc(20vh);
+    bottom: 0;
     left: 10vw;
 
     border-radius: 10px 10px 0 0;
@@ -17,11 +19,10 @@
     border-bottom: 0;
 
     padding: 40px;
-    padding-bottom: 0;
 
     background-color: #ffffffe7;
 
-    transition: top 0.25s;
+    transition: bottom 0.15s;
 }
 
 #buyMenu[data-visibility="hidden"]
@@ -30,7 +31,7 @@
     user-select: none;
     -webkit-user-select: none;
 
-    top: 100vh;
+    bottom: -100vh;
 }
 
 #buyMenu[data-visibility="shown"]
