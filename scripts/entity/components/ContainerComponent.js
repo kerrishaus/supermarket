@@ -32,6 +32,7 @@ export class ContainerComponent extends EntityComponent
         // so that it is not targetted by multiple employees
         this.handledByEmployee = null;
         
+        /*
         this.labelDiv = document.createElement("div");
         
         const titleLabelDiv = document.createElement("div");
@@ -47,11 +48,12 @@ export class ContainerComponent extends EntityComponent
         const label = new CSS2DObject(this.labelDiv);
         label.color = "white";
         this.parentEntity.add(label);
+        */
     }
     
     destructor()
     {
-        this.labelDiv.remove();
+        //this.labelDiv.remove();
         
         for (const item of this.carriedItems)
             item.destructor();
@@ -164,7 +166,7 @@ export class ContainerComponent extends EntityComponent
             }
         }
         
-        this.countLabelDiv.textContent = `${this.carriedItems.length}/${this.maxItems}`;
+        //this.countLabelDiv.textContent = `${this.carriedItems.length}/${this.maxItems}`;
     }
 
     getCarriedItemsForSaving()

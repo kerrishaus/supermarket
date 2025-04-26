@@ -87,24 +87,21 @@ export class Customer extends Entity
 		    this.waitTime = 0;
 		}
 		
-		this.labelDiv.textContent = action.debug ?? "no debug info";
 		console.debug("focused action:" + action.type, action);
 	}
 
 	nextAction()
 	{
 		console.debug("starting next action");
-		
+
 		const lastAction = this.actions.shift();
-		
+
 		if (this.actions.length > 0)
 			this.focusAction(this.actions[0]);
 		else
         {
             if (lastAction.type == "waitToCheckout")
                 this.leaveStore();
-            else
-			    this.labelDiv.textContent = "finished all actions";
         }
 	}
 	
@@ -143,6 +140,14 @@ export class Customer extends Entity
 		this.pushAction({ type: "move", position: this.shop.readyPosition, debug: "to ready position, leaving" });
 		this.pushAction({ type: "move", position: this.shop.spawnPosition, debug: "to spawn position, leaving" });
 	}
+
+	finishCheckout()
+	{
+		this.checkedOut = true;
+		this.mood += 3;
+		this.mood -= this.waitTime;
+		this.leaveStore();
+	}
 	
 	update(deltaTime)
 	{
@@ -152,8 +157,6 @@ export class Customer extends Entity
 			{				
 				if (this.waitTime > this.leaveTime)
 				{
-					this.waitTime = 0;
-					
 					console.log("Customer waited too long and is leaving.");
 					
 					if (this.getComponent("ContainerComponent").carriedItems.length > 0)
@@ -166,12 +169,17 @@ export class Customer extends Entity
                             this.actions.length = 0;
                             this.pushAction({type: "move", position: this.findNearestRegister().position, debug: "moving angrily to the register" });
                         }
+
+						this.mood -= this.waitTime / 2;
 					}
-					else
-					    // TODO: need to drop the items, they just steal them right now lmao
+					else // waited too long at the register
+					{
+						this.mood -= this.waitTime;
+						// TODO: need to drop the items or something. right now they just take them lol
 					    this.leaveStore();
-					
-					this.mood -= this.waitTime;
+					}
+
+					this.waitTime = 0;
 				}
 				else
 				{
@@ -185,22 +193,23 @@ export class Customer extends Entity
 							
 							console.debug(`Picked up item ${this.getComponent("ContainerComponent").carriedItems.length} of ${this.actions[0].amount}`);
 							
-							this.mood -= this.waitTime;
-							
 							// once they have all their items, start the next action
 							if (this.getComponent("ContainerComponent").carriedItems.length >= this.actions[0].amount)
+							{
+								this.mood += 3;
+								this.mood -= this.waitTime;
+								
 								this.nextAction();
+							}
 						}
 						else // keep waiting for enough items to become available
 						{
 							this.waitTime += deltaTime;
-							this.labelDiv.textContent = this.waitTime;
 						}
 					}
 					else if (this.actions[0].type == "waitToCheckout")
 					{
 					    this.waitTime += deltaTime;
-						this.labelDiv.textContent = this.waitTime;
 					}
 				}
 			}
@@ -217,5 +226,7 @@ export class Customer extends Entity
 		super.update(deltaTime);
 		
 		this.elapsedTime += deltaTime;
+
+		this.labelDiv.innerHTML = `Action: ${this.actions[0]?.debug ?? "none"}<br/>Wait: ${this.waitTime}<br/>Mood: ${this.mood}`;
 	}
 };

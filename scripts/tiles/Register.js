@@ -59,10 +59,9 @@ export class Register extends Entity
 			for (let i = 0; i < customer.getComponent("ContainerComponent").carriedItems.length; i++)
 				this.addMoney(customer.position);
 			
-			customer.checkedOut = true;
+			customer.finishCheckout();
 			
 			this.waitingCustomers.shift();
-			customer.leaveStore();
 		}
 		
 		super.update(deltaTime);

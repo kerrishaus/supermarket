@@ -492,7 +492,7 @@ export class Shop extends Group
                 else
                     console.log(`Customer will buy ${amount} from ${containerTile.name}`);
                 
-                customer.pushAction({type: "buy", container: containerTile, amount: amount, debug: "buy from " + containerTile.type })
+                customer.pushAction({type: "buy", container: containerTile, amount: amount, debug: "buy from " + containerTile.name })
                 
                 atLeastOneTileSelected = true;
             }
