@@ -13,7 +13,7 @@ export class ModelComponent extends EntityComponent
         this.model = getModel(modelName);
         this.model.rotation.x = Math.PI / 2;
         this.model.rotation.z = 0.2;
-        this.model.scale.copy(size ?? new Vector3(1, 1, 1));
+        this.model.scale.copy(size ?? new Vector3(2, 2, 2));
 
         this.parentEntity.add(this.model);
     }
