@@ -100,29 +100,7 @@ export class LoadSaveState extends State
 
         console.log("loading player's carried items");
  
-        for (const item of saveData.player.carriedItems)
-        {
-            let newItem = null;
- 
-            switch (item.type)
-            {
-                case "tomato":
-                    newItem = new Tomato(player.position);
-                    break;
-                case "sodaCan":
-                    newItem = new SodaCan(player.position);
-                    break;
-                case "ketchup":
-                    newItem = new Ketchup(player.position);
-                    break;
-                default:
-                    console.log("Unknown item type: " + item);
-                    continue;
-            }
- 
-            scene.add(newItem);
-            player.getComponent("ContainerComponent").addItem(newItem);
-        }
+        this.loadCarriedItems(saveData.player.carriedItems, player);
 
         console.log("loading shop");
 
@@ -149,9 +127,33 @@ export class LoadSaveState extends State
     {
     }
 
-    loadCarriedItem(carrier, itemType)
+    loadCarriedItems(carriedItems, carrier)
     {
+        const container = carrier.getComponent("ContainerComponent");
 
+        for (const item of carriedItems)
+        {
+            let newItem = null;
+    
+            switch (item.type)
+            {
+                case "tomato":
+                    newItem = new Tomato(player.position);
+                    break;
+                case "sodaCan":
+                    newItem = new SodaCan(player.position);
+                    break;
+                case "ketchup":
+                    newItem = new Ketchup(player.position);
+                    break;
+                default:
+                    console.log("Unknown item type: " + item);
+                    continue;
+            }
+    
+            scene.add(newItem);
+            container.addItem(newItem);
+        }
     }
 
     loadTile(tileData)
@@ -202,8 +204,7 @@ export class LoadSaveState extends State
             customerData.rotation.z
         );
         
-        for (const item of customerData.carriedItems)
-            this.loadCarriedItem(customer, item);
+        this.loadCarriedItems(customerData.carriedItems, customer);
     
         for (const action of customerData.actions)
             this.loadCustomerAction(action);
@@ -235,8 +236,7 @@ export class LoadSaveState extends State
             employeeData.rotation.z
         );
         
-        for (const item of employeeData.carriedItems)
-            this.loadCarriedItem(employee, item);
+        this.loadCarriedItems(employeeData.carriedItems, employee);
     
         for (const action of employeeData.actions)
            this.loadEmployeeAction(action, employee);
