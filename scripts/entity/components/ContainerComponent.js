@@ -1,5 +1,7 @@
 import { Vector3 } from "https://kerrishaus.com/assets/threejs/build/three.module.js";
 
+import { CSS2DObject } from "https://kerrishaus.com/assets/threejs/examples/jsm/renderers/CSS2DRenderer.js";
+
 import { Player   } from "../../Player.js";
 import { Customer } from "../../Customer.js";
 import { Employee } from "../../Employee.js";
@@ -29,43 +31,66 @@ export class ContainerComponent extends EntityComponent
         // this is set by employees when they are targetting this container,
         // so that it is not targetted by multiple employees
         this.handledByEmployee = null;
+        
+        this.labelDiv = document.createElement("div");
+        
+        const titleLabelDiv = document.createElement("div");
+        titleLabelDiv.className = "tileLabel";
+        titleLabelDiv.textContent = this.name;
+        this.labelDiv.append(titleLabelDiv);
+        
+        this.countLabelDiv = document.createElement("div");
+        this.countLabelDiv.className = "countLabel";
+        this.countLabelDiv.textContent = 0;
+        this.labelDiv.append(this.countLabelDiv);
+        
+        const label = new CSS2DObject(this.labelDiv);
+        label.color = "white";
+        this.parentEntity.add(label);
     }
     
     destructor()
     {
-        super.destructor();
+        this.labelDiv.remove();
         
         for (const item of this.carriedItems)
             item.destructor();
+        
+        super.destructor();
     }
-
+    
+    addItem(item)
+    {
+        this.carriedItems.push(item);
+        
+        this.calculateGrid();
+        
+        //item.getComponent("CarryableComponent").setTarget(this.position, new Vector3(this.column_ - 1, this.row_ - 1, this.layer_ + 1));
+        item.autoPositionAfterAnimation = true;
+    }
+    
     transferFromCarrier(carrier)
     {
-        if (this.carriedItems.length >= this.maxItems)
-            return;
-        
         for (const item of carrier.getComponent("ContainerComponent").carriedItems)
         {
+            if (this.carriedItems.length >= this.maxItems)
+                return;
+            
             // if the item is not specified, it will take any item
             if (item.type == (this.itemType ?? item.type))
             {
                 carrier.getComponent("ContainerComponent").carriedItems.splice(carrier.getComponent("ContainerComponent").carriedItems.indexOf(item), 1);
-                this.carriedItems.push(item);
-                
-                this.calculateGrid();
-                
-                //item.getComponent("CarryableComponent").setTarget(this.position, new Vector3(this.column_ - 1, this.row_ - 1, this.layer_ + 1));
-                item.autoPositionAfterAnimation = true;
+                this.addItem(item);
             }
         }
     }
-
+    
     transferToCarrier(carrier)
     {
         if (this.carriedItems.length <= 0)
             return;
         
-        if (carrier.getComponent("ContainerComponent").carriedItems.length > carrier.maxItems)
+        if (carrier.getComponent("ContainerComponent").carriedItems.length >= carrier.maxItems)
         {
             console.warn(`Carrier has too many items! Carrying: ${carrier.getComponent("ContainerComponent").carriedItems.length}, Limit: ${carrier.getComponent("ContainerComponent").maxItems}`);
             return;
@@ -110,7 +135,7 @@ export class ContainerComponent extends EntityComponent
             this.column_ += 1;
         }
     }
-
+    
     update(deltaTime)
     {
         super.update(deltaTime);
@@ -138,5 +163,7 @@ export class ContainerComponent extends EntityComponent
                 item.getComponent("CarryableComponent").updateTarget(this.parentEntity.position, new Vector3(0, 0, carryPos));
             }
         }
+        
+        this.countLabelDiv.textContent = `${this.carriedItems.length}/${this.maxItems}`;
     }
 }

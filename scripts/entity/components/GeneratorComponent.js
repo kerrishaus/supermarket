@@ -16,14 +16,14 @@ export class GeneratorComponent extends EntityComponent
     {
         if (!this.parentEntity.hasComponent("TriggerComponent"))
             console.error("GeneratorComponent requires TriggerComponent be added to the parent entity first!");
-
+        
         this.name = name;
         this.itemType = itemType;
-
-        // 0 or less to stop the generator from automatically creating items
+        
+        // 0 or less disables automatic generation
         this.itemTime = 3;
         this.timeSinceLastItem = 0;
-
+        
         this.carriedItems = new Array();
         this.maxItems = 3;
         
@@ -41,44 +41,57 @@ export class GeneratorComponent extends EntityComponent
         // this is set by employees when they are targetting this container,
         // so that it is not targetted by multiple employees
         this.handledByEmployee = null;
-
-        const labelDiv = document.createElement("div");
-
-        this.titleLabelDiv = document.createElement("div");
-        this.titleLabelDiv.className = 'tileLabel';
-        this.titleLabelDiv.textContent = this.name;
-        labelDiv.append(this.titleLabelDiv);
+        
+        this.labelDiv = document.createElement("div");
+        
+        this.progressBar = document.createElement("progress");
+        // TODO: this might need to be set somewhere else, if the itemTime is changed
+        this.progressBar.setAttribute("value", 0);
+        this.progressBar.setAttribute("max", this.itemTime);
+        this.progressBar.style.width = "50px";
+        this.labelDiv.append(this.progressBar);
+        
+        const titleLabelDiv = document.createElement("div");
+        titleLabelDiv.className = 'tileLabel';
+        titleLabelDiv.textContent = this.name;
+        this.labelDiv.append(titleLabelDiv);
         
         this.countLabelDiv = document.createElement("div");
         this.countLabelDiv.className = 'countLabel';
         this.countLabelDiv.textContent = 0;
-        labelDiv.append(this.countLabelDiv);
-
-        this.label = new CSS2DObject(labelDiv);
-        this.label.color = "white";
-        this.parentEntity.add(this.label);
+        this.labelDiv.append(this.countLabelDiv);
+        
+        const label = new CSS2DObject(this.labelDiv);
+        label.color = "white";
+        this.parentEntity.add(label);
     }
-
+    
     destructor()
     {
+        this.labelDiv.remove();
+        
         super.destructor();
     }
-
+    
     update(deltaTime)
     {
         super.update(deltaTime);
 
         if (this.itemTime > 0)
             if (this.carriedItems.length < this.maxItems)
+            {
                 if (this.timeSinceLastItem > this.itemTime)
                 {
                     this.addItem();
                     this.timeSinceLastItem = 0;
                 }
-
-        this.timeSinceLastItem += deltaTime;
+                
+                // only make generation progress if the generator isn't full
+                this.timeSinceLastItem += deltaTime;
+                this.progressBar.setAttribute("value", this.timeSinceLastItem);
+            }
     }
-
+    
     // this can be overriden by derived classes
     // as long as the returned item inherits Carryable
     createItem()
@@ -89,7 +102,7 @@ export class GeneratorComponent extends EntityComponent
             new BoxGeometry(this.itemLength, this.itemWidth, this.itemThickness),
             new MeshStandardMaterial({ color: 0x48c92 })
         ));
-
+        
         return entity;
     }
     
@@ -107,7 +120,7 @@ export class GeneratorComponent extends EntityComponent
             scene.add(item);
             this.carriedItems.push(item);
         }
-
+        
         this.updateItems();
     }
     
@@ -115,7 +128,7 @@ export class GeneratorComponent extends EntityComponent
     {
         if (this.carriedItems.length <= 0)
             return;
-
+        
         // TODO: figure out if this check can be replaced carrier.hasComponent("ContainerComponent")
         if (carrier instanceof Player || carrier instanceof Employee)
             if (carrier.getComponent("ContainerComponent").carriedItems.length > carrier.getComponent("ContainerComponent").maxItems)

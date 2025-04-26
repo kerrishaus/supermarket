@@ -25,15 +25,12 @@ export class Employee extends Entity
         
         this.speedModifier = 4;
         
-        // TODO: add a $50 button to train them to enable this
+        // TODO: add a $50 button to train them that will enable this
         this.canCheckoutCustomers = true;
         
-        this.actions = new Array();
+        this.actions = [];
         
-        // time since last action was started
         this.elapsedTime = 0;
-        // actionTime is the amount of time it will take to get
-        // from the current position to the position of the action
         this.actionTime = 0;
         this.startPosition = new Vector3(0, 0, 0.5);
         this.targetPosition = new Vector3(0, 0, 0.5);
@@ -45,14 +42,14 @@ export class Employee extends Entity
         label.color = "white";
         this.add(label);
     }
-
+    
     destructor()
     {
-        super.destructor();
-        
         this.labelDiv.remove();
+        
+        super.destructor();
     }
-
+    
     pushAction(action)
     {
         // if there are no actions,

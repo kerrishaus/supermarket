@@ -24,6 +24,8 @@ export class Customer extends Entity
 		
 		this.shop = shop;
 		
+		this.actions = [];
+		
 		this.elapsedTime = 0;
 		this.actionTime = 3;
 		this.startPosition = new Vector3(0, 0, 0);
@@ -35,8 +37,6 @@ export class Customer extends Entity
 		
 		this.checkedOut = false;
 		
-		this.actions = new Array();
-		
 		this.labelDiv = document.createElement("div");
 		this.labelDiv.textContent = "i am in pain";
 		
@@ -44,13 +44,13 @@ export class Customer extends Entity
 		label.color = "white";
 		this.add(label);
 	}
-
+    
 	// TODO: the label should automatically be destroyed when Customer is destroyed
 	destructor()
 	{
-		super.destructor();
-		
 		this.labelDiv.remove();
+		
+		super.destructor();
 	}
 
 	pushAction(action)
