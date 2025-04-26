@@ -127,29 +127,36 @@ export class LoadSaveState extends State
     {
     }
 
+    instantiateItem(itemData)
+    {
+        let newItem = null;
+
+        switch (itemData.type)
+        {
+            case "tomato":
+                newItem = new Tomato(player.position);
+                break;
+            case "sodaCan":
+                newItem = new SodaCan(player.position);
+                break;
+            case "ketchup":
+                newItem = new Ketchup(player.position);
+                break;
+            default:
+                console.log("Unknown item: " + itemData);
+                return null;
+        }
+
+        return newItem;
+    }
+
     loadCarriedItems(carriedItems, carrier)
     {
         const container = carrier.getComponent("ContainerComponent");
 
         for (const item of carriedItems)
         {
-            let newItem = null;
-    
-            switch (item.type)
-            {
-                case "tomato":
-                    newItem = new Tomato(player.position);
-                    break;
-                case "sodaCan":
-                    newItem = new SodaCan(player.position);
-                    break;
-                case "ketchup":
-                    newItem = new Ketchup(player.position);
-                    break;
-                default:
-                    console.log("Unknown item type: " + item);
-                    continue;
-            }
+            let newItem = this.instantiateItem(item);
     
             scene.add(newItem);
             container.addItem(newItem);
@@ -179,9 +186,26 @@ export class LoadSaveState extends State
 
         shop.confirmTilePlacement();
 
-        // TODO: this has an error where the tile usually ends up with amount - 1 objects.
-        // I think it's because other objects are snatching them up
-        tile.tile.getComponent("GeneratorComponent")?.addItem(tileData.amount);
+        console.log(tileData);
+
+        if ("components" in tileData)
+        {
+            if ("GeneratorComponent" in tileData.components)
+            {
+                tile.tile.getComponent("GeneratorComponent")?.addItem(tileData.components.GeneratorComponent.amount);
+                tile.tile.getComponent("GeneratorComponent").timeSinceLastItem = tileData.components.GeneratorComponent.timeSinceLastItem ?? 0;
+            }
+
+            if ("ContainerComponent" in tileData.components)
+            {
+                for (const item of tileData.components.ContainerComponent.carriedItems)
+                {
+                    const newItem = this.instantiateItem(item);
+                    scene.add(newItem);
+                    tile.tile.getComponent("ContainerComponent")?.addItem(newItem);
+                }
+            }
+        }
 
         return tile.tile;
     }

@@ -166,4 +166,14 @@ export class ContainerComponent extends EntityComponent
         
         this.countLabelDiv.textContent = `${this.carriedItems.length}/${this.maxItems}`;
     }
+
+    getCarriedItemsForSaving()
+    {
+        const data = [];
+
+        for (const item of this.carriedItems)
+            data.push({ type: item.type });
+
+        return data;
+    }
 }

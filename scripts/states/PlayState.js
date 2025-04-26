@@ -7,6 +7,7 @@ import * as PageUtility from "../PageUtility.js";
 
 import { Entity } from "../entity/Entity.js";
 import { RigidBodyCubeComponent } from "../entity/components/RigidBodyCubeComponent.js";
+import { GeneratorComponent } from "../entity/components/GeneratorComponent.js";
 
 export class PlayState extends State
 {
@@ -151,15 +152,24 @@ export class PlayState extends State
         for (const tile of shop.containerTiles)
             saveData.shop.tiles.push({
                 type: tile.name,
-                position: tile.position
-                // TODO: amount
+                position: tile.position,
+                components: {
+                    ContainerComponent: {
+                        carriedItems: tile.getComponent("ContainerComponent")?.getCarriedItemsForSaving()
+                    }
+                }
             });
 
         for (const tile of shop.generatorTiles)
             saveData.shop.tiles.push({
                 type: tile.name,
                 position: tile.position,
-                amount: tile.getComponent("GeneratorComponent")?.carriedItems.length ?? 0
+                components: {
+                    GeneratorComponent: {
+                        amount: tile.getComponent("GeneratorComponent")?.carriedItems.length ?? 0,
+                        timeSinceLastItem: tile.getComponent("GeneratorComponent")?.timeSinceLastItem
+                    }
+                }
             });
 
         for (const tile of shop.registerTiles)
@@ -168,21 +178,33 @@ export class PlayState extends State
                 position: tile.position
             });
 
+        function saveNPC(entity)
+        {
+            const data = {
+                position: entity.position,
+                rotation: entity.rotation,
+                carriedItems: []
+            };
+    
+            const container = entity.getComponent("ContainerComponent");
+    
+            for (const item of container.carriedItems)
+                data.carriedItems.push({
+                    type: item.type
+                });
+            
+            return data;
+        }
+        
         saveData.customers = [];
-
+        
         for (const customer of shop.customers)
-            saveData.customers.push({
-                position: customer.position,
-                rotation: customer.rotation
-            });
+            saveData.customers.push(saveNPC(customer));
 
         saveData.employees = [];
 
         for (const employee of shop.employees)
-            saveData.employees.push({
-                position: employee.position,
-                rotation: employee.rotation
-            });
+            saveData.employees.push(saveNPC(employee));
 
         localStorage.setItem("shopSave", JSON.stringify(saveData));
 

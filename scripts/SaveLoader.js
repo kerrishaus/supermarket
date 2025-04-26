@@ -19,8 +19,7 @@ const saveDataRaw =
                     "x":5,
                     "y":5,
                     "z":0.5
-                },
-                "amount":3
+                }
             },
             {
                 "type":"tomatoPlant",
