@@ -244,6 +244,8 @@ export class Shop extends Group
         this.intersectionPlane = new Plane(shopFloor.position, 0);
         this.raycaster         = new Raycaster();
 
+        this.newTile = null;
+
         this.employees = new Array();
         this.customers = new Array();
 
@@ -258,8 +260,8 @@ export class Shop extends Group
         this.lifeCustomers                    = 0;
         this.lifeReputation                   = 0;
 
-        this.spawnPosition    = new Vector3(-4, 14, 0.5);
-        this.readyPosition    = new Vector3(-4, 7, 0.5);
+        this.spawnPosition = new Vector3(-4, 14, 0.5);
+        this.readyPosition = new Vector3(-4, 7, 0.5);
     }
 
     populateTilesInBuyMenu()
@@ -286,12 +288,38 @@ export class Shop extends Group
         }
     }
 
+    keydownDuringTilePlacement(event)
+    {
+        if (event.code == "KeyR")
+            shop.newTile.tile.rotateZ(Math.PI / 2);
+        else if (event.code == "Escape")
+            shop.cancelTilePlacement();
+    }
+
+    // TODO: support touch
+    // https://stackoverflow.com/a/69023543/6745382 use pointermove instead of touch/mouse move
+    mousemoveDuringTilePlacement(event)
+    {
+        shop.mousePos.x = (event.clientX / window.innerWidth) * 2 - 1;
+        shop.mousePos.y = - (event.clientY / window.innerHeight) * 2 + 1;
+
+        shop.updateTilePlacement();
+    }
+
+    mousedownDuringTilePlacement(event)
+    {
+        if (event.button == 0)
+            shop.confirmTilePlacement();
+        else if (event.button == 2) // right click to cancel
+            shop.cancelTilePlacement();
+    }
+
     beginTilePlacement(tile)
     {
         if (player.money < tile.price)
         {
-            console.log("Not enough money!");
-            return;
+            console.error("Not enough money!");
+            return false;
         }
 
         document.dispatchEvent(new CustomEvent("closeBuyMenu"));
@@ -317,31 +345,15 @@ export class Shop extends Group
 
         $("#interface").append("<div id='newTileMouseCatcher' class='mouse-catcher mouse-pass-through'>");
 
-        // TODO: support touch
-        $("#newTileMouseCatcher").on("mousemove", (event) => { this.updateTilePlacement(event); });
+        // TODO: there is a better way to do this, but right now I can't figure it out.
+        // Need to get events but can't use this. in the event, have to use shop.
+        // So these are global. There is an ugly line that checks if shop.tile is null in Playtate
+        // that I also don't like, but who cares as long as the player can do what they want, right?
+        window.addEventListener("keydown",   this.keydownDuringTilePlacement);
+        window.addEventListener("mousemove", this.mousemoveDuringTilePlacement);
+        window.addEventListener("mousedown", this.mousedownDuringTilePlacement);
 
-        $("#newTileMouseCatcher").on("mousedown", (event) => 
-        {
-            if (event.button == 0)
-                this.confirmTilePlacement();
-            else if (event.button == 2)
-                this.cancelTilePlacement();
-        });
-
-        $("#newTileMouseCatcher").keydown((event) => 
-        {
-            console.log(event);
-
-            if (event.code == "KeyR")
-                this.newTile.tile.rotateX(Math.PI / 2);
-            else if (event.code == "Escape")
-                this.cancelTilePlacement();
-        });
-
-        // TODO: run this once before adding the tile to the scene
-        // so that the tile is in the correct mouse position instead of starting
-        // in the center of the map
-        //this.updateTilePlacement();
+        this.updateTilePlacement();
 
         scene.add(this.newTile.tile);
 
@@ -355,9 +367,6 @@ export class Shop extends Group
             console.error("Trying to update tile placement, but newTile is invalid!", this.newTile);
             return false;
         }
-
-        this.mousePos.x = (event.clientX / window.innerWidth) * 2 - 1;
-        this.mousePos.y = - (event.clientY / window.innerHeight) * 2 + 1;
 
         this.raycaster.setFromCamera(this.mousePos, camera);
         this.raycaster.ray.intersectPlane(this.intersectionPlane, this.intersectionPos);
@@ -444,7 +453,9 @@ export class Shop extends Group
         // TODO: this is not properly disposed of
         scene.remove(this.gridHelper);
 
-        $("#newTileMouseCatcher").remove();
+        window.removeEventListener("keydown",   this.keydownDuringTilePlacement);
+        window.removeEventListener("mousemove", this.mousemoveDuringTilePlacement);
+        window.removeEventListener("mousedown", this.mousedownDuringTilePlacement);
 
         console.log("Tile placement is finished.");
     }

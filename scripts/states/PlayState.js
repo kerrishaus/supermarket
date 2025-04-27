@@ -53,22 +53,25 @@ export class PlayState extends State
 
                 console.log("freecam toggled");
             }
-            else if (event.code == "KeyB")
+            else if (shop.newTile === null)
             {
-                if ($("#buyMenu").attr("data-visibility") == "shown")
-                    this.closeBuyMenu();
-                else
-                    this.openBuyMenu();
-            }
-            else if (event.code == "Escape")
-            {
-                if ($("#buyMenu").attr("data-visibility") == "shown")
-                    this.closeBuyMenu();
-                else
-                    if ($("#pauseMenu").attr("data-visibility") == "shown")
-                        this.closePauseMenu();
+                if (event.code == "KeyB")
+                {
+                    if ($("#buyMenu").attr("data-visibility") == "shown")
+                        this.closeBuyMenu();
                     else
-                        this.openPauseMenu();
+                        this.openBuyMenu();
+                }
+                else if (event.code == "Escape")
+                {
+                    if ($("#buyMenu").attr("data-visibility") == "shown")
+                        this.closeBuyMenu();
+                    else
+                        if ($("#pauseMenu").attr("data-visibility") == "shown")
+                            this.closePauseMenu();
+                        else
+                            this.openPauseMenu();
+                }
             }
         });
 
