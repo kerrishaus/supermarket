@@ -343,7 +343,18 @@ export class Shop extends Group
 
         scene.add(this.gridHelper);
 
-        $("#interface").append("<div id='newTileMouseCatcher' class='mouse-catcher mouse-pass-through'>");
+        // TODO: have these buttons move up and down as the keys are pressed
+        $("#interface").append(`<div id='newTileOverlay' class='mouse-pass-through'>
+            <div>
+                <span><kbd>Escape</kbd>&nbsp;or&nbsp;<kbd>Right-Click</kbd>&nbsp;Cancel</span>
+                <br/>
+                <br/>
+                <span><kbd>R</kbd>&nbsp;Rotate 90 degrees</span>
+                <br/>
+                <br/>
+                <span><kbd>Left-Click</kbd>&nbsp;Confirm</span>
+            </div>
+        </div>`);
 
         // TODO: there is a better way to do this, but right now I can't figure it out.
         // Need to get events but can't use this. in the event, have to use shop.
@@ -393,6 +404,8 @@ export class Shop extends Group
         this.finallyTilePlacement();
     }
 
+    // TODO: for some reason, if the player is carrying items and the stand they create
+    // accepts that type of item, it will take whatever they had in their inventory.
     confirmTilePlacement()
     {
         // tile must be an instanceof Entity, or something went wrong.
@@ -427,7 +440,7 @@ export class Shop extends Group
         const pos = this.newTile.tile.position.clone();
         
         // create a money prop for each dollar of the tile price
-        // and have it fly from the player into the prop, then despawn
+        // and have it fly from the player into the prop
         for (let i = 0; i < this.newTile.price; i++)
         {
             setTimeout(() => {
@@ -437,6 +450,8 @@ export class Shop extends Group
                 money.getComponent("CarryableComponent").setTarget(pos, new Vector3(0, 0, 0));
                 
                 scene.add(money);
+                
+                // player's update function deletes carried money when it's done moving
                 player.carriedMoney.push(money);
             }, 5 * i);
         }
@@ -456,6 +471,8 @@ export class Shop extends Group
         window.removeEventListener("keydown",   this.keydownDuringTilePlacement);
         window.removeEventListener("mousemove", this.mousemoveDuringTilePlacement);
         window.removeEventListener("mousedown", this.mousedownDuringTilePlacement);
+
+        $("#newTileOverlay").remove();
 
         console.log("Tile placement is finished.");
     }
