@@ -34,6 +34,8 @@ export class Employee extends Entity
         this.actionTime = 0;
         this.startPosition = new Vector3(0, 0, 0.5);
         this.targetPosition = new Vector3(0, 0, 0.5);
+
+        this.position.copy(this.startPosition);
         
         this.labelDiv = document.createElement("div");
         this.labelDiv.textContent = "i am in pain";
