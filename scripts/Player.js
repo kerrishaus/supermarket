@@ -29,7 +29,7 @@ export class Player extends Entity
 
         //this.camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 200);
 		        
-        this.maxSpeed = 0.3;
+        this.maxSpeed = 0.2;
 
         this.controlsEnabled = true;
 
