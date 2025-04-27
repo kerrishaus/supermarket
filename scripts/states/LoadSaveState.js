@@ -183,6 +183,8 @@ export class LoadSaveState extends State
             tileData.position.y,
             tileData.position.z,
         );
+        
+        shop.newTile.tile.rotateZ(tileData.rotation?.z ?? 0)
 
         shop.confirmTilePlacement();
 

@@ -156,6 +156,9 @@ export class PlayState extends State
             saveData.shop.tiles.push({
                 type: tile.name,
                 position: tile.position,
+                rotation: {
+                    z: tile.rotation.z
+                },
                 components: {
                     ContainerComponent: {
                         carriedItems: tile.getComponent("ContainerComponent")?.getCarriedItemsForSaving()
@@ -167,6 +170,9 @@ export class PlayState extends State
             saveData.shop.tiles.push({
                 type: tile.name,
                 position: tile.position,
+                rotation: {
+                    z: tile.rotation.z
+                },
                 components: {
                     GeneratorComponent: {
                         amount: tile.getComponent("GeneratorComponent")?.carriedItems.length ?? 0,
@@ -178,7 +184,10 @@ export class PlayState extends State
         for (const tile of shop.registerTiles)
             saveData.shop.tiles.push({
                 type: tile.name,
-                position: tile.position
+                position: tile.position,
+                rotation: {
+                    z: tile.rotation.z
+                },
             });
 
         function saveNPC(entity)
