@@ -1,9 +1,9 @@
 import { BoxGeometry, Vector3, Vector2, Raycaster, Plane, GridHelper, Group, PlaneGeometry, MeshStandardMaterial, Mesh, FrontSide } from "https://kerrishaus.com/assets/threejs/build/three.module.js";
 
-import { Door           } from "./Door.js";
-import { Register       } from "./tiles/Register.js";
-import { RecycleBin     } from "./tiles/RecycleBin.js";
-import { KetchupMachine } from "./tiles/KetchupMachine.js";
+import { SingleSlidingDoor } from "./tiles/SingleSlidingDoor.js";
+import { Register          } from "./tiles/Register.js";
+import { RecycleBin        } from "./tiles/RecycleBin.js";
+import { KetchupMachine    } from "./tiles/KetchupMachine.js";
 
 import { Tomato  } from "./items/Tomato.js";
 import { SodaCan } from "./items/SodaCan.js";
@@ -26,19 +26,11 @@ export class Shop extends Group
     constructor()
     {
         super();
-
-        const shopWidth  = 20;
-        const shopLength = 20;
+        
+        const shopWidth  = 10;
+        const shopLength = 16;
         const wallThickness = 1;
         
-        //const shopFloor = new RigidBodyCube(new Vector3(shopWidth, shopLength, wallThickness), 0xE0E0E0, new Vector3(0, 0, -1), new Quaternion(), 0);
-
-        const size = 20;
-        const divisions = 10;
-        this.gridHelper = new GridHelper(size, divisions);
-        this.gridHelper.rotation.x = 1.5708;
-        this.gridHelper.position.z = -0.5;
-
         const shopFloor = new Mesh(
             new PlaneGeometry(shopWidth, shopLength),
             new MeshStandardMaterial({ color: 0xE0E0E0, side: FrontSide })
@@ -47,20 +39,20 @@ export class Shop extends Group
         shopFloor.receiveShadow = true;
         shopFloor.position.set(0, 0, -0.5);
         scene.add(shopFloor);
-
+        
         const backroomFloor = new Mesh(
             new PlaneGeometry(shopWidth, shopLength / 2),
             new MeshStandardMaterial({ color: 0x878787, side: FrontSide })
         );
         backroomFloor.castShadow = true;
         backroomFloor.receiveShadow = true;
-        backroomFloor.position.set(0, -15, -0.5);
+        backroomFloor.position.set(0, -12, -0.5);
         scene.add(backroomFloor);
-
+        
         // shop north wall
-        const northWall = GeometryUtil.createCube(new Vector3(shopLength, wallThickness, 4), new Vector3(0, shopWidth / 2 - wallThickness / 2 + 1, 1.5), 0xbfbfbf);
+        const northWall = GeometryUtil.createCube(new Vector3(shopWidth, wallThickness, 4), new Vector3(0, shopLength / 2 - wallThickness / 2 + 1, 1.5), 0xbfbfbf);
         scene.add(northWall);
-
+        
         // west wall
         //scene.add(GeometryUtil.createCube(new Vector3(wallThickness, shopWidth, 4), new Vector3(shopWidth / 2 - wallThickness / 2 + 1, 0, 1.5), 0xbfbfbf));
         // east wall
@@ -69,30 +61,59 @@ export class Shop extends Group
         //const backroomFloor = new RigidBodyCube(new Vector3(shopWidth, shopLength / 2, wallThickness), 0x878787, new Vector3(0, -15, -1), new Quaternion(), 0);
         //scene.add(backroomFloor);
 
-        this.doors = new Door(new Vector3(-4.1, northWall.position.y - 0.001, 1.25), 0x0000ff);
+        this.doors = new SingleSlidingDoor(new Vector3(-2, northWall.position.y - 0.001, 1.25), 0x0000ff);
         scene.add(this.doors);
-
-        this.containerTiles = new Array();
-        this.generatorTiles = new Array();
-        this.registerTiles  = new Array();
-
+        
+        this.spawnPosition = new Vector3(-2, 14, 0.5);
+        this.readyPosition = new Vector3(-2, 7, 0.5);
+        
+        const size = 20;
+        const divisions = 10;
+        this.gridHelper = new GridHelper(size, divisions);
+        this.gridHelper.rotation.x = 1.5708;
+        this.gridHelper.position.z = -0.5;
+        
+        this.mousePos          = new Vector2(0, 0);
+        this.mouseWorldPos     = new Vector3();
+        this.intersectionPos   = new Vector3();
+        this.intersectionPlane = new Plane(shopFloor.position, 0);
+        this.raycaster         = new Raycaster();
+        
+        this.newTile = null;
+        
+        this.employees = [];
+        this.customers = [];
+        
+        this.maxCustomers                     = 20;
+        this.timeUntilNextCustomer            = 14;
+        this.timeSinceLastCustomer            = 0;
+        this.maxTimeUntilNextCustomer         = 20;
+        this.minTimeUntilNextCustomer         = 7;
+        this.customerWaitReputationMultiplier = 0.1;
+        
+        this.lifeSales                        = 0;
+        this.lifeCustomers                    = 0;
+        this.lifeReputation                   = 0;
+        
+        this.allTiles       = [];
+        this.containerTiles = [];
+        this.generatorTiles = [];
+        this.registerTiles  = [];
+        
         this.availableTiles = {
             register: {
                 name: "Cash Register",
                 price: 0,
                 tile: null,
                 getTile: () => {
-                    const register = new Register();
-                    this.registerTiles.push(register);
-                    return register;
+                    return new Register();
                 },
             },
             recycleBin: {
                 name: "Recycle Bin",
                 price: 25,
                 getTile: () => {
-                    const recycleBin = new RecycleBin();
-                    return recycleBin;
+                    return new RecycleBin();
                 }
             },
             tomatoStand: {
@@ -235,33 +256,8 @@ export class Shop extends Group
             },
             */
         };
-
+        
         this.populateTilesInBuyMenu();
-
-        this.mousePos          = new Vector2(0, 0);
-        this.mouseWorldPos     = new Vector3();
-        this.intersectionPos   = new Vector3();
-        this.intersectionPlane = new Plane(shopFloor.position, 0);
-        this.raycaster         = new Raycaster();
-
-        this.newTile = null;
-
-        this.employees = new Array();
-        this.customers = new Array();
-
-        this.maxCustomers                     = 20;
-        this.timeUntilNextCustomer            = 14;
-        this.timeSinceLastCustomer            = 0;
-        this.maxTimeUntilNextCustomer         = 20;
-        this.minTimeUntilNextCustomer         = 7;
-        this.customerWaitReputationMultiplier = 0.1;
-
-        this.lifeSales                        = 0;
-        this.lifeCustomers                    = 0;
-        this.lifeReputation                   = 0;
-
-        this.spawnPosition = new Vector3(-4, 14, 0.5);
-        this.readyPosition = new Vector3(-4, 7, 0.5);
     }
 
     populateTilesInBuyMenu()
@@ -415,19 +411,16 @@ export class Shop extends Group
             this.finallyTilePlacement();
             return false;
         }
-
-        // TODO: a more elegant fix for this
-        if (!(this.newTile.tile instanceof RecycleBin))
-        {
-            // the ketchup container is used to hold items until they are turned into ketchup
-            if (!(this.newTile.tile instanceof KetchupMachine))
-                if (this.newTile.tile.hasComponent("ContainerComponent"))
-                    this.containerTiles.push(this.newTile.tile);
-
-            if (this.newTile.tile.hasComponent("GeneratorComponent"))
-                this.generatorTiles.push(this.newTile.tile);
-        }
-
+        
+        if (this.newTile.tile.hasComponent("ContainerComponent"))
+            this.containerTiles.push(this.newTile.tile);
+        
+        if (this.newTile.tile.hasComponent("GeneratorComponent"))
+            this.generatorTiles.push(this.newTile.tile);
+            
+        if (this.newTile.tile instanceof Register)
+            this.registerTiles.push(this.newTile.tile);
+        
         this.newTile.tile.getComponent("TriggerComponent").triggerEnabled = true;
 
         this.newTile.onAfterPlace?.();
@@ -461,6 +454,8 @@ export class Shop extends Group
     
     finallyTilePlacement()
     {
+        this.allTiles.push(this.newTile.tile);
+        
         this.newTile = null;
 
         player.enableMovement();
@@ -493,7 +488,7 @@ export class Shop extends Group
 
         console.log("added customer");
     }
-
+    
     // creates a new customer and gives them actions
     spawnCustomer()
     {
