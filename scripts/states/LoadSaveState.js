@@ -11,8 +11,10 @@ import { Customer } from "../Customer.js";
 import { Employee } from "../Employee.js";
 import { Tomato } from "../items/Tomato.js";
 import { SodaCan } from "../items/SodaCan.js";
-import * as SaveLoader from "../SaveLoader.js";
 import { Ketchup } from "../items/Ketchup.js";
+
+import * as SaveLoader from "../SaveLoader.js";
+import * as ItemUtility from "../ItemUtility.js";
 
 export class LoadSaveState extends State
 {
@@ -127,29 +129,6 @@ export class LoadSaveState extends State
     {
     }
 
-    instantiateItem(itemData)
-    {
-        let newItem = null;
-
-        switch (itemData.type)
-        {
-            case "tomato":
-                newItem = new Tomato(player.position);
-                break;
-            case "sodaCan":
-                newItem = new SodaCan(player.position);
-                break;
-            case "ketchup":
-                newItem = new Ketchup(player.position);
-                break;
-            default:
-                console.log("Unknown item: " + itemData);
-                return null;
-        }
-
-        return newItem;
-    }
-
     loadCarriedItems(carriedItems, carrier)
     {
         const container = carrier.getComponent("ContainerComponent");
@@ -202,7 +181,7 @@ export class LoadSaveState extends State
             {
                 for (const item of tileData.components.ContainerComponent.carriedItems)
                 {
-                    const newItem = this.instantiateItem(item);
+                    const newItem = ItemUtility.instantiateItem(item);
                     scene.add(newItem);
                     tile.tile.getComponent("ContainerComponent")?.addItem(newItem);
                 }
