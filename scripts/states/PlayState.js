@@ -2,17 +2,16 @@ import { State } from "./State.js";
 
 import * as THREE from "https://kerrishaus.com/assets/threejs/build/three.module.js";
 
-import * as MathUtility from "../MathUtility.js";
 import * as PageUtility from "../PageUtility.js";
 
 import { Entity } from "../entity/Entity.js";
-import { RigidBodyCubeComponent } from "../entity/components/RigidBodyCubeComponent.js";
-import { GeneratorComponent } from "../entity/components/GeneratorComponent.js";
 
 export class PlayState extends State
 {
     init()
     {
+        this.clock = new THREE.Clock();
+        
         PageUtility.addStyle("game");
         PageUtility.addStyle("interface");
         PageUtility.addStyle("banner");
@@ -27,29 +26,26 @@ export class PlayState extends State
             window.location.reload();
         });
 
-        this.clock = new THREE.Clock();
+        $("#hireEmployee").click(() =>
+        { 
+            shop.addEmployee()
+        });
 
-        window.oncontextmenu = (event) =>
+        $(window).contextmenu(function(event)
         {
             event.preventDefault();
             event.stopPropagation();
             return false;
-        };
+        });
 
-        $("#hireEmployee").click(() => { shop.addEmployee() });
-
-        window.addEventListener("keydown", (event) =>
+        $(window).keydown((event) =>
         {
             if (event.code == "KeyO")
             {
-                this.freeCam = !this.freeCam;
-                freeControls.enabled = this.freeCam;
+                player.freeCam = !player.freeCam;
+                freeControls.enabled = player.freeCam;
                 freeControls.target.copy(player.position);
                 freeControls.update();
-
-                camera.position.z = 10;
-                camera.position.y = -12;
-                camera.lookAt(new THREE.Vector3(0, 0, 0));
 
                 console.log("freecam toggled");
             }
@@ -74,29 +70,29 @@ export class PlayState extends State
                 }
             }
         });
-
+        
         $("#buyMenuClose").click(() =>
         {
-            this.closeBuyMenu();
+            document.dispatchEvent(new CustomEvent("closeBuyMenu"));
         });
         
         $(document).on("closeBuyMenu", () =>
         {
             this.closeBuyMenu();
         });
-
+        
         /*
         window.onbeforeunload = function(event)
         {
             return 'You will lose unsaved progress, are you sure?';
         };
         */
- 
+        
         setInterval(this.saveGame, 3000);
-
+        
         $(renderer.domElement).show();
         $(htmlRenderer.domElement).show();
-
+        
         this.animate();
     }
 
@@ -151,45 +147,12 @@ export class PlayState extends State
             
             tiles: []
         };
-
-        for (const tile of shop.containerTiles)
-            saveData.shop.tiles.push({
-                type: tile.name,
-                position: tile.position,
-                rotation: {
-                    z: tile.rotation.z
-                },
-                components: {
-                    ContainerComponent: {
-                        carriedItems: tile.getComponent("ContainerComponent")?.getCarriedItemsForSaving()
-                    }
-                }
-            });
-
-        for (const tile of shop.generatorTiles)
-            saveData.shop.tiles.push({
-                type: tile.name,
-                position: tile.position,
-                rotation: {
-                    z: tile.rotation.z
-                },
-                components: {
-                    GeneratorComponent: {
-                        amount: tile.getComponent("GeneratorComponent")?.carriedItems.length ?? 0,
-                        timeSinceLastItem: tile.getComponent("GeneratorComponent")?.timeSinceLastItem
-                    }
-                }
-            });
-
-        for (const tile of shop.registerTiles)
-            saveData.shop.tiles.push({
-                type: tile.name,
-                position: tile.position,
-                rotation: {
-                    z: tile.rotation.z
-                },
-            });
-
+        
+        // TODO: does not save recycle bin tiles. need to find a way to save all tiles and find type later
+        
+        for (const tile of shop.allTiles)
+            saveData.shop.tiles.push(tile.serialise());
+        
         function saveNPC(entity)
         {
             const data = {
@@ -274,73 +237,6 @@ export class PlayState extends State
     {
         const deltaTime = this.clock.getDelta();
 
-        if (!this.freeCam && player.move !== null)
-        {
-            let position = new THREE.Vector2(), target = new THREE.Vector2();
-            let velocity = 0;
-
-            if (player.move == player.MoveType.Touch)
-            {
-                position = player.pointerMoveOrigin;
-                target = player.mouse;
-
-                velocity = player.pointerMoveOrigin.distanceTo(new THREE.Vector3(player.mouse.x, player.mouse.y)) / 2;
-            }
-            else
-            {
-                if (player.move == player.MoveType.Keyboard)
-                {
-                    const moveAmount = player.maxSpeed;
-
-                    if (player.keys["KeyW"] || player.keys["ArrowUp"])
-                        player.moveTarget.translateY(moveAmount);
-                    if (player.keys["KeyA"] || player.keys["ArrowLeft"])
-                        player.moveTarget.translateX(-moveAmount);
-                    if (player.keys["KeyS"] || player.keys["ArrowDown"])
-                        player.moveTarget.translateY(-moveAmount);
-                    if (player.keys["KeyD"] || player.keys["ArrowRight"])
-                        player.moveTarget.translateX(moveAmount);
-
-                    player.moveTarget.quaternion.copy(player.quaternion);
-                }
-                else if (player.move == player.MoveType.Mouse)
-                {
-                    player.raycaster.setFromCamera(player.mouse, camera);
-                    player.raycaster.ray.intersectPlane(player.plane, player.intersects);
-                    player.moveTarget.position.copy(player.intersects);
-                }
-
-                position.x = player.position.x;
-                position.y = player.position.y
-
-                target.x = player.moveTarget.position.x;
-                target.y = player.moveTarget.position.y;
-
-                velocity = player.position.distanceTo(player.moveTarget.position) / 20;
-            }
-
-            // set the player's direction
-            player.rotation.z = MathUtility.angleToPoint(position, target);
-
-            // clamp the player's velocity
-            velocity = MathUtility.clamp(velocity, 0, player.maxSpeed);
-
-            // move the player their direction
-            player.translateY(velocity);
-
-            // TODO: do this in Shop class maybe
-            shop.gridHelper.position.x = Math.floor(player.position.x / 2) * 2;
-            shop.gridHelper.position.y = Math.floor(player.position.y / 2) * 2;
-        }
-
-        if (!this.freeCam)
-        {
-            // TODO: put the camera in Player
-            camera.position.x = player.position.x;
-            camera.position.y = player.position.y - 6;
-            camera.lookAt(player.position);
-        }
-
         scene.traverse((object) =>
         {
             // TODO: this is a really ugly hack, but it prevents
@@ -370,14 +266,11 @@ export class PlayState extends State
                     });
                 }
 
-            if ('update' in object)
+            if ("update" in object)
                 object.update(deltaTime);
         });
 
         this.physicsStep(deltaTime);
-
-        if (this.freeCam)
-            freeControls.update();
 
         /*
         if (mixer)
