@@ -155,7 +155,7 @@ export class LoadSaveState extends State
     {
         const tile = shop.availableTiles[tileData.type];
 
-        if (!'price' in tile)
+        if (!"price" in tile)
         {
             console.error("tile did not contain price, skipping. Tile type: " + tileData.type, tile);
             return null;
@@ -189,23 +189,12 @@ export class LoadSaveState extends State
         console.log("loading customer");
         
         let customer = new Customer(shop);
+
+        customer.deserialise(customerData);
         
-        customer.position.set(
-            customerData.position.x,
-            customerData.position.y,
-            customerData.position.z
-        );
-        
-        customer.rotation.set(
-            customerData.rotation.x,
-            customerData.rotation.y,
-            customerData.rotation.z
-        );
-        
-        this.loadCarriedItems(customerData.carriedItems, customer);
-    
-        for (const action of customerData.actions)
-            this.loadCustomerAction(action);
+        if ("actions" in customerData)
+            for (const action of customerData.actions)
+                this.loadCustomerAction(action);
 
         shop.addCustomer(customer);
         scene.add(customer);
