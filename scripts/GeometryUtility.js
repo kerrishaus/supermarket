@@ -1,8 +1,8 @@
 import { Vector3, BoxGeometry, MeshStandardMaterial, Mesh, Quaternion, TextureLoader } from "https://kerrishaus.com/assets/threejs/build/three.module.js";
 
-import { Entity } from "../entity/Entity.js";
-import { CarryableComponent } from "../entity/components/CarryableComponent.js";
-import { GeometryComponent } from "../entity/components/GeometryComponent.js";
+import { Entity } from "./entity/Entity.js";
+import { CarryableComponent } from "./entity/components/CarryableComponent.js";
+import { GeometryComponent } from "./entity/components/GeometryComponent.js";
 
 export function createCube(size, position, color)
 {
