@@ -535,7 +535,7 @@ export class Shop extends Group
         this.addCustomer(customer);
         scene.add(customer);
     }
-
+    
     addEmployee(employee = null)
     {
         if (employee == null)
@@ -543,13 +543,13 @@ export class Shop extends Group
             employee = new Employee(this);
             scene.add(employee);
         }
-
+        
         this.employees.push(employee);
-
+        
         $("#employees").prepend("<div class='employee' data-employeeId='" + employee.uuid + "'>");
-
+        
         console.log("added employee to shop");
-
+        
         return employee;
     }
 

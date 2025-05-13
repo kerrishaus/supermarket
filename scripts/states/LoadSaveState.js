@@ -97,49 +97,40 @@ export class LoadSaveState extends State
         if (saveData.version != saveVersion)
             saveData = SaveLoader.getDefaultSave();
         */
-
+        
         window.player = new Player();
-
+        
         player.setMoney(saveData.player.money);
-
-        player.position.set(
-            saveData.player.position.x,
-            saveData.player.position.y,
-            saveData.player.position.z
-        );
-
-        player.rotation.set(
-            saveData.player.rotation.x,
-            saveData.player.rotation.y,
-            saveData.player.rotation.z
-        );
-
+        
+        player.deserialise(saveData.player);
+        
         player.registerEventListeners();
-
+        
         scene.add(player);
-
-        console.log("loading player's carried items");
- 
-        this.loadCarriedItems(saveData.player.carriedItems, player);
-
+        
         console.log("loading shop");
-
+        
         window.shop = new Shop();
-
-        if ('tiles' in saveData.shop)
+        
+        if ("tiles" in saveData.shop)
             for (const tile of saveData.shop.tiles)
                 this.loadTile(tile);
 
-        if ('customers' in saveData.shop)
+        if ("customers" in saveData.shop)
             for (const customer of saveData.shop.customers)
                 this.loadCustomer(customer);
 
-        if ('employees' in saveData.shop)
-            for (const employee of saveData.shop.employees)
-                this.loadEmployee(employee);
-
+        if ("employees" in saveData.shop)
+            for (const employeeData of saveData.shop.employees)
+            {
+                console.log("loaded employee");
+                const employee = shop.addEmployee();
+                employee.deserialise(employeeData);
+                scene.add(employee);
+            }
+        
         scene.add(shop);
-
+        
         this.stateMachine.changeState(new PlayState());
     }
     
@@ -221,38 +212,6 @@ export class LoadSaveState extends State
     }
     
     loadCustomerAction(actionData)
-    {
-
-    }
-
-    loadEmployee(employeeData)
-    {
-        console.log("loading employee");
-        
-        const employee = new Employee(shop);
-        
-        employee.position.set(
-            employeeData.position.x,
-            employeeData.position.y,
-            employeeData.position.z
-        );
-        
-        employee.rotation.set(
-            employeeData.rotation.x,
-            employeeData.rotation.y,
-            employeeData.rotation.z
-        );
-        
-        this.loadCarriedItems(employeeData.carriedItems, employee);
-    
-        for (const action of employeeData.actions)
-           this.loadEmployeeAction(action, employee);
-
-        shop.addEmployee(employee);
-        scene.add(employee);
-    }
-
-    loadEmployeeAction(actionData, employee)
     {
 
     }

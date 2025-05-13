@@ -117,84 +117,54 @@ export class PlayState extends State
 
         let saveData = {
             version: 1,
-            player: {
-                money: player.money,
-                position: player.position,
-                rotation: {
-                    x: player.rotation.x,
-                    y: player.rotation.y,
-                    z: player.rotation.z
-                },
-                carriedItems: []
+            player: player.serialise(),
+            shop: {
+                maxCustomers: shop.maxCustomers,
+                timeUntilNextCustomer: shop.timeUntilNextCustomer,
+                timeSinceLastCustomer: shop.timeSinceLastCustomer,
+                maxTimeUntilNextCustomer: shop.maxTimeUntilNextCustomer,
+                minTimeUntilNextCustomer: shop.minTimeUntilNextCustomer,
+                customerWaitReputationMultiplier: shop.customerWaitReputationMultiplier,
+                lifeSales: shop.lifeSales,
+                lifeCustomers: shop.lifeCustomers,
+                lifeReputation: shop.lifeReputation,
+                
+                tiles: [],
+                
+                customers: [],
+                employees: []
             }
         };
-
-        for (const item of player.getComponent("ContainerComponent").carriedItems)
-            saveData.player.carriedItems.push({
-                type: item.type
-            });
-
-        saveData.shop = {
-            maxCustomers: shop.maxCustomers,
-            timeUntilNextCustomer: shop.timeUntilNextCustomer,
-            timeSinceLastCustomer: shop.timeSinceLastCustomer,
-            maxTimeUntilNextCustomer: shop.maxTimeUntilNextCustomer,
-            minTimeUntilNextCustomer: shop.minTimeUntilNextCustomer,
-            customerWaitReputationMultiplier: shop.customerWaitReputationMultiplier,
-            lifeSales: shop.lifeSales,
-            lifeCustomers: shop.lifeCustomers,
-            lifeReputation: shop.lifeReputation,
-            
-            tiles: []
-        };
         
-        // TODO: does not save recycle bin tiles. need to find a way to save all tiles and find type later
+        saveData.player.money = player.money;
         
         for (const tile of shop.allTiles)
             saveData.shop.tiles.push(tile.serialise());
         
-        function saveNPC(entity)
-        {
-            const data = {
-                position: entity.position,
-                rotation: entity.rotation,
-                carriedItems: []
-            };
-    
-            const container = entity.getComponent("ContainerComponent");
-    
-            for (const item of container.carriedItems)
-                data.carriedItems.push({
-                    type: item.type
-                });
-            
-            return data;
-        }
-        
-        saveData.customers = [];
+        saveData.shop.customers = [];
         
         for (const customer of shop.customers)
-            saveData.customers.push(saveNPC(customer));
-
-        saveData.employees = [];
-
+            saveData.shop.customers.push(customer.serialise());
+        
+        saveData.shop.employees = [];
+        
         for (const employee of shop.employees)
-            saveData.employees.push(saveNPC(employee));
-
+            saveData.shop.employees.push(employee.serialise());
+        
         localStorage.setItem("shopSave", JSON.stringify(saveData));
-
+        
         $("#saveIcon").hide();
-
+        
         console.log("Saved game.");
     }
-
+    
     openBuyMenu()
     {
         $(".game-menu").attr("data-visibility", "hidden");
         $("#buyMenu").attr("data-visibility", "shown");
         player.disableMovement();
     }
-
+    
     closeBuyMenu()
     {
         $("#buyMenu").attr("data-visibility", "hidden");
