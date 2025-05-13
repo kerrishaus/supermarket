@@ -10,6 +10,8 @@ import { EntityComponent    } from "./EntityComponent.js";
 import { CarryableComponent } from "./CarryableComponent.js";
 import { GeometryComponent  } from "./GeometryComponent.js";
 
+import * as ItemUtility from "../../ItemUtility.js";
+
 export class GeneratorComponent extends EntityComponent
 {
     init(name, itemType)
@@ -96,13 +98,9 @@ export class GeneratorComponent extends EntityComponent
     // as long as the returned item inherits Carryable
     createItem()
     {
-        const entity = new Entity;
+        const entity = ItemUtility.instantiateItem({ type: this.itemType });
         
-        entity.addComponent(new CarryableComponent);
-        entity.addComponent(new GeometryComponent(
-            new BoxGeometry(this.itemLength, this.itemWidth, this.itemThickness),
-            new MeshStandardMaterial({ color: 0x48c92 })
-        ));
+        entity.position.copy(this.parentEntity.position);
         
         return entity;
     }
@@ -118,7 +116,6 @@ export class GeneratorComponent extends EntityComponent
                                                     this.row_ * this.itemWidth - 0.5,
                                                     (this.parentEntity.scale.z / 2) + (this.layer_ * this.itemThickness) + this.itemThickness / 2));
             
-            scene.add(item);
             this.carriedItems.push(item);
         }
         
@@ -134,7 +131,7 @@ export class GeneratorComponent extends EntityComponent
         if (carrier instanceof Player || carrier instanceof Employee)
             if (carrier.getComponent("ContainerComponent").carriedItems.length > carrier.getComponent("ContainerComponent").maxItems)
                 return;
-            
+        
         const item = this.carriedItems[this.carriedItems.length - 1];
         item.carryPos = carrier.getComponent("ContainerComponent").carriedItems.length + 1;
         item.moveTime = 0.17;
@@ -143,7 +140,6 @@ export class GeneratorComponent extends EntityComponent
         // but right now it's really not required because it will set by
         // updateTarget later in Player#update
         item.getComponent("CarryableComponent").setTarget(carrier.position, new Vector3(0, 0, 0));
-        item.autoPositionAfterAnimation = false;
         
         carrier.getComponent("ContainerComponent").carriedItems.push(item);
         
@@ -182,7 +178,7 @@ export class GeneratorComponent extends EntityComponent
     {
         const data = super.serialise();
         
-        data.amont = this.carriedItems.length;
+        data.amount = this.carriedItems.length;
         data.timeSinceLastItem = this.timeSinceLastItem;
         
         return data;

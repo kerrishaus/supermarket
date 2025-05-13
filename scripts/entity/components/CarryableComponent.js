@@ -6,8 +6,8 @@ export class CarryableComponent extends EntityComponent
 {
     init()
     {
-        this.offset         = new Vector3(0, 0, 0);
         this.owner          = new Vector3(0, 0, 0);
+        this.offset         = new Vector3(0, 0, 0);
         this.targetPosition = new Vector3(0, 0, 0);
         this.startPosition  = new Vector3(0, 0, 0);
         
@@ -60,5 +60,25 @@ export class CarryableComponent extends EntityComponent
         
         this.elapsedTime += deltaTime;
         this.parentEntity.position.lerpVectors(this.startPosition, this.targetPosition, this.elapsedTime / this.moveTime);
+    }
+    
+    serialise()
+    {
+        const data = super.serialise();
+        
+        data.autoPositionAfterAnimation = this.autoPositionAfterAnimation;
+        data.moveTime = this.moveTime;
+        data.elapsedTime = this.elapsedTime;
+        
+        return data;
+    }
+    
+    deserialise(data)
+    {
+        super.deserialise(data);
+        
+        this.autoPositionAfterAnimation = data.autoPositionAfterAnimation;
+        this.moveTime = data.moveTime;
+        this.elapsedTime = data.elapsedTime;
     }
 }

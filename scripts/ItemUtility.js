@@ -21,6 +21,8 @@ export function instantiateItem(itemData)
             console.log("Unknown item: " + itemData);
             return null;
     }
+    
+    scene.add(newItem);
 
     return newItem;
 }

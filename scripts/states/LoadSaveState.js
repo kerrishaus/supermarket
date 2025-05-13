@@ -88,11 +88,11 @@ export class LoadSaveState extends State
                 </div>
             </div>
         `);
-
+        
         const saveVersion = 1;
-
+        
         let saveData = SaveLoader.getSaveData();
-
+        
         /*
         if (saveData.version != saveVersion)
             saveData = SaveLoader.getDefaultSave();
@@ -100,13 +100,11 @@ export class LoadSaveState extends State
         
         window.player = new Player();
         
-        player.setMoney(saveData.player.money);
-        
-        player.deserialise(saveData.player);
-        
-        player.registerEventListeners();
-        
         scene.add(player);
+        
+        player.setMoney(saveData.player.money);
+        player.deserialise(saveData.player);
+        player.registerEventListeners();
         
         console.log("loading shop");
         
@@ -141,11 +139,11 @@ export class LoadSaveState extends State
     loadCarriedItems(carriedItems, carrier)
     {
         const container = carrier.getComponent("ContainerComponent");
-
+        
         for (const item of carriedItems)
         {
             let newItem = ItemUtility.instantiateItem(item);
-    
+            
             scene.add(newItem);
             container.addItem(newItem);
         }
@@ -160,12 +158,12 @@ export class LoadSaveState extends State
             console.error("tile did not contain price, skipping. Tile type: " + tileData.type, tile);
             return null;
         }
-
+        
         // add the price of the tile to the player's money, because it will be spent by beginTilePlacement
         player.addMoney(tile.price);
-
+        
         shop.beginTilePlacement(tile);
-
+        
         // deserialise does this too, might not be necessary to keep anymore
         shop.newTile.tile.position.set(
             tileData.position.x,
@@ -174,13 +172,13 @@ export class LoadSaveState extends State
         );
         
         shop.newTile.tile.rotateZ(tileData.rotation?.z ?? 0)
-
+        
         shop.confirmTilePlacement();
-
+        
         console.log(tileData);
-
+        
         tile.tile.deserialise(tileData);
-
+        
         return tile.tile;
     }
     
@@ -189,19 +187,19 @@ export class LoadSaveState extends State
         console.log("loading customer");
         
         let customer = new Customer(shop);
-
+        
         customer.deserialise(customerData);
         
         if ("actions" in customerData)
             for (const action of customerData.actions)
                 this.loadCustomerAction(action);
-
+        
         shop.addCustomer(customer);
         scene.add(customer);
     }
     
     loadCustomerAction(actionData)
     {
-
+    
     }
 };

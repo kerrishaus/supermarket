@@ -120,7 +120,7 @@ export class Shop extends Group
                 name: "Tomato Stand",
                 price: 50,
                 getTile: function() {
-                    const tomatoStand     = new Entity();
+                    const tomatoStand = new Entity();
                     tomatoStand.name = "tomatoStand";
 
                     tomatoStand.addComponent(new TriggerComponent);
@@ -153,10 +153,6 @@ export class Shop extends Group
                         new BoxGeometry(1.5, 1.5, 1), 
                         new MeshStandardMaterial({ color: 0xff0000 })
                     )).mesh.position.z -= 0.5;
-
-                    tomatoPlantGenerator.createItem = () => { 
-                        return new Tomato(tomatoPlant.position);
-                    }
 
                     tomatoPlant.onTrigger = (object) => {
                         if (object instanceof Player)
@@ -199,14 +195,12 @@ export class Shop extends Group
                     sodaMaker.addComponent(new TriggerComponent);
 
                     const sodaMachineGenerator = sodaMaker.addComponent(new GeneratorComponent("Soda Maker", "sodaCan"));
+                    sodaMachineGenerator.itemLength = 0.8;
+                    
                     sodaMaker.addComponent(new GeometryComponent(
                         new BoxGeometry(1, 1, 2), 
                         new MeshStandardMaterial({ color: 0xff0000 })
                     ))
-
-                    sodaMachineGenerator.createItem = () => { 
-                        return new SodaCan(sodaMaker.position);
-                    }
 
                     sodaMaker.onTrigger = (object) => {
                         if (object instanceof Player)
@@ -243,8 +237,7 @@ export class Shop extends Group
                 name: "Ketchup Machine",
                 price: 200,
                 getTile: () => {
-                    const ketchupMachine = new KetchupMachine();
-                    return ketchupMachine;
+                    return new KetchupMachine();
                 }
             },
             /*

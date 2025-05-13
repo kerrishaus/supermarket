@@ -68,9 +68,6 @@ export class ContainerComponent extends EntityComponent
         this.carriedItems.push(item);
         
         this.calculateGrid();
-        
-        //item.getComponent("CarryableComponent").setTarget(this.position, new Vector3(this.column_ - 1, this.row_ - 1, this.layer_ + 1));
-        item.autoPositionAfterAnimation = true;
     }
     
     transferFromCarrier(carrier)
@@ -103,7 +100,6 @@ export class ContainerComponent extends EntityComponent
         if (carrier instanceof Customer)
         {
             this.carriedItems[0].getComponent("CarryableComponent").setTarget(carrier.position, new Vector3(0, 0, 0));
-            this.carriedItems[0].autoPositionAfterAnimation = false;
             
             carrier.getComponent("ContainerComponent").carriedItems.push(this.carriedItems[0]);
             this.carriedItems.shift();
@@ -171,21 +167,14 @@ export class ContainerComponent extends EntityComponent
         //this.countLabelDiv.textContent = `${this.carriedItems.length}/${this.maxItems}`;
     }
 
-    getCarriedItemsForSaving()
-    {
-        const data = [];
-
-        for (const item of this.carriedItems)
-            data.push({ type: item.type });
-
-        return data;
-    }
-    
     serialise()
     {
         const data = super.serialise();
         
-        data.carriedItems = this.getCarriedItemsForSaving()
+        data.carriedItems = [];
+        
+        for (const item of this.carriedItems)
+            data.carriedItems.push({ type: item.type });
         
         return data;
     }
@@ -194,9 +183,9 @@ export class ContainerComponent extends EntityComponent
     {
         super.deserialise(data);
         
-        for (const item of data.carriedItems)
+        for (const itemData of data.carriedItems)
         {
-            const newItem = ItemUtility.instantiateItem(item);
+            const newItem = ItemUtility.instantiateItem(itemData);
             scene.add(newItem);
             this.addItem(newItem);
         }
