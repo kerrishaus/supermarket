@@ -6,6 +6,8 @@ import { Player   } from "../../Player.js";
 import { Customer } from "../../Customer.js";
 import { Employee } from "../../Employee.js";
 
+import * as ItemUtility from "../../ItemUtility.js";
+
 import { EntityComponent } from "./EntityComponent.js";
 
 export class ContainerComponent extends EntityComponent
@@ -177,5 +179,22 @@ export class ContainerComponent extends EntityComponent
             data.push({ type: item.type });
 
         return data;
+    }
+    
+    serialise()
+    {
+        return {
+            carriedItems: this.getCarriedItemsForSaving()
+        };
+    }
+    
+    deserialise(data)
+    {
+        for (const item of data.carriedItems)
+        {
+            const newItem = ItemUtility.instantiateItem(item);
+            scene.add(newItem);
+            this.addItem(newItem);
+        }
     }
 }

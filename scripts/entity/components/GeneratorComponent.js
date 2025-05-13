@@ -177,4 +177,18 @@ export class GeneratorComponent extends EntityComponent
 
         this.countLabelDiv.textContent = this.carriedItems.length;
     }
+    
+    serialise()
+    {
+        return {
+            amount: this.carriedItems.length,
+            timeSinceLastItem: this.timeSinceLastItem
+        };
+    }
+    
+    deserialise(data)
+    {
+        this.addItem(data.amount);
+        this.timeSinceLastItem = data.timeSinceLastItem ?? 0;
+    }
 }
