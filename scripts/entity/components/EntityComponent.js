@@ -29,7 +29,7 @@ export class EntityComponent
     
     serialise()
     {
-        
+        return {};
     }
     
     deserialise(data)

@@ -180,14 +180,18 @@ export class GeneratorComponent extends EntityComponent
     
     serialise()
     {
-        return {
-            amount: this.carriedItems.length,
-            timeSinceLastItem: this.timeSinceLastItem
-        };
+        const data = super.serialise();
+        
+        data.amont = this.carriedItems.length;
+        data.timeSinceLastItem = this.timeSinceLastItem;
+        
+        return data;
     }
     
     deserialise(data)
     {
+        super.deserialise(data);
+        
         this.addItem(data.amount);
         this.timeSinceLastItem = data.timeSinceLastItem ?? 0;
     }

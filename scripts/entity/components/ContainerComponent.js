@@ -183,13 +183,17 @@ export class ContainerComponent extends EntityComponent
     
     serialise()
     {
-        return {
-            carriedItems: this.getCarriedItemsForSaving()
-        };
+        const data = super.serialise();
+        
+        data.carriedItems = this.getCarriedItemsForSaving()
+        
+        return data;
     }
     
     deserialise(data)
     {
+        super.deserialise(data);
+        
         for (const item of data.carriedItems)
         {
             const newItem = ItemUtility.instantiateItem(item);
