@@ -26,4 +26,14 @@ export class EntityComponent
     {
 
     }
+    
+    serialise()
+    {
+        
+    }
+    
+    deserialise(data)
+    {
+        
+    }
 }
