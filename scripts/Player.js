@@ -1,6 +1,6 @@
 import * as THREE from "https://kerrishaus.com/assets/threejs/build/three.module.js";
 
-import * as GeometryUtil from "./geometry/GeometryUtility.js";
+import * as GeometryUtil from "./GeometryUtility.js";
 import * as MathUtility from "./MathUtility.js";
 
 import { Entity } from "./entity/Entity.js";

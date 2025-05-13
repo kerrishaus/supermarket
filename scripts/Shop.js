@@ -5,9 +5,6 @@ import { Register          } from "./tiles/Register.js";
 import { RecycleBin        } from "./tiles/RecycleBin.js";
 import { KetchupMachine    } from "./tiles/KetchupMachine.js";
 
-import { Tomato  } from "./items/Tomato.js";
-import { SodaCan } from "./items/SodaCan.js";
-
 import { Player   } from "./Player.js";
 import { Employee } from "./Employee.js";
 import { Customer } from "./Customer.js";
@@ -18,7 +15,7 @@ import { ContainerComponent } from "./entity/components/ContainerComponent.js";
 import { GeometryComponent } from "./entity/components/GeometryComponent.js";
 import { GeneratorComponent } from "./entity/components/GeneratorComponent.js";
 
-import * as GeometryUtil from "./geometry/GeometryUtility.js";
+import * as GeometryUtil from "./GeometryUtility.js";
 import * as MathUtility from "./MathUtility.js";
 
 export class Shop extends Group

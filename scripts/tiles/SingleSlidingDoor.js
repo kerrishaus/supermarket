@@ -1,6 +1,6 @@
 import { Vector3 } from "https://kerrishaus.com/assets/threejs/build/three.module.js";
 
-import { createCube } from "../geometry/GeometryUtility.js";
+import { createCube } from "../GeometryUtility.js";
 
 import { Entity } from "../entity/Entity.js";
 import { CarryableComponent } from "../entity/components/CarryableComponent.js";

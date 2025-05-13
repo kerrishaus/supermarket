@@ -1,6 +1,6 @@
-import { BoxGeometry, Vector3, TextureLoader, MeshStandardMaterial } from "https://kerrishaus.com/assets/threejs/build/three.module.js";
+import { BoxGeometry, Vector3, MeshStandardMaterial } from "https://kerrishaus.com/assets/threejs/build/three.module.js";
 
-import { createMoney } from "../geometry/GeometryUtility.js";
+import { createMoney } from "../GeometryUtility.js";
 
 import { Player	  } from "../Player.js";
 import { Customer	} from "../Customer.js";
