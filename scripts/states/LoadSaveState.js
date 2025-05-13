@@ -25,7 +25,23 @@ export class LoadSaveState extends State
             <div id='interface' class="gameInterfaceContainer">
                 <div id="pauseMenu" class="game-menu" data-visibility="hidden">
                     <button id="resetSave">reset save file</button>
+                    <label>
+                        Movement Type
+                        <select>
+                            <option>First Person</option>
+                            <option>Third Person Free Angle</option>
+                            <option>Third Person Fixed Angle</option>
+                            <option>Top Down</option>
+                        </select>
+                    </label>
+                    <label>
+                        <input id="pixelShader" type="checkbox" />Pixel Shader
+                    </label>
+                    <label>
+                        <input id="bloomShader" type="checkbox" />Bloom Shader
+                    </label>
                 </div>
+                
                 <div id="businessStats">
                     <div id="moneyContainer">
                         <i class='fa fa-money'></i> Money: $<span id='money'>0</span>
@@ -40,6 +56,7 @@ export class LoadSaveState extends State
                         <i class='fa fa-users'></i> Customers waiting to checkout: <span id="waitingCustomers">0</span>
                     </div>
                 </div>
+                
                 <div id="buyMenu" class="game-menu" data-visibility="hidden">
                     <div class="titlebar display-flex space-between">
                         <h1>Buy Menu</h1>
@@ -65,6 +82,7 @@ export class LoadSaveState extends State
                         </div>
                     </div>
                 </div>
+                
                 <div id="saveIcon">
                     <i class="fas fa-spinner fa-spin"></i>
                 </div>
@@ -128,20 +146,20 @@ export class LoadSaveState extends State
     cleanup()
     {
     }
-
+    
     loadCarriedItems(carriedItems, carrier)
     {
         const container = carrier.getComponent("ContainerComponent");
 
         for (const item of carriedItems)
         {
-            let newItem = this.instantiateItem(item);
+            let newItem = ItemUtility.instantiateItem(item);
     
             scene.add(newItem);
             container.addItem(newItem);
         }
     }
-
+    
     loadTile(tileData)
     {
         const tile = shop.availableTiles[tileData.type];
@@ -157,6 +175,7 @@ export class LoadSaveState extends State
 
         shop.beginTilePlacement(tile);
 
+        // deserialise does this too, might not be necessary to keep anymore
         shop.newTile.tile.position.set(
             tileData.position.x,
             tileData.position.y,
@@ -169,24 +188,7 @@ export class LoadSaveState extends State
 
         console.log(tileData);
 
-        if ("components" in tileData)
-        {
-            if ("GeneratorComponent" in tileData.components)
-            {
-                tile.tile.getComponent("GeneratorComponent")?.addItem(tileData.components.GeneratorComponent.amount);
-                tile.tile.getComponent("GeneratorComponent").timeSinceLastItem = tileData.components.GeneratorComponent.timeSinceLastItem ?? 0;
-            }
-
-            if ("ContainerComponent" in tileData.components)
-            {
-                for (const item of tileData.components.ContainerComponent.carriedItems)
-                {
-                    const newItem = ItemUtility.instantiateItem(item);
-                    scene.add(newItem);
-                    tile.tile.getComponent("ContainerComponent")?.addItem(newItem);
-                }
-            }
-        }
+        tile.tile.deserialise(tileData);
 
         return tile.tile;
     }
