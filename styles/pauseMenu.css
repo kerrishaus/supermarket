@@ -19,7 +19,7 @@
 
     background-color: #ffffffe7;
 
-    transition: top 0.25s;
+    transition: top 0.15s;
 }
 
 #pauseMenu[data-visibility="hidden"]
