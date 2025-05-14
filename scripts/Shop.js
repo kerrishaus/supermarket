@@ -61,8 +61,8 @@ export class Shop extends Group
         this.doors = new SingleSlidingDoor(new Vector3(-1, northWall.position.y - 0.001, 1.25), 0x0000ff);
         scene.add(this.doors);
         
-        this.spawnPosition = new Vector3(-2, 14, 0.5);
-        this.readyPosition = new Vector3(-2, 7, 0.5);
+        this.spawnPosition = new Vector3(-1, 14, 0.5);
+        this.readyPosition = new Vector3(-1, 7, 0.5);
         
         const size = 20;
         const divisions = 10;
@@ -509,9 +509,14 @@ export class Shop extends Group
                 
                 object = object.parent;
                 
-                const index = shop.allTiles.indexOf(object);
+                // for now, don't allow a tile to be deleted if an employee is using it.
+                if (object.handledByEmployee)
+                {
+                    console.warn("Tile is being handled by an employee, will not delete.");
+                    break;
+                }
                 
-                console.log(object, index);
+                const index = shop.allTiles.indexOf(object);
                 
                 // for some dumbass god damn reason, any number in JS
                 // other than 0 or NaN evaluates to true!!! STUPID!!
@@ -687,10 +692,10 @@ export class Shop extends Group
             {
                 this.updateReputation(customer.mood);
                 
-                customer.destructor();
                 this.customers.splice(this.customers.indexOf(customer), 1);
-                
                 $("#customerCount").text(this.customers.length);
+                
+                customer.destructor();
             }
         }
         

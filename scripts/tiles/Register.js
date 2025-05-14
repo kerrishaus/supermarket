@@ -7,7 +7,6 @@ import { Customer	} from "../Customer.js";
 import { Employee	} from "../Employee.js";
 
 import { Entity			    } from "../entity/Entity.js";
-import { CarryableComponent } from "../entity/components/CarryableComponent.js";
 import { TriggerComponent   } from "../entity/components/TriggerComponent.js";
 import { GeometryComponent  } from "../entity/components/GeometryComponent.js";
 
@@ -25,8 +24,10 @@ export class Register extends Entity
 		)).mesh.position.z -= 0.5;
 		
 		this.name = "register";
+
+		this.handledByEmployee = false;
 		
-		this.money = new Array();
+		this.money = [];
 		
 		this.column_ = 0;
 		this.row_ = 0;
