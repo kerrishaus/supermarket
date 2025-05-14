@@ -48,7 +48,7 @@ export class RecycleBin extends Entity
         if (holderContainer.carriedItems.length <= 0)
             return;
             
-        const item = holderContainer.carriedItems[holderContainer.carriedItems.length - 1]
+        const item = holderContainer.carriedItems[holderContainer.carriedItems.length - 1];
         holderContainer.carriedItems.splice(holderContainer.carriedItems.indexOf(holder), 1);
         
         this.itemBuffer.push(item);

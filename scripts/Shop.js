@@ -24,7 +24,7 @@ export class Shop extends Group
     {
         super();
         
-        const shopWidth  = 10;
+        const shopWidth  = 8;
         const shopLength = 16;
         const wallThickness = 1;
         
@@ -58,7 +58,7 @@ export class Shop extends Group
         //const backroomFloor = new RigidBodyCube(new Vector3(shopWidth, shopLength / 2, wallThickness), 0x878787, new Vector3(0, -15, -1), new Quaternion(), 0);
         //scene.add(backroomFloor);
 
-        this.doors = new SingleSlidingDoor(new Vector3(-2, northWall.position.y - 0.001, 1.25), 0x0000ff);
+        this.doors = new SingleSlidingDoor(new Vector3(-1, northWall.position.y - 0.001, 1.25), 0x0000ff);
         scene.add(this.doors);
         
         this.spawnPosition = new Vector3(-2, 14, 0.5);
@@ -77,6 +77,7 @@ export class Shop extends Group
         this.raycaster         = new Raycaster();
         
         this.newTile = null;
+        this.inDeletionMode = false;
         
         this.employees = [];
         this.customers = [];
@@ -248,6 +249,8 @@ export class Shop extends Group
         };
         
         this.populateTilesInBuyMenu();
+        
+        $(window).mousemove(this.mousemove);
     }
 
     populateTilesInBuyMenu()
@@ -273,6 +276,14 @@ export class Shop extends Group
             console.log("added tile to buy menu");
         }
     }
+    
+    mousemove(event)
+    {
+        shop.mousePos.x = (event.clientX / window.innerWidth) * 2 - 1;
+        shop.mousePos.y = - (event.clientY / window.innerHeight) * 2 + 1;
+        
+        shop.raycaster.setFromCamera(shop.mousePos, camera);
+    }
 
     keydownDuringTilePlacement(event)
     {
@@ -286,9 +297,6 @@ export class Shop extends Group
     // https://stackoverflow.com/a/69023543/6745382 use pointermove instead of touch/mouse move
     mousemoveDuringTilePlacement(event)
     {
-        shop.mousePos.x = (event.clientX / window.innerWidth) * 2 - 1;
-        shop.mousePos.y = - (event.clientY / window.innerHeight) * 2 + 1;
-
         shop.updateTilePlacement();
     }
     
@@ -364,7 +372,7 @@ export class Shop extends Group
         
         console.log("Started placement of entity", this.newTile);
     }
-
+    
     updateTilePlacement(event)
     {
         if (!(this.newTile?.tile instanceof Entity))
@@ -372,10 +380,11 @@ export class Shop extends Group
             console.error("Trying to update tile placement, but newTile is invalid!", this.newTile);
             return false;
         }
-
+        
+        // TODO: check if placement intersects with any other objets, set invalid flag if so
         this.raycaster.setFromCamera(this.mousePos, camera);
         this.raycaster.ray.intersectPlane(this.intersectionPlane, this.intersectionPos);
-
+        
         const tileCoordinates = new Vector2(
             Math.floor(this.intersectionPos.x / 2) * 2 + 1,
             Math.floor(this.intersectionPos.y / 2) * 2 + 1,
@@ -383,7 +392,7 @@ export class Shop extends Group
 
         this.newTile.tile.position.set(tileCoordinates.x, tileCoordinates.y, 0.5);
     }
-
+    
     cancelTilePlacement()
     {
         if (!(this.newTile?.tile instanceof Entity))
@@ -392,17 +401,14 @@ export class Shop extends Group
             this.finallyTilePlacement();
             return false;
         }
-
+        
         this.newTile.tile.destructor();
-
+        
         this.finallyTilePlacement();
     }
-
-    // TODO: for some reason, if the player is carrying items and the stand they create
-    // accepts that type of item, it will take whatever they had in their inventory.
+    
     confirmTilePlacement()
     {
-        // tile must be an instanceof Entity, or something went wrong.
         if (!(this.newTile?.tile instanceof Entity))
         {
             console.error("Trying to finish tile placement, but newTile is invalid!", this.newTile);
@@ -472,6 +478,98 @@ export class Shop extends Group
         $("#newTileOverlay").remove();
 
         console.log("Tile placement is finished.");
+    }
+    
+    keydownDuringDeletion(event)
+    {
+        if (event.code == "Escape")
+            shop.stopDeletionMode();
+    }
+    
+    mousemoveDuringDeletion(event)
+    {
+        // TODO: highlight hovered items
+    }
+    
+    mousedownDuringDeletion(event)
+    {
+        if (event.button == 0)
+        {
+            const intersects = shop.raycaster.intersectObjects(shop.allTiles);
+            
+            for (let i = 0; i < intersects.length; i ++)
+            {
+                let object = intersects[i].object;
+                
+                // need to get the parent of the object,
+                // because raycaster picks up the GeometryComponent's
+                // object and not the actual Entity object.
+                if (!("parent" in object))
+                    continue;
+                
+                object = object.parent;
+                
+                const index = shop.allTiles.indexOf(object);
+                
+                console.log(object, index);
+                
+                // for some dumbass god damn reason, any number in JS
+                // other than 0 or NaN evaluates to true!!! STUPID!!
+                // also, 0 is a valid index
+                if (index != -1)
+                {
+                    shop.allTiles.splice(index, 1);
+                    
+                    object.destructor();
+                    
+                    break;
+                }
+            }
+        }
+        else if (event.button == 2) // right click to cancel
+            shop.stopDeletionMode();
+    }
+    
+    startDeletionMode()
+    {
+        this.inDeletionMode = true;
+        
+        document.dispatchEvent(new CustomEvent("closeBuyMenu"));
+        player.disableMovement(); // closeBuyMenu enables player movement
+        
+        $(window).keydown(this.keydownDuringDeletion);
+        $(window).mousemove(this.mousemoveDuringDeletion);
+        $(window).mousedown(this.mousedownDuringDeletion);
+        
+        scene.add(this.gridHelper);
+        
+        $("#interface").append(`<div id="deletionModeOverlay" class="mouse-pass-through">
+            <div>
+                <span><kbd>Escape</kbd>&nbsp;or&nbsp;<kbd>Right-Click</kbd>&nbsp;Cancel</span>
+                <br/>
+                <br/>
+                <span><kbd>Left-Click</kbd>&nbsp;Confirm</span>
+            </div>
+        </div>`);
+        
+        this.tileDeletionTarget = null;
+    }
+    
+    stopDeletionMode()
+    {
+        player.enableMovement();
+        
+        $(window).off("keydown", this.keydownDuringDeletion);
+        $(window).off("mousemove", this.mousemoveDuringDeletion);
+        $(window).off("mousedown", this.mousedownDuringDeletion);
+        
+        scene.remove(this.gridHelper);
+        
+        delete this.tileDeletionTarget;
+        
+        $("#deletionModeOverlay").remove();
+        
+        this.inDeletionMode = false;
     }
 
     updateReputation(amount)

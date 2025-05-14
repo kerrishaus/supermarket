@@ -205,7 +205,8 @@ export class StartupState extends State
             // and we don't get super bad popping
             this.stateMachine.pushState(new LoadSaveState());
     
-            $("#loadingCover").fadeOut(1000, function() {
+            $("#loadingCover").fadeOut(1000, function()
+            {
                 $(this).remove(); 
                 $("#loadingStyles").remove();
             });

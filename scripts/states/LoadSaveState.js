@@ -74,6 +74,7 @@ export class LoadSaveState extends State
                         <h1>Tiles</h1>
                         <div id="tiles" class="display-flex flex-wrap">
                         </div>
+                        <button id="startDeletionMode">Enter Tile Deletion Mode</button>
                     </div>
                     <div class="buy-menu-container">
                         <h1>Employees</h1>

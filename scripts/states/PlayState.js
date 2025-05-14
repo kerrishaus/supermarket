@@ -17,27 +17,32 @@ export class PlayState extends State
         PageUtility.addStyle("banner");
         PageUtility.addStyle("buyMenu");
         PageUtility.addStyle("pauseMenu");
-
+        
         // game ui is added in load save state, because player and shop need it when they are constructed
-
+        
         $("#resetSave").click(() => 
         {
             localStorage.clear();
             window.location.reload();
         });
-
+        
         $("#hireEmployee").click(() =>
         { 
             shop.addEmployee()
         });
-
+        
+        $("#startDeletionMode").click(() =>
+        { 
+            shop.startDeletionMode()
+        });
+        
         $(window).contextmenu(function(event)
         {
             event.preventDefault();
             event.stopPropagation();
             return false;
         });
-
+        
         $(window).keydown((event) =>
         {
             if (event.code == "KeyO")
@@ -46,10 +51,10 @@ export class PlayState extends State
                 freeControls.enabled = player.freeCam;
                 freeControls.target.copy(player.position);
                 freeControls.update();
-
+                
                 console.log("freecam toggled");
             }
-            else if (shop.newTile === null)
+            else if (shop.newTile === null && !shop.inDeletionMode)
             {
                 if (event.code == "KeyB")
                 {
