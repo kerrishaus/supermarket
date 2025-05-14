@@ -1,19 +1,27 @@
-import { BoxGeometry, MeshStandardMaterial, Vector3 } from "https://kerrishaus.com/assets/threejs/build/three.module.js";
+import { Vector3 } from "https://kerrishaus.com/assets/threejs/build/three.module.js";
 
 import { CSS2DObject } from "https://kerrishaus.com/assets/threejs/examples/jsm/renderers/CSS2DRenderer.js";
 
 import { Player   } from "../../Player.js";
 import { Employee } from "../../Employee.js";
 
-import { Entity             } from "../Entity.js";
-import { EntityComponent    } from "./EntityComponent.js";
-import { CarryableComponent } from "./CarryableComponent.js";
-import { GeometryComponent  } from "./GeometryComponent.js";
+import { EntityComponent } from "./EntityComponent.js";
 
 import * as ItemUtility from "../../ItemUtility.js";
 
 export class GeneratorComponent extends EntityComponent
 {
+    #timeSinceLastItem = 0;
+    #itemsInQueue = 0;
+
+    #column = 0;
+    #row    = 0;
+    #layer  = 0;
+
+    #labelDiv;
+    #progressBar;
+    #countLabelDiv;
+
     init(name, itemType)
     {
         if (!this.parentEntity.hasComponent("TriggerComponent"))
@@ -22,16 +30,13 @@ export class GeneratorComponent extends EntityComponent
         this.name = name;
         this.itemType = itemType;
         
-        // 0 or less disables automatic generation
+        this.noAutomaticGeneration = false;
+
+        // TODO: I don't know if it's necessary, but maybe prevent this from going below 0.
         this.itemTime = 3;
-        this.timeSinceLastItem = 0;
         
-        this.carriedItems = new Array();
         this.maxItems = 3;
-        
-        this.column_ = 0;
-        this.row_ = 0;
-        this.layer_ = 0;
+        this.carriedItems = new Array();
         
         this.gridRows = 6;
         this.gridColumns = 6;
@@ -44,33 +49,32 @@ export class GeneratorComponent extends EntityComponent
         // so that it is not targetted by multiple employees
         this.handledByEmployee = null;
         
-        this.labelDiv = document.createElement("div");
+        this.#labelDiv = document.createElement("div");
         
-        this.progressBar = document.createElement("progress");
-        // TODO: this might need to be set somewhere else, if the itemTime is changed
-        this.progressBar.setAttribute("value", 0);
-        this.progressBar.setAttribute("max", this.itemTime);
-        this.progressBar.style.width = "50px";
-        this.labelDiv.append(this.progressBar);
+        this.#progressBar = document.createElement("progress");
+        this.#progressBar.setAttribute("value", 0); // TODO: this might need to be set somewhere else, if the itemTime is changed
+        this.#progressBar.setAttribute("max", this.itemTime);
+        this.#progressBar.style.width = "50px";
+        this.#labelDiv.append(this.#progressBar);
         
         const titleLabelDiv = document.createElement("div");
         titleLabelDiv.className = 'tileLabel';
         titleLabelDiv.textContent = this.name;
-        this.labelDiv.append(titleLabelDiv);
+        this.#labelDiv.append(titleLabelDiv);
         
-        this.countLabelDiv = document.createElement("div");
-        this.countLabelDiv.className = 'countLabel';
-        this.countLabelDiv.textContent = 0;
-        this.labelDiv.append(this.countLabelDiv);
+        this.#countLabelDiv = document.createElement("div");
+        this.#countLabelDiv.className = 'countLabel';
+        this.#countLabelDiv.textContent = 0;
+        this.#labelDiv.append(this.#countLabelDiv);
         
-        const label = new CSS2DObject(this.labelDiv);
+        const label = new CSS2DObject(this.#labelDiv);
         label.color = "white";
         this.parentEntity.add(label);
     }
     
     destructor()
     {
-        this.labelDiv.remove();
+        this.#labelDiv.remove();
         
         super.destructor();
     }
@@ -79,19 +83,25 @@ export class GeneratorComponent extends EntityComponent
     {
         super.update(deltaTime);
 
-        if (this.itemTime > 0)
+        // items remain in queue, or automatic generation is enabled
+        if (this.#itemsInQueue > 0 || !this.noAutomaticGeneration)
+        {
             if (this.carriedItems.length < this.maxItems)
             {
-                if (this.timeSinceLastItem > this.itemTime)
+                if (this.#timeSinceLastItem > this.itemTime)
                 {
                     this.addItem();
-                    this.timeSinceLastItem = 0;
+                    this.#itemsInQueue--;
+                    
+                    this.#timeSinceLastItem = 0;
+                    this.#itemsInQueue++;
                 }
                 
                 // only make generation progress if the generator isn't full
-                this.timeSinceLastItem += deltaTime;
-                this.progressBar.setAttribute("value", this.timeSinceLastItem);
+                this.#timeSinceLastItem += deltaTime;
+                this.#progressBar.setAttribute("value", this.#timeSinceLastItem);
             }
+        }
     }
     
     // this can be overriden by derived classes
@@ -104,7 +114,16 @@ export class GeneratorComponent extends EntityComponent
         
         return entity;
     }
+
+    // queued items respect the max item limit.
+    // queued items are not processed before automatically queued items,
+    // therefore if automatic generation is enabled queued items will likely never be created.
+    addItemToQueue(amount = 1)
+    {
+        this.#itemsInQueue += amount;
+    }
     
+    // creates and immediately adds the item, bypassing the queue.
     addItem(amount = 1)
     {
         for (let i = 0; i < amount; i++)
@@ -112,14 +131,38 @@ export class GeneratorComponent extends EntityComponent
             const item = this.createItem();
             
             item.position.copy(this.parentEntity.position);
-            item.getComponent("CarryableComponent").setTarget(this.parentEntity.position, new Vector3(this.column_ * this.itemLength - 0.6 - 1,
-                                                    this.row_ * this.itemWidth - 0.5,
-                                                    (this.parentEntity.scale.z / 2) + (this.layer_ * this.itemThickness) + this.itemThickness / 2));
+            item.getComponent("CarryableComponent").setTarget(this.parentEntity.position, new Vector3(this.#column * this.itemLength - 0.6 - 1,
+                                                    this.#row * this.itemWidth - 0.5,
+                                                    (this.parentEntity.scale.z / 2) + (this.#layer * this.itemThickness) + this.itemThickness / 2));
             
             this.carriedItems.push(item);
         }
         
         this.updateItems();
+    }
+
+    updateItems()
+    {
+        // keeps all carried items in their proper position
+        for (let i = 0; i < this.carriedItems.length; i++)
+        {
+            let item = this.carriedItems[i];
+
+            const carryPos = ((item.scale.z / 2) * i) + this.parentEntity.scale.z + item.scale.z / 2;
+            
+            item.quaternion.copy(this.parentEntity.quaternion);
+            
+            if (item.elapsedTime > item.moveTime)
+            {
+                item.position.copy(this.parentEntity.position);
+                item.position.z += carryPos;
+                continue;
+            }
+            
+            item.getComponent("CarryableComponent").setTarget(this.parentEntity.position, new Vector3(0, 0, carryPos));
+        }
+
+        this.#countLabelDiv.textContent = this.carriedItems.length;
     }
     
     transferToCarrier(carrier)
@@ -150,36 +193,14 @@ export class GeneratorComponent extends EntityComponent
         console.log("Generator transferred to carrier.");
     }
     
-    updateItems()
-    {
-        // keeps all carried items in their proper position
-        for (let i = 0; i < this.carriedItems.length; i++)
-        {
-            let item = this.carriedItems[i];
-
-            const carryPos = ((item.scale.z / 2) * i) + this.parentEntity.scale.z + item.scale.z / 2;
-            
-            item.quaternion.copy(this.parentEntity.quaternion);
-
-            if (item.elapsedTime > item.moveTime)
-            {
-                item.position.copy(this.parentEntity.position);
-                item.position.z += carryPos;
-                continue;
-            }
-            
-            item.getComponent("CarryableComponent").setTarget(this.parentEntity.position, new Vector3(0, 0, carryPos));
-        }
-
-        this.countLabelDiv.textContent = this.carriedItems.length;
-    }
-    
     serialise()
     {
         const data = super.serialise();
         
+        data.timeSinceLastItem = this.#timeSinceLastItem;
+        data.noAutomaticGeneration = this.noAutomaticGeneration;
+        data.itemsInQueue = this.#itemsInQueue;
         data.amount = this.carriedItems.length;
-        data.timeSinceLastItem = this.timeSinceLastItem;
         
         return data;
     }
@@ -188,7 +209,9 @@ export class GeneratorComponent extends EntityComponent
     {
         super.deserialise(data);
         
+        this.#timeSinceLastItem = data.timeSinceLastItem;
+        this.noAutomaticGeneration = data.noAutomaticGeneration;
+        this.#itemsInQueue = data.itemsInQueue;
         this.addItem(data.amount);
-        this.timeSinceLastItem = data.timeSinceLastItem ?? 0;
     }
 }

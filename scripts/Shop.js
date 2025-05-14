@@ -192,7 +192,7 @@ export class Shop extends Group
                     sodaMaker.addComponent(new TriggerComponent);
 
                     const sodaMachineGenerator = sodaMaker.addComponent(new GeneratorComponent("Soda Maker", "sodaCan"));
-                    sodaMachineGenerator.itemLength = 0.8;
+                    sodaMachineGenerator.itemLength = 4;
                     
                     sodaMaker.addComponent(new GeometryComponent(
                         new BoxGeometry(1, 1, 2), 
@@ -291,7 +291,7 @@ export class Shop extends Group
 
         shop.updateTilePlacement();
     }
-
+    
     mousedownDuringTilePlacement(event)
     {
         if (event.button == 0)
@@ -299,7 +299,7 @@ export class Shop extends Group
         else if (event.button == 2) // right click to cancel
             shop.cancelTilePlacement();
     }
-
+    
     beginTilePlacement(tile)
     {
         if (player.money < tile.price)
@@ -307,28 +307,36 @@ export class Shop extends Group
             console.error("Not enough money!");
             return false;
         }
-
+        
         document.dispatchEvent(new CustomEvent("closeBuyMenu"));
-
+        player.disableMovement(); // buy menu closing re-enables player movement
+        
         if (this.newTile?.tile instanceof Entity)
             this.cancelTilePlacement();
-
+        
         this.newTile = tile;
         this.newTile.tile = tile.getTile();
-
+        
         if (!(this.newTile?.tile instanceof Entity))
         {
             console.error("Tried to start tile placement process for " + tile.name + " but was not provided with a proper tile Entity.");
             return;
         }
-
-        this.newTile.tile.getComponent("TriggerComponent").triggerEnabled = false;
-
-        // have to re-disable player movement because it gets re-enabled when the buy menu is closed
-        player.disableMovement();
-
+        
+        if (this.newTile.tile.hasComponent("TriggerComponent"))
+        {
+            this.newTile.originalTriggerState = this.newTile.tile.getComponent("TriggerComponent").triggerEnabled;
+            this.newTile.tile.getComponent("TriggerComponent").triggerEnabled = false;
+        }
+            
+        if (this.newTile.tile.hasComponent("GeneratorComponent"))
+        {
+            this.newTile.generatorState = this.newTile.tile.getComponent("GeneratorComponent").noAutomaticGeneration;
+            this.newTile.tile.getComponent("GeneratorComponent").noAutomaticGeneration = true;
+        }
+        
         scene.add(this.gridHelper);
-
+        
         // TODO: have these buttons move up and down as the keys are pressed
         $("#interface").append(`<div id='newTileOverlay' class='mouse-pass-through'>
             <div>
@@ -341,19 +349,19 @@ export class Shop extends Group
                 <span><kbd>Left-Click</kbd>&nbsp;Confirm</span>
             </div>
         </div>`);
-
+        
         // TODO: there is a better way to do this, but right now I can't figure it out.
         // Need to get events but can't use this. in the event, have to use shop.
         // So these are global. There is an ugly line that checks if shop.tile is null in Playtate
         // that I also don't like, but who cares as long as the player can do what they want, right?
-        window.addEventListener("keydown",   this.keydownDuringTilePlacement);
-        window.addEventListener("mousemove", this.mousemoveDuringTilePlacement);
-        window.addEventListener("mousedown", this.mousedownDuringTilePlacement);
-
+        $(window).keydown(this.keydownDuringTilePlacement);
+        $(window).mousemove(this.mousemoveDuringTilePlacement);
+        $(window).mousedown(this.mousedownDuringTilePlacement);
+        
         this.updateTilePlacement();
-
+        
         scene.add(this.newTile.tile);
-
+        
         console.log("Started placement of entity", this.newTile);
     }
 
@@ -411,7 +419,11 @@ export class Shop extends Group
         if (this.newTile.tile instanceof Register)
             this.registerTiles.push(this.newTile.tile);
         
-        this.newTile.tile.getComponent("TriggerComponent").triggerEnabled = true;
+        if (this.newTile.tile.hasComponent("TriggerComponent"))
+            this.newTile.tile.getComponent("TriggerComponent").triggerEnabled = this.newTile.originalTriggerState;
+            
+        if (this.newTile.tile.hasComponent("GeneratorComponent"))
+            this.newTile.tile.getComponent("GeneratorComponent").noAutomaticGeneration = this.newTile.generatorState;
 
         this.newTile.onAfterPlace?.();
 
@@ -453,9 +465,9 @@ export class Shop extends Group
         // TODO: this is not properly disposed of
         scene.remove(this.gridHelper);
 
-        window.removeEventListener("keydown",   this.keydownDuringTilePlacement);
-        window.removeEventListener("mousemove", this.mousemoveDuringTilePlacement);
-        window.removeEventListener("mousedown", this.mousedownDuringTilePlacement);
+        $(window).off("keydown",   this.keydownDuringTilePlacement);
+        $(window).off("mousemove", this.mousemoveDuringTilePlacement);
+        $(window).off("mousedown", this.mousedownDuringTilePlacement);
 
         $("#newTileOverlay").remove();
 

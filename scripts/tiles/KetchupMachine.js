@@ -27,10 +27,9 @@ export class KetchupMachine extends Entity
         )).mesh.position.z -= 0.5;
 
         this.container = this.addComponent(new ContainerComponent("Tomatoes", "tomato"));
-
+        
         this.generator = this.addComponent(new GeneratorComponent("Ketchup", "ketchup"));
-        this.generator.itemTime = -1;
-        this.generator.createItem = () => { return new Ketchup(this.position); }
+        this.generator.noAutomaticGeneration = true;
 
         /*
         this.generator = new GeneratorTile(new Vector2(1, 1), new Vector2(2, 2), 0x0000ff, "Ketchup", "ketchup");
