@@ -520,6 +520,8 @@ export class Shop extends Group
                 {
                     shop.allTiles.splice(index, 1);
                     
+                    player.addMoney(shop.availableTiles[object.name].price / 2);
+                    
                     object.destructor();
                     
                     break;
