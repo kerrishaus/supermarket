@@ -11,8 +11,8 @@ import * as ItemUtility from "../../ItemUtility.js";
 
 export class GeneratorComponent extends EntityComponent
 {
+    #itemGenerationInProgress = false;
     #timeSinceLastItem = 0;
-    #itemsInQueue = 0;
 
     #column = 0;
     #row    = 0;
@@ -32,11 +32,10 @@ export class GeneratorComponent extends EntityComponent
         
         this.noAutomaticGeneration = false;
 
-        // TODO: I don't know if it's necessary, but maybe prevent this from going below 0.
         this.itemTime = 3;
         
-        this.maxItems = 3;
         this.carriedItems = new Array();
+        this.maxItems = 3;
         
         this.gridRows = 6;
         this.gridColumns = 6;
@@ -76,6 +75,9 @@ export class GeneratorComponent extends EntityComponent
     {
         this.#labelDiv.remove();
         
+        for (const item of this.carriedItems)
+            item.destructor();
+        
         super.destructor();
     }
     
@@ -83,24 +85,21 @@ export class GeneratorComponent extends EntityComponent
     {
         super.update(deltaTime);
 
-        // items remain in queue, or automatic generation is enabled
-        if (this.#itemsInQueue > 0 || !this.noAutomaticGeneration)
+        if (this.#itemGenerationInProgress || !this.noAutomaticGeneration)
         {
-            if (this.carriedItems.length < this.maxItems)
-            {
-                if (this.#timeSinceLastItem > this.itemTime)
+            if (this.itemTime > 0)
+                if (this.carriedItems.length < this.maxItems)
                 {
-                    this.addItem();
-                    this.#itemsInQueue--;
+                    if (this.#timeSinceLastItem > this.itemTime)
+                    {
+                        this.addItem();
+                        this.#timeSinceLastItem = 0;
+                    }
                     
-                    this.#timeSinceLastItem = 0;
-                    this.#itemsInQueue++;
+                    // only make generation progress if the generator isn't full
+                    this.#timeSinceLastItem += deltaTime;
+                    this.#progressBar.setAttribute("value", this.#timeSinceLastItem);
                 }
-                
-                // only make generation progress if the generator isn't full
-                this.#timeSinceLastItem += deltaTime;
-                this.#progressBar.setAttribute("value", this.#timeSinceLastItem);
-            }
         }
     }
     
@@ -114,16 +113,7 @@ export class GeneratorComponent extends EntityComponent
         
         return entity;
     }
-
-    // queued items respect the max item limit.
-    // queued items are not processed before automatically queued items,
-    // therefore if automatic generation is enabled queued items will likely never be created.
-    addItemToQueue(amount = 1)
-    {
-        this.#itemsInQueue += amount;
-    }
     
-    // creates and immediately adds the item, bypassing the queue.
     addItem(amount = 1)
     {
         for (let i = 0; i < amount; i++)
@@ -197,10 +187,10 @@ export class GeneratorComponent extends EntityComponent
     {
         const data = super.serialise();
         
+        data.amount = this.carriedItems.length;
         data.timeSinceLastItem = this.#timeSinceLastItem;
         data.noAutomaticGeneration = this.noAutomaticGeneration;
-        data.itemsInQueue = this.#itemsInQueue;
-        data.amount = this.carriedItems.length;
+        data.itemGenerationInProgress = this.#itemGenerationInProgress;
         
         return data;
     }
@@ -211,7 +201,8 @@ export class GeneratorComponent extends EntityComponent
         
         this.#timeSinceLastItem = data.timeSinceLastItem;
         this.noAutomaticGeneration = data.noAutomaticGeneration;
-        this.#itemsInQueue = data.itemsInQueue;
+        this.#itemGenerationInProgress = data.itemGenerationInProgress;
+        
         this.addItem(data.amount);
     }
 }
