@@ -2,13 +2,14 @@ import { Vector3 } from "https://kerrishaus.com/assets/threejs/build/three.modul
 
 import { CSS2DObject } from "https://kerrishaus.com/assets/threejs/examples/jsm/renderers/CSS2DRenderer.js";
 
+import { EntityComponent } from "./EntityComponent.js";
+
 import { Player   } from "../../Player.js";
 import { Customer } from "../../Customer.js";
 import { Employee } from "../../Employee.js";
 
 import * as ItemUtility from "../../ItemUtility.js";
-
-import { EntityComponent } from "./EntityComponent.js";
+import * as MathUtility from "../../MathUtility.js";
 
 export class ContainerComponent extends EntityComponent
 {
@@ -16,6 +17,7 @@ export class ContainerComponent extends EntityComponent
     {
         this.carriedItems = new Array();
         this.maxItems = 9;
+        this.itemDeficit = 0;
         
         this.name     = name;
         // if item type is not specified, the container will take any itemtype
@@ -67,7 +69,15 @@ export class ContainerComponent extends EntityComponent
     {
         this.carriedItems.push(item);
         
+        this.itemDeficit = MathUtility.clamp(this.maxItems - this.carriedItems.length, 0, this.maxItems);
+        
         this.calculateGrid();
+    }
+    
+    popItem()
+    {
+        this.itemDeficit = MathUtility.clamp(this.maxItems - this.carriedItems.length, 0, this.maxItems);
+        this.carriedItems.shift();
     }
     
     transferFromCarrier(carrier)
@@ -102,7 +112,8 @@ export class ContainerComponent extends EntityComponent
             this.carriedItems[0].getComponent("CarryableComponent").setTarget(carrier.position, new Vector3(0, 0, 0));
             
             carrier.getComponent("ContainerComponent").carriedItems.push(this.carriedItems[0]);
-            this.carriedItems.shift();
+            
+            this.popItem();
             
             this.calculateGrid();
             
