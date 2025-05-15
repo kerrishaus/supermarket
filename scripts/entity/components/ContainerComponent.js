@@ -36,7 +36,6 @@ export class ContainerComponent extends EntityComponent
         // so that it is not targetted by multiple employees
         this.handledByEmployee = null;
         
-        /*
         this.labelDiv = document.createElement("div");
         
         const titleLabelDiv = document.createElement("div");
@@ -52,7 +51,6 @@ export class ContainerComponent extends EntityComponent
         const label = new CSS2DObject(this.labelDiv);
         label.color = "white";
         this.parentEntity.add(label);
-        */
     }
     
     destructor()
@@ -72,12 +70,17 @@ export class ContainerComponent extends EntityComponent
         this.itemDeficit = MathUtility.clamp(this.maxItems - this.carriedItems.length, 0, this.maxItems);
         
         this.calculateGrid();
+        
+        console.log(`New item deficit is ${this.maxItems} - ${this.carriedItems.length} = ${this.itemDeficit}.`);
     }
     
     popItem()
     {
-        this.itemDeficit = MathUtility.clamp(this.maxItems - this.carriedItems.length, 0, this.maxItems);
         this.carriedItems.shift();
+        
+        this.itemDeficit = MathUtility.clamp(this.maxItems - this.carriedItems.length, 0, this.maxItems);
+        
+        console.log(`New item deficit is ${this.maxItems} - ${this.carriedItems.length} = ${this.itemDeficit}.`);
     }
     
     transferFromCarrier(carrier)
@@ -176,6 +179,7 @@ export class ContainerComponent extends EntityComponent
         }
         
         //this.countLabelDiv.textContent = `${this.carriedItems.length}/${this.maxItems}`;
+        this.countLabelDiv.textContent = `${this.maxItems} - ${this.carriedItems.length}: ${this.itemDeficit}`;
     }
 
     serialise()

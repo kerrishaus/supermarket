@@ -14,8 +14,8 @@ export class Customer extends Entity
 	{
 		super();
 		
-		let containerComponent = this.addComponent(new ContainerComponent);
-		containerComponent.maxItems = 4;
+		this.container = this.addComponent(new ContainerComponent);
+		container.maxItems = 4;
 		
 		this.addComponent(new GeometryComponent(
 			new BoxGeometry(1, 1, 2),
@@ -151,6 +151,8 @@ export class Customer extends Entity
 	
 	update(deltaTime)
 	{
+	    this.elapsedTime += deltaTime;
+	    
 		if (this.elapsedTime > this.actionTime)
 		{
 			if (this.actions.length > 0)
@@ -159,7 +161,7 @@ export class Customer extends Entity
 				{
 					console.log("Customer waited too long and is leaving.");
 					
-					if (this.getComponent("ContainerComponent").carriedItems.length > 0)
+					if (this.container.carriedItems.length > 0)
 					{
 					    // give up and move to the next action. If there is no next action, move to the register.
 					    if (this.actions.length >= 1)
@@ -187,22 +189,21 @@ export class Customer extends Entity
 						this.nextAction();
 					else if (this.actions[0].type == "buy")
 					{
-						if (this.actions[0].container.getComponent("ContainerComponent").carriedItems.length > 0)
+					    while (this.actions[0].container.getComponent("ContainerComponent").carriedItems.length > 0)
+					    {
+						    this.actions[0].container.getComponent("ContainerComponent").transferToCarrier(this);
+						    console.debug(`Picked up item ${this.container.carriedItems.length} of ${this.actions[0].amount}`);
+					    }
+					    
+						// once they have all their items, start the next action
+						if (this.container.carriedItems.length >= this.actions[0].amount)
 						{
-							this.actions[0].container.getComponent("ContainerComponent").transferToCarrier(this);
+							this.mood += 3;
+							this.mood -= this.waitTime;
 							
-							console.debug(`Picked up item ${this.getComponent("ContainerComponent").carriedItems.length} of ${this.actions[0].amount}`);
-							
-							// once they have all their items, start the next action
-							if (this.getComponent("ContainerComponent").carriedItems.length >= this.actions[0].amount)
-							{
-								this.mood += 3;
-								this.mood -= this.waitTime;
-								
-								this.nextAction();
-							}
+							this.nextAction();
 						}
-						else // keep waiting for enough items to become available
+						else // otherwise keep waiting for enough items to become available
 						{
 							this.waitTime += deltaTime;
 						}
@@ -225,8 +226,6 @@ export class Customer extends Entity
 		
 		super.update(deltaTime);
 		
-		this.elapsedTime += deltaTime;
-
 		this.labelDiv.innerHTML = `Action: ${this.actions[0]?.debug ?? "none"}<br/>Wait: ${this.waitTime}<br/>Mood: ${this.mood}`;
 	}
 };

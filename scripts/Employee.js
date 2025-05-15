@@ -67,7 +67,7 @@ export class Employee extends Entity
         
         this.actions.push(action);
         
-        console.debug("added action: " + action.type, action);
+        console.debug("Pushed action: " + action.type, action);
     }
     
     focusAction(action)
@@ -121,12 +121,14 @@ export class Employee extends Entity
         this.actionTime = actionTime;
     }
     
-    gatherItemsFromAndTakeTo(from, to)
+    gatherItemsAndStock(from, to)
     {
         console.log(`Gathering items from ${from.name} for ${to.name}.`);
         
-        from.getComponent("GeneratorComponent").handledByEmployee = this;
-        to.getComponent("ContainerComponent").handledByEmployee   = this;
+        const generator = from.getComponent("GeneratorComponent")
+        const container = to.getComponent("ContainerComponent"); 
+        
+        generator.handledByEmployee = this;
         
         this.pushAction({
             type: "move",
@@ -137,20 +139,27 @@ export class Employee extends Entity
             type: "pick",
             container: from,
             onFinish: () => {
-                from.getComponent("GeneratorComponent").handledByEmployee = null;
+                generator.handledByEmployee = null;
             }
         });
         
+        this.stockContainer(to);
+    }
+    
+    stockContainer(container)
+    {
+        container.handledByEmployee = this;
+        
         this.pushAction({
             type: "move",
-            position: to.position
+            position: container.position
         });
         
         this.pushAction({
             type: "stock",
-            container: to,
+            container: container,
             onFinish: () => {
-                to.getComponent("ContainerComponent").handledByEmployee = null;
+                container.handledByEmployee = null;
             }
         });
     }
@@ -322,6 +331,16 @@ export class Employee extends Entity
         // if there are no empty containers at all, do nothing.
         if (!(container instanceof Entity))
             return;
+        
+        // if we are carrying enough to fill the container, don't go to a generator
+        if (this.#container.carriedItems.length >= container.getComponent("ContainerComponent").itemDeficit)
+        {
+            console.error(`Stocking from inventory ${this.#container.carriedItems.length} >= (${container.getComponent("ContainerComponent").maxItems} - ${container.getComponent("ContainerComponent").carriedItems.length}) ${container.getComponent("ContainerComponent").itemDeficit}, Container has: ${container.getComponent("ContainerComponent").carriedItems.length}.`);
+            this.stockContainer(container);
+            return;
+        }
+        else
+            console.warn(`Stocking from generator ${this.#container.carriedItems.length} >= ${container.getComponent("ContainerComponent").itemDeficit}.`);
 
         // find the closest generator for a given item type
         const generator = this.findClosestGeneratorInList(this.getTilesFromListByType(this.shop.generatorTiles, container.getComponent("ContainerComponent").itemType));
@@ -329,7 +348,7 @@ export class Employee extends Entity
         console.log(generator, container);
 
         if (container instanceof Entity && generator instanceof Entity)
-            this.gatherItemsFromAndTakeTo(generator, container);
+            this.gatherItemsAndStock(generator, container);
     }
     
     update(deltaTime)
@@ -350,20 +369,27 @@ export class Employee extends Entity
                         this.nextAction();   
                     else if (action.type == "pick")
                     {
-                        action.container.getComponent("GeneratorComponent").transferToCarrier(this);
+                        // transfer items from the generator to the employee until
+                        // - the employee is full
+                        // - the generator is empty
+                        while (this.#container.carriedItems.length < this.#container.maxItems &&
+                               action.container.getComponent("GeneratorComponent").carriedItems.length <= 0)
+                            action.container.getComponent("GeneratorComponent").transferToCarrier(this);
                         
-                        // if we are carrying max, or the container is empty, begin the next action
-                        if (this.#container.carriedItems.length >= this.#container.maxItems ||
-                            action.container.getComponent("GeneratorComponent").carriedItems.length <= 0)
-                            this.nextAction();
+                        this.nextAction();
                     }
                     else if (action.type == "stock")
                     {
-                        action.container.getComponent("ContainerComponent").transferFromCarrier(this);
+                        const container = action.container.getComponent("ContainerComponent");
                         
-                        // go to next action after stocking all carried items
-                        if (this.getComponent("ContainerComponent").carriedItems.length <= 0)
-                            this.nextAction();
+                        // transfer items from the employee to the container until
+                        // - the container is full
+                        // - the employee is empty
+                        while (container.carriedItems.length >= container.maxItems ||
+                               this.#container.carriedItems.length <= 0)
+                            container.transferFromCarrier(this);
+                        
+                        this.nextAction();
                     }
                 }
                 // there are no remaining actions, do nothing
