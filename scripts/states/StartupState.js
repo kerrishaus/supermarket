@@ -48,36 +48,29 @@ export class StartupState extends State
              </div>`
         );
 
-        window.collisionConfiguration_ = null;
-        window.dispatcher_ 			   = null;
-        window.broadphase_             = null;
-        window.solver_				   = null;
-        window.physicsWorld            = null;
-        window.physicsBodies 		   = new Array();
-        window.tmpTransform 		   = null;
-        
         function prepareThree()
         {
             console.log("Preparing Three.");
             $("#progressText").text("Preparing Three.js");
-
+            
             window.renderer = new THREE.WebGLRenderer({
                 antialias: true,
                 shadowMap: true
             });
+            
             renderer.shadowMap.enabled = true;
             renderer.shadowMap.type = THREE.PCFSoftShadowMap;
             renderer.setSize(window.innerWidth, window.innerHeight);
             document.body.appendChild(renderer.domElement);
             $(renderer.domElement).hide();
-
+            
             window.htmlRenderer = new CSS2DRenderer();
             htmlRenderer.setSize(window.innerWidth, window.innerHeight);
             htmlRenderer.domElement.style.position = 'absolute';
             htmlRenderer.domElement.style.top = '0px';
             document.body.appendChild(htmlRenderer.domElement).style.pointerEvents = "none";
             $(htmlRenderer.domElement).hide();
-
+            
             window.scene = new PhysicsScene(); // TODO: FIXME: I don't really feel great about this, but it works, so it stays.
             
             const light = new THREE.DirectionalLight(0xffffff, 0.5);
@@ -93,7 +86,7 @@ export class StartupState extends State
             light.shadow.camera.top = 40;
             light.shadow.camera.bottom = -40;
             scene.add(light);
-
+        
             const light2 = new THREE.AmbientLight(0xaaaaaa);
             scene.add(light2);
             
@@ -110,15 +103,15 @@ export class StartupState extends State
                 renderer.setSize(window.innerWidth, window.innerHeight);
                 console.log("Window resized.");
             });
-
+        
             window.freeControls = new OrbitControls(camera, renderer.domElement);
             freeControls.target.set(0, 0, 0);
             freeControls.update();
             freeControls.enabled = false;
-
+        
             window.composer = new EffectComposer(renderer);
             composer.addPass(new RenderPass(scene, camera));
-
+        
             //composer.addPass(new UnrealBloomPass(new THREE.Vector2(2048, 2048), 1, 0.4, 0.8));
             
             const pixelPass = new ShaderPass(PixelShader);
@@ -126,90 +119,97 @@ export class StartupState extends State
             pixelPass.uniforms['resolution'].value.multiplyScalar(window.devicePixelRatio);
             pixelPass.uniforms[ 'pixelSize' ].value = 6;
             //composer.addPass(pixelPass);
-
+        
             console.log("Three is ready.");
         }
-
+        
         function prepareAmmo(lib)
         {
             console.log("Preparing Ammo.");
             $("#progressText").text("Preparing Ammo.js");
-
+        
             let Ammo = lib;
             window.Ammo = lib;
-
-            collisionConfiguration_ = new Ammo.btDefaultCollisionConfiguration();
-            dispatcher_  			= new Ammo.btCollisionDispatcher(collisionConfiguration_);
-            broadphase_  			= new Ammo.btDbvtBroadphase();
-            solver_      			= new Ammo.btSequentialImpulseConstraintSolver();
-            physicsWorld 			= new Ammo.btDiscreteDynamicsWorld(dispatcher_, broadphase_, solver_, collisionConfiguration_);
-            physicsWorld.setGravity(new Ammo.btVector3(0, 0, -100));
-
+        
+            window.collisionConfiguration_ = new Ammo.btDefaultCollisionConfiguration();
+            window.dispatcher_  			= new Ammo.btCollisionDispatcher(collisionConfiguration_);
+            window.broadphase_  			= new Ammo.btDbvtBroadphase();
+            window.solver_      			= new Ammo.btSequentialImpulseConstraintSolver();
+            window.physicsBodies    = [];
+            window.tmpTransform     = null;
+            window.physicsWorld 			= new Ammo.btDiscreteDynamicsWorld(dispatcher_, broadphase_, solver_, collisionConfiguration_);
+            window.physicsWorld.setGravity(new Ammo.btVector3(0, 0, -100));
+        
             tmpTransform = new Ammo.btTransform();
-
+        
             console.log("Ammo is ready.");
         }
-
-        window.addEventListener('DOMContentLoaded', async () =>
+        
+        window.addEventListener("DOMContentLoaded", async () =>
         {
-            prepareThree();
-
-            AmmoLib().then((lib) =>
+            try
             {
-                prepareAmmo(lib);
-
-                new Promise(async (resolve) =>
+                prepareThree();
+    
+                AmmoLib().then((lib) =>
                 {
-                    // TODO: have every model loaded automatically
-                    $("#progressText").text("Loading models");
-
-                    const models = [
-                        "bottleKetchup",
-                        "sodaCan",
-                        "tomato"
-                    ];
-
-                    $("#progress").attr("max", models.length);
-
-                    // a traditional for loop is used here
-                    // instead of a for...of loop because
-                    // we can use i + 1 to conveniently
-                    // increment the progress bar.
-                    for (let i = 0; i < models.length; i++)
+                    prepareAmmo(lib);
+    
+                    new Promise(async (resolve) =>
                     {
-                        $("#progress").attr("value", i + 1);
-
-                        const model = models[i];
-
-                        $("#progressText").text(model);
-                        await loadModel(model);
-                    }
-
-                    console.log("all models loaded");
-
-                    resolve(true);
-                }).then(() =>
-                {
-                    console.log("Loading is complete.");
-                    $("#progressText").text("Ready!");
-                    this.stateMachine.popState();
+                        // TODO: have every model loaded automatically
+                        $("#progressText").text("Loading models");
+    
+                        const models = [
+                            "bottleKetchup",
+                            "sodaCan",
+                            "tomato"
+                        ];
+    
+                        $("#progress").attr("max", models.length);
+    
+                        // a traditional for loop is used here
+                        // instead of a for...of loop because
+                        // we can use i + 1 to conveniently
+                        // increment the progress bar.
+                        for (let i = 0; i < models.length; i++)
+                        {
+                            $("#progress").attr("value", i + 1);
+    
+                            const model = models[i];
+    
+                            $("#progressText").text(model);
+                            await loadModel(model);
+                        }
+    
+                        console.log("all models loaded");
+    
+                        resolve(true);
+                    }).then(() =>
+                    {
+                        console.log("Loading is complete.");
+                        $("#progressText").text("Ready!");
+                        
+                        this.stateMachine.popState();
+                        this.stateMachine.pushState(new LoadSaveState());
+                    });
                 });
-            });
+            }
+            catch (exception)
+            {
+                console.error("Exception occured trying to create ThreeJS WebGLRenderer.", exception);
+                $("#progressText").text("Fatal error.");
+                $("#progress").remove();
+                
+                stateMachine.popState();
+                
+                return;
+            }
         });
     }
     
     cleanup()
     {
-        setTimeout(() => {
-            // load the new state first so that all the assets are loaded
-            // and we don't get super bad popping
-            this.stateMachine.pushState(new LoadSaveState());
-    
-            $("#loadingCover").fadeOut(1000, function()
-            {
-                $(this).remove(); 
-                $("#loadingStyles").remove();
-            });
-        }, 1000);
+        // loading cover is removed once PlayState is ready.
     }
 };
