@@ -73,7 +73,7 @@ export class StartupState extends State
                     samples: renderer.getPixelRatio() === 1 ? 2 : 0
                 }
             )
-
+            
             document.body.appendChild(renderer.domElement);
             $(renderer.domElement).hide();
             

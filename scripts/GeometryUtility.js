@@ -23,8 +23,8 @@ export function createScaledCube(width, height, thickness, color)
     return createCube(new Vector3(width, height, thickness), new Vector3(), color);
 }
 
-export const moneyGeometry = new BoxGeometry(0.4, 0.2, 0.1);
-export const moneyMaterial = new MeshStandardMaterial({ map: new TextureLoader().load('textures/dollar_placeholder.jpeg') });
+export const moneyGeometry = new BoxGeometry(0.4, 0.2, 0.05);
+export const moneyMaterial = new MeshStandardMaterial({ map: new TextureLoader().load("textures/dollar_placeholder.jpg") });
 
 export function createMoney()
 {

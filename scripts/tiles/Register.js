@@ -38,7 +38,7 @@ export class Register extends Entity
 		
 		this.moneyLength = 0.4;
 		this.moneyWidth = 0.2;
-		this.moneyThickness = 0.1;
+		this.moneyThickness = 0.05;
 		
 		this.waitingCustomers = [];
 		
