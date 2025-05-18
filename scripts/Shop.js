@@ -675,11 +675,29 @@ export class Shop extends Group
         
         this.employees.push(employee);
         
-        $("#employees").prepend("<div class='employee' data-employeeId='" + employee.uuid + "'>");
+        $("#employees").prepend(`<div class="employee" data-employeeId="${employee.uuid}"><button class="fire-employee">Fire</button></div>`);
         
         console.log("added employee to shop");
         
         return employee;
+    }
+
+    fireEmployee(uuid)
+    {
+        for (const index in this.employees)
+        {
+            const employee = this.employees[index];
+
+            if (employee.uuid == uuid)
+            {
+                this.employees.splice(this.employees.indexOf(index), 1);
+                employee.destructor();
+                console.log("Fired employee.", uuid);
+                return true;
+            }
+        }
+
+        console.error("Failed to find requested employee to fire.", uuid);
     }
 
     update(deltaTime)

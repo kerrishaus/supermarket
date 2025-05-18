@@ -30,6 +30,14 @@ export class PlayState extends State
         { 
             shop.addEmployee()
         });
+
+        $(document).on("click", ".fire-employee", function(event)
+        {
+            const parent = $(this).parents(".employee");
+
+            if (shop.fireEmployee(parent.attr("data-employeeId")))
+                parent.remove();
+        });
         
         $("#startDeletionMode").click(() =>
         { 
