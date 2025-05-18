@@ -85,7 +85,7 @@ export class KetchupMachine extends Entity
 
     onTrigger(object)
     {
-        if (object instanceof Player || object instanceof Employee)
+        if (object instanceof Player)
         {
             this.container.transferFromCarrier(object);
             this.generator.transferToCarrier(object);
