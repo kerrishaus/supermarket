@@ -20,6 +20,9 @@
     gap: 5vh;
 
     color: white;
+
+    user-select: none !important;
+    -webkit-user-select: none !important;
 }
 
 #loadingCover > #status
