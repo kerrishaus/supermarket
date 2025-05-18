@@ -10,12 +10,14 @@ import * as MathUtility from "./MathUtility.js";
 
 export class Customer extends Entity
 {
+	#container;
+
 	constructor(shop)
 	{
 		super();
 		
-		this.container = this.addComponent(new ContainerComponent);
-		this.container.maxItems = 4;
+		this.#container = this.addComponent(new ContainerComponent);
+		this.#container.maxItems = 4;
 		
 		this.addComponent(new GeometryComponent(
 			new BoxGeometry(1, 1, 2),
@@ -118,6 +120,17 @@ export class Customer extends Entity
 		this.targetPosition.copy(endPosition);
 		this.actionTime = actionTime;
 	}
+
+	buyFromContainer(container, amount)
+	{
+		this.pushAction({
+			type: "buy",
+			container: container,
+			amount: amount,
+			pickedUp: 0, // used to track how many of the desired item the customer has picked up so far
+			debug: `Buy from ${container.name}.`
+		});
+	}
     
 	findNearestRegister()
 	{
@@ -161,7 +174,7 @@ export class Customer extends Entity
 				{
 					console.log("Customer waited too long and is leaving.");
 					
-					if (this.container.carriedItems.length > 0)
+					if (this.#container.carriedItems.length > 0)
 					{
 					    // give up and move to the next action. If there is no next action, move to the register.
 					    if (this.actions.length >= 1)
@@ -189,14 +202,20 @@ export class Customer extends Entity
 						this.nextAction();
 					else if (this.actions[0].type == "buy")
 					{
-					    while (this.actions[0].container.getComponent("ContainerComponent").carriedItems.length > 0)
+						const action = this.actions[0];
+						const container = action.container.getComponent("ContainerComponent");
+
+					    while (container.carriedItems.length > 0 && // the container has items
+							   this.#container.carriedItems.length < this.#container.maxItems && // the customer hasn't hit their limit
+							   action.pickedUp < action.amount) // we've picked up fewer than the requested items for this action
 					    {
-						    this.actions[0].container.getComponent("ContainerComponent").transferToCarrier(this);
-						    console.debug(`Picked up item ${this.container.carriedItems.length} of ${this.actions[0].amount}`);
+						    action.container.getComponent("ContainerComponent").transferToCarrier(this);
+							action.pickedUp++;
+						    console.debug(`Picked up item ${action.pickedUp} (carrying ${this.#container.carriedItems.length}) of ${action.amount}`);
 					    }
 					    
 						// once they have all their items, start the next action
-						if (this.container.carriedItems.length >= this.actions[0].amount)
+						if (this.#container.carriedItems.length >= action.amount)
 						{
 							this.mood += 3;
 							this.mood -= this.waitTime;

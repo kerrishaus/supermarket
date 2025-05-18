@@ -639,19 +639,17 @@ export class Shop extends Group
                 else
                     console.log(`Customer will buy ${amount} from ${containerTile.name}`);
                 
-                customer.pushAction({type: "buy", container: containerTile, amount: amount, debug: "buy from " + containerTile.name })
+                customer.buyFromContainer(containerTile, amount);
                 
                 atLeastOneTileSelected = true;
             }
         }
         
         if (!atLeastOneTileSelected)
-            customer.pushAction({
-                type: "buy",
-                container: this.containerTiles[0],
-                amount: MathUtility.getRandomInt(0, customer.getComponent("ContainerComponent").maxItems) + 1,
-                debug: "buying (from only one) container " + this.containerTiles[0].type
-            });
+        {
+            console.debug("No tiles were selected, using first shop container tile.");
+            customer.buyFromContainer(this.containerTiles[0], MathUtility.getRandomInt(0, customer.getComponent("ContainerComponent").maxItems) + 1);
+        }
         
         customer.pushAction({ type: "move", position: customer.findNearestRegister().position, debug: "to register" });
         customer.pushAction({ type: "waitToCheckout", debug: "waiting to checkout" });
