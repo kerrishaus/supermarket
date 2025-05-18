@@ -1,8 +1,8 @@
-import { Entity             } from "../entity/Entity.js";
+import { Item               } from "../items/Item.js";
 import { CarryableComponent } from "../entity/components/CarryableComponent.js";
 import { ModelComponent     } from "../entity/components/ModelComponent.js";
 
-export class SodaCan extends Entity
+export class SodaCan extends Item
 {
     constructor(position)
     {

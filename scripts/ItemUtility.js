@@ -21,6 +21,8 @@ export function instantiateItem(itemData)
             console.log("Unknown item: " + itemData);
             return null;
     }
+
+    newItem.getComponent("ModelComponent").model.rotation.z = 0.2;
     
     scene.add(newItem);
 

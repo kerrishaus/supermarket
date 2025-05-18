@@ -11,9 +11,10 @@ export class ModelComponent extends EntityComponent
         this.modelName = modelName;
 
         this.model = getModel(modelName);
-        this.model.rotation.x = Math.PI / 2;
-        this.model.rotation.z = 0.2;
         this.model.scale.copy(size ?? new Vector3(2, 2, 2));
+        
+        // sets the model upgright because i fucked up the coordinate system when i was prototyping the game lmao
+        this.model.rotation.x = Math.PI / 2;
 
         this.parentEntity.add(this.model);
     }
@@ -23,12 +24,5 @@ export class ModelComponent extends EntityComponent
         super.destructor();
         
         this.parentEntity.remove(this.model);
-    }
-
-    update(deltaTime)
-    {
-        super.update(deltaTime);
-
-        this.model.rotation.y += 0.01;
     }
 }

@@ -12,9 +12,12 @@ loader.setDRACOLoader(dracoLoader);
 export async function loadModel(modelName)
 {
     if (modelCache.has(modelName))
+    {
+        console.debug(`Using cached model ${modelName}`);
         return modelCache.get(modelName).clone();
+    }
 
-    console.log("loading model " + modelName);
+    console.log(`Loading model ${modelName}`);
 
     const model = await loader.loadAsync(`models/${modelName}.glb`);
 
@@ -30,7 +33,7 @@ export async function loadModel(modelName)
 
     modelCache.set(modelName, model.scene);
 
-    console.log("loaded model " + modelName);
+    console.log(`Loaded model ${modelName}`);
 }
 
 export function getModel(modelName)
