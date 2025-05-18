@@ -307,12 +307,12 @@ export class Employee extends Entity
                 if (lastItemType == item.type)
                     continue;
 
-                lastItemType = item.type;
-
                 containerSource = this.findEmptiestContainerInList(this.getTilesFromListByType(this.shop.containerTiles, item.type));
                 
-                if (containerSource instanceof Entity)
+                if (containerSource instanceof Entity && containerSource.itemType == item.type)
                     break;
+
+                lastItemType = item.type;
             }
 
             // if we couldn't find any containers for any of the item types we are carrying,
