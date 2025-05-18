@@ -84,10 +84,7 @@ export class StartupState extends State
             document.body.appendChild(htmlRenderer.domElement).style.pointerEvents = "none";
             $(htmlRenderer.domElement).hide();
             
-            window.camera = new THREE.PerspectiveCamera(50, sizes.width / sizes.height, 0.1, 500);
-            camera.position.z = 10;
-            camera.position.y = -12;
-            camera.lookAt(new THREE.Vector3(0, 0, 0));
+            window.camera = new THREE.PerspectiveCamera(65, sizes.width / sizes.height, 0.1, 5000);
 
             window.scene = new PhysicsScene(); // TODO: FIXME: I don't really feel great about this, but it works, so it stays.
 
