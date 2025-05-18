@@ -17,7 +17,7 @@ export class ContainerComponent extends EntityComponent
     {
         this.carriedItems = new Array();
         this.maxItems = 9;
-        this.itemDeficit = 0;
+        this.itemDeficit = this.maxItems;
         
         this.name     = name;
         // if item type is not specified, the container will take any itemtype
@@ -178,7 +178,7 @@ export class ContainerComponent extends EntityComponent
             }
         }
         
-        //this.countLabelDiv.textContent = `${this.maxItems} - ${this.carriedItems.length}: ${this.itemDeficit}`;
+        this.countLabelDiv.textContent = `${this.maxItems} - ${this.carriedItems.length}: ${this.itemDeficit}`;
     }
 
     serialise()

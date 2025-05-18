@@ -216,10 +216,19 @@ export class Employee extends Entity
         const containers = [];
 
         for (const container of list)
-            if (container.getComponent("ContainerComponent")?.itemType ?? 
-                container.getComponent("GeneratorComponent")?.itemType ??
-                null == type)
+        {
+            const testType = (container.getComponent("ContainerComponent")?.itemType ?? 
+                          container.getComponent("GeneratorComponent")?.itemType ??
+                          null);
+
+            if (testType == type)
+            {
                 containers.push(container);
+                console.debug(`${testType} == ${type}`);
+            }
+            else
+                console.debug(`${testType} != ${type}`);
+        }
         
         return containers;
     }
@@ -295,12 +304,12 @@ export class Employee extends Entity
         if (this.findClosestRegisterWithWaitingCustomers())
             return;
         
-        let containerSource = null;
-        
         // if the employee is carrying items,
         // try to find an applicable container
         if (this.#container.carriedItems.length > 0)
         {
+            console.debug("Searching for containers for carried items...");
+
             let lastItemType = null;
             
             // check for nearest container of each carried item type
@@ -309,54 +318,51 @@ export class Employee extends Entity
                 if (lastItemType == item.type)
                     continue;
 
-                containerSource = this.findEmptiestContainerInList(this.getTilesFromListByType(this.shop.containerTiles, item.type));
+                const containers = this.getTilesFromListByType(this.shop.containerTiles, item.type);
+
+                console.debug(`Containers of type ${item.type}:`, containers);
+
+                const container = this.findEmptiestContainerInList(containers);
                 
-                if (containerSource instanceof Entity && containerSource.itemType == item.type)
-                    break;
+                if (container instanceof Entity)
+                {
+                    console.debug(`Employee will stock container of type ${container.getComponent("ContainerComponent").itemType} from inventory because they are carrying that type.`, container, item.type);
+                    this.stockContainer(container);
+                    return;
+                }
 
                 lastItemType = item.type;
+
+                //console.debug(`Did not find any containers of type ${item.type}.`);
             }
 
             // if we couldn't find any containers for any of the item types we are carrying,
             // and we do not have any more room to carry a different item type, do nothing.
             // TODO: find recycle bin if there are no containers for a given item type?
-            if (!(containerSource instanceof Entity) && this.#container.carriedItems.length >= this.#container.maxItems)
+            if (this.#container.carriedItems.length >= this.#container.maxItems)
+            {
+                //console.debug("Did not find any applicable containers for items Employee is carrying, and cannot pickup any more items.");
                 return;
+            }
         }
+
+        //console.debug("Did not find any applicable containers for items Employee is carrying, will search for other nearby empty containers.");
         
-        // if we couldn't find a container matching any carried item types,
-        // but we still have room to carry more items, then we search for
-        // emptiest container of all the shop containers
-        if (!(containerSource instanceof Entity))
-            containerSource = this.findEmptiestContainerInList(this.shop.containerTiles);
-        
-        const container = containerSource;
+        const container = this.findEmptiestContainerInList(this.shop.containerTiles);
         
         // if there are no empty containers at all, do nothing.
         if (!(container instanceof Entity))
             return;
         
-        // if we are carrying enough to fill the container, don't go to a generator
-        // if we are carrying items and we're carrying enough to satisfy a container's needs,
-        // then we skip searching for and picking up from a generator, and fill the container directly.
-        if (this.#container.carriedItems.length > 0 &&
-            this.#container.carriedItems.length >= container.getComponent("ContainerComponent").itemDeficit)
-        {
-            console.debug(`Stocking from inventory ${this.#container.carriedItems.length} >= (${container.getComponent("ContainerComponent").maxItems} - ${container.getComponent("ContainerComponent").carriedItems.length}) ${container.getComponent("ContainerComponent").itemDeficit}, Container has: ${container.getComponent("ContainerComponent").carriedItems.length}.`);
-            this.stockContainer(container);
-        }
-        else
-        {
-            console.debug(`Searching for generator to stock. ${this.#container.carriedItems.length} >= ${container.getComponent("ContainerComponent").itemDeficit}.`);
+        //console.debug(`Searching for generator of type ${container.getComponent("ContainerComponent").itemType} to stock. ${container.getComponent("ContainerComponent").itemDeficit}.`);
 
-            // find the closest generator for a given item type
-            const generator = this.findClosestGeneratorInList(this.getTilesFromListByType(this.shop.generatorTiles, container.getComponent("ContainerComponent").itemType));
-            
-            if (container instanceof Entity && generator instanceof Entity)
-            {
-                console.log(generator, container);
-                this.gatherItemsAndStock(generator, container);
-            }
+        // find the closest generator for a given item type
+        const generator = this.findClosestGeneratorInList(this.getTilesFromListByType(this.shop.generatorTiles, container.getComponent("ContainerComponent").itemType));
+        
+        if (container instanceof Entity && generator instanceof Entity)
+        {
+            console.log(generator, container);
+            this.gatherItemsAndStock(generator, container);
         }
     }
     
@@ -397,18 +403,25 @@ export class Employee extends Entity
                     {
                         const container = action.container.getComponent("ContainerComponent");
                         
-                        console.log(`${container.carriedItems.length} > ${container.maxItems} && ${this.#container.carriedItems.length} > 0`);
+                        // Transfers as many items of a certain type that the Employee is carrying as will fit into a given container.
+                        for (const item of this.#container.carriedItems)
+                        {
+                            if (item.type != container.itemType)
+                            {
+                                console.debug("Skipping item of different type.", item.type, container.itemType);
+                                continue;
+                            }
 
-                        // transfer items from the employee to the container until
-                        // - the container is full
-                        // - the employee is empty
-                        while (container.carriedItems.length < container.maxItems &&
-                               this.#container.carriedItems.length > 0)
-                               {
-                                    console.debug("Stocked 1 item");
-                                    container.transferFromCarrier(this);
-                               }
-                        
+                            if (container.carriedItems.length >= container.maxItems)
+                            {
+                                console.warn("Stopped stocking early because container is full.");
+                                break;
+                            }
+
+                            container.transferFromCarrier(this);
+                            console.debug("Stocked 1 item.");
+                        }
+
                         this.nextAction();
                     }
                 }
