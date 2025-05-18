@@ -23,6 +23,7 @@ export function instantiateItem(itemData)
     }
 
     newItem.getComponent("ModelComponent").model.rotation.z = 0.2;
+    newItem.getComponent("ModelComponent").model.scale.set(2, 2, 2);
     
     scene.add(newItem);
 
