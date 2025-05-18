@@ -401,27 +401,7 @@ export class Employee extends Entity
                     }
                     else if (action.type == "stock")
                     {
-                        const container = action.container.getComponent("ContainerComponent");
-                        
-                        // Transfers as many items of a certain type that the Employee is carrying as will fit into a given container.
-                        for (const item of this.#container.carriedItems)
-                        {
-                            if (item.type != container.itemType)
-                            {
-                                console.debug("Skipping item of different type.", item.type, container.itemType);
-                                continue;
-                            }
-
-                            if (container.carriedItems.length >= container.maxItems)
-                            {
-                                console.warn("Stopped stocking early because container is full.");
-                                break;
-                            }
-
-                            container.transferFromCarrier(this);
-                            console.debug("Stocked 1 item.");
-                        }
-
+                        action.container.getComponent("ContainerComponent").transferFromCarrier(this);
                         this.nextAction();
                     }
                 }
