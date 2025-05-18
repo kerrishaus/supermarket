@@ -95,7 +95,7 @@ export class Employee extends Entity
 
     nextAction()
     {
-        console.debug("action complete");
+        console.debug(`Action "${this.actions[0].type}" completed.`);
         
         this.actions[0].onFinish?.();
         
@@ -332,15 +332,19 @@ export class Employee extends Entity
         if (!(container instanceof Entity))
             return;
         
-        // if we are carrying enough to fill the container, don't go to a generator
-        if (this.#container.carriedItems.length >= container.getComponent("ContainerComponent").itemDeficit)
+        // have to check here because we do have to do >= below for the container deficit
+        if (this.#container.carriedItems.length > 0)
         {
-            console.error(`Stocking from inventory ${this.#container.carriedItems.length} >= (${container.getComponent("ContainerComponent").maxItems} - ${container.getComponent("ContainerComponent").carriedItems.length}) ${container.getComponent("ContainerComponent").itemDeficit}, Container has: ${container.getComponent("ContainerComponent").carriedItems.length}.`);
-            this.stockContainer(container);
-            return;
+            // if we are carrying enough to fill the container, don't go to a generator
+            if (this.#container.carriedItems.length >= container.getComponent("ContainerComponent").itemDeficit)
+            {
+                console.error(`Stocking from inventory ${this.#container.carriedItems.length} >= (${container.getComponent("ContainerComponent").maxItems} - ${container.getComponent("ContainerComponent").carriedItems.length}) ${container.getComponent("ContainerComponent").itemDeficit}, Container has: ${container.getComponent("ContainerComponent").carriedItems.length}.`);
+                this.stockContainer(container);
+                return;
+            }
+            else
+                console.warn(`Stocking from generator ${this.#container.carriedItems.length} >= ${container.getComponent("ContainerComponent").itemDeficit}.`);
         }
-        else
-            console.warn(`Stocking from generator ${this.#container.carriedItems.length} >= ${container.getComponent("ContainerComponent").itemDeficit}.`);
 
         // find the closest generator for a given item type
         const generator = this.findClosestGeneratorInList(this.getTilesFromListByType(this.shop.generatorTiles, container.getComponent("ContainerComponent").itemType));
@@ -373,7 +377,7 @@ export class Employee extends Entity
                         // - the employee is full
                         // - the generator is empty
                         while (this.#container.carriedItems.length < this.#container.maxItems &&
-                               action.container.getComponent("GeneratorComponent").carriedItems.length <= 0)
+                               action.container.getComponent("GeneratorComponent").carriedItems.length > 0)
                             action.container.getComponent("GeneratorComponent").transferToCarrier(this);
                         
                         this.nextAction();
@@ -382,12 +386,17 @@ export class Employee extends Entity
                     {
                         const container = action.container.getComponent("ContainerComponent");
                         
+                        console.log(`${container.carriedItems.length} > ${container.maxItems} && ${this.#container.carriedItems.length} > 0`);
+
                         // transfer items from the employee to the container until
                         // - the container is full
                         // - the employee is empty
-                        while (container.carriedItems.length >= container.maxItems ||
-                               this.#container.carriedItems.length <= 0)
-                            container.transferFromCarrier(this);
+                        while (container.carriedItems.length < container.maxItems &&
+                               this.#container.carriedItems.length > 0)
+                               {
+                                    console.log("socked 1 itme;")
+                                    container.transferFromCarrier(this);
+                               }
                         
                         this.nextAction();
                     }
