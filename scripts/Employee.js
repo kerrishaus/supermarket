@@ -100,6 +100,8 @@ export class Employee extends Entity
         this.actions[0].onFinish?.();
         
         this.actions.shift();
+
+        this.elapsedTime = 0;
                 
         if (this.actions.length > 0)
             this.focusAction(this.actions[0]);
@@ -387,8 +389,8 @@ export class Employee extends Entity
 
                         // if the employee has picked up at least one item, and can not pick up any more
                         // then skip to stocking the item. if the employee has not picked up any items,
-                        // then sit and wait for at least one item.
-                        if (action.pickedUp > 0)
+                        // then sit and wait for at least one item for 10 seconds.
+                        if (action.pickedUp > 0 || this.elapsedTime > 10)
                             this.nextAction();
                     }
                     else if (action.type == "stock")
