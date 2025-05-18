@@ -534,6 +534,9 @@ export class Shop extends Group
                 }
                 
                 const index = shop.allTiles.indexOf(object);
+                const containersIndex = shop.containerTiles.indexOf(object);
+                const generatorsIndex = shop.generatorTiles.indexOf(object);
+                const registersIndex  = shop.registerTiles.indexOf(object);
                 
                 // for some dumbass god damn reason, any number in JS
                 // other than 0 or NaN evaluates to true!!! STUPID!!
@@ -541,6 +544,9 @@ export class Shop extends Group
                 if (index != -1)
                 {
                     shop.allTiles.splice(index, 1);
+                    shop.containerTiles.splice(containersIndex, 1);
+                    shop.generatorTiles.splice(generatorsIndex, 1);
+                    shop.registerTiles.splice(registersIndex, 1);
                     
                     player.addMoney(shop.availableTiles[object.name].price / 2);
                     
