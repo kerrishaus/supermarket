@@ -1,4 +1,4 @@
-import { BoxGeometry, Vector3, Vector2, Raycaster, Plane, GridHelper, Group, PlaneGeometry, MeshStandardMaterial, Mesh, FrontSide } from "https://kerrishaus.com/assets/threejs/build/three.module.js";
+import { BoxGeometry, Vector3, Vector2, Raycaster, Plane, GridHelper, Group, PlaneGeometry, MeshStandardMaterial, Mesh, FrontSide, DirectionalLight, AmbientLight } from "https://kerrishaus.com/assets/threejs/build/three.module.js";
 
 import { SingleSlidingDoor } from "./tiles/SingleSlidingDoor.js";
 import { Register          } from "./tiles/Register.js";
@@ -57,6 +57,23 @@ export class Shop extends Group
         
         //const backroomFloor = new RigidBodyCube(new Vector3(shopWidth, shopLength / 2, wallThickness), 0x878787, new Vector3(0, -15, -1), new Quaternion(), 0);
         //scene.add(backroomFloor);
+
+        const light = new DirectionalLight(0xffffff, 0.5);
+        light.position.set(0, 5, 5);
+        light.target.position.set(0, 0, 0);
+        light.castShadow = true
+        light.shadow.mapSize.width = 4096;
+        light.shadow.mapSize.height = 4096;
+        light.shadow.camera.near = 0.5;
+        light.shadow.camera.far = 40;
+        light.shadow.camera.left = -40;
+        light.shadow.camera.right = 40;
+        light.shadow.camera.top = 40;
+        light.shadow.camera.bottom = -40;
+        scene.add(light);
+    
+        const light2 = new AmbientLight(0xaaaaaa);
+        scene.add(light2);
 
         this.doors = new SingleSlidingDoor(new Vector3(-1, northWall.position.y - 0.001, 1.25), 0x0000ff);
         scene.add(this.doors);

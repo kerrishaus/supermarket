@@ -54,48 +54,34 @@ export class StartupState extends State
             $("#progressText").text("Preparing Three.js");
             
             window.renderer = new THREE.WebGLRenderer({
-                antialias: true,
+                antialias: false,
                 shadowMap: true
             });
             
             renderer.shadowMap.enabled = true;
             renderer.shadowMap.type = THREE.PCFSoftShadowMap;
             renderer.setSize(window.innerWidth, window.innerHeight);
+            renderer.domElement.style.width = null;
+            renderer.domElement.style.height = null;
+            renderer.setPixelRatio(1);
             document.body.appendChild(renderer.domElement);
             $(renderer.domElement).hide();
             
             window.htmlRenderer = new CSS2DRenderer();
             htmlRenderer.setSize(window.innerWidth, window.innerHeight);
-            htmlRenderer.domElement.style.position = 'absolute';
-            htmlRenderer.domElement.style.top = '0px';
+            htmlRenderer.domElement.style.position = "absolute";
+            htmlRenderer.domElement.style.top = "0px";
             document.body.appendChild(htmlRenderer.domElement).style.pointerEvents = "none";
             $(htmlRenderer.domElement).hide();
             
             window.scene = new PhysicsScene(); // TODO: FIXME: I don't really feel great about this, but it works, so it stays.
-            
-            const light = new THREE.DirectionalLight(0xffffff, 0.5);
-            light.position.set(0, 5, 5);
-            light.target.position.set(0, 0, 0);
-            light.castShadow = true
-            light.shadow.mapSize.width = 4096;
-            light.shadow.mapSize.height = 4096;
-            light.shadow.camera.near = 0.5;
-            light.shadow.camera.far = 40;
-            light.shadow.camera.left = -40;
-            light.shadow.camera.right = 40;
-            light.shadow.camera.top = 40;
-            light.shadow.camera.bottom = -40;
-            scene.add(light);
-        
-            const light2 = new THREE.AmbientLight(0xaaaaaa);
-            scene.add(light2);
             
             window.camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 200);
             camera.position.z = 10;
             camera.position.y = -12;
             camera.lookAt(new THREE.Vector3(0, 0, 0));
             
-            window.addEventListener('resize', (event) =>
+            window.addEventListener('resize', function()
             {
                 //  TODO: need to update CSS23D object here too.
                 camera.aspect = window.innerWidth / window.innerHeight;
