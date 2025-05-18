@@ -55,7 +55,7 @@ export class ContainerComponent extends EntityComponent
     
     destructor()
     {
-        //this.labelDiv.remove();
+        this.labelDiv?.remove();
         
         for (const item of this.carriedItems)
             item.destructor();
@@ -178,8 +178,7 @@ export class ContainerComponent extends EntityComponent
             }
         }
         
-        //this.countLabelDiv.textContent = `${this.carriedItems.length}/${this.maxItems}`;
-        this.countLabelDiv.textContent = `${this.maxItems} - ${this.carriedItems.length}: ${this.itemDeficit}`;
+        //this.countLabelDiv.textContent = `${this.maxItems} - ${this.carriedItems.length}: ${this.itemDeficit}`;
     }
 
     serialise()
