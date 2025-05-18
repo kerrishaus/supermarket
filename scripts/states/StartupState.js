@@ -2,28 +2,21 @@ import { State } from "./State.js";
 
 import * as THREE from "https://kerrishaus.com/assets/threejs/build/three.module.js";
 
-import { EffectComposer } from "https://kerrishaus.com/assets/threejs/examples/jsm/postprocessing/EffectComposer.js";
-import { RenderPass } from 'https://kerrishaus.com/assets/threejs/examples/jsm/postprocessing/RenderPass.js';
-
-import { UnrealBloomPass } from 'https://kerrishaus.com/assets/threejs/examples/jsm/postprocessing/UnrealBloomPass.js';
-
-import { ShaderPass } from "https://kerrishaus.com/assets/threejs/examples/jsm/postprocessing/ShaderPass.js";
-import { PixelShader } from 'https://kerrishaus.com/assets/threejs/examples/jsm/shaders/PixelShader.js';
-
-import { TransformControls } from 'https://kerrishaus.com/assets/threejs/examples/jsm/controls/TransformControls.js';
-import { OrbitControls } from 'https://kerrishaus.com/assets/threejs/examples/jsm/controls/OrbitControls.js';
-import { RoomEnvironment } from 'https://kerrishaus.com/assets/threejs/examples/jsm/environments/RoomEnvironment.js';
-
 import { CSS2DRenderer } from "https://kerrishaus.com/assets/threejs/examples/jsm/renderers/CSS2DRenderer.js";
 
 import AmmoLib from "https://kerrishaus.com/assets/ammojs/ammo.module.js";
 
+import { EffectComposer } from "https://kerrishaus.com/assets/threejs/examples/jsm/postprocessing/EffectComposer.js";
+import { RenderPass } from 'https://kerrishaus.com/assets/threejs/examples/jsm/postprocessing/RenderPass.js';
+import { OrderedDitherPass } from '../passes/OrderedDitherPass.js'
+
+import { OrbitControls } from 'https://kerrishaus.com/assets/threejs/examples/jsm/controls/OrbitControls.js';
 import { PhysicsScene } from "../PhysicsScene.js";
 
-import { addStyle, removeStyle } from "../PageUtility.js";
-
-import { LoadSaveState } from "./LoadSaveState.js";
 import { loadModel } from "../ModelLoader.js";
+import { LoadSaveState } from "./LoadSaveState.js";
+
+import { addStyle, removeStyle } from "../PageUtility.js";
 
 export class StartupState extends State
 {
@@ -52,18 +45,35 @@ export class StartupState extends State
         {
             console.log("Preparing Three.");
             $("#progressText").text("Preparing Three.js");
+
+            window.sizes = {
+                width: 300,
+                height: 150
+            };
+
+            window.stretched = true;
             
             window.renderer = new THREE.WebGLRenderer({
                 antialias: false,
-                shadowMap: true
             });
             
             renderer.shadowMap.enabled = true;
             renderer.shadowMap.type = THREE.PCFSoftShadowMap;
-            renderer.setSize(window.innerWidth, window.innerHeight);
-            renderer.domElement.style.width = null;
-            renderer.domElement.style.height = null;
-            renderer.setPixelRatio(1);
+
+            renderer.setSize(sizes.width, sizes.height)
+            renderer.domElement.style.width = "";
+            renderer.domElement.style.height = "";
+            renderer.setPixelRatio(1)
+            renderer.setClearColor(new THREE.Color('#6EB1FF'))
+            renderer.domElement.classList.add("webgl");
+
+            const renderTarget = new THREE.WebGLRenderTarget(
+                window.innerWidth, window.innerHeight,
+                {
+                    samples: renderer.getPixelRatio() === 1 ? 2 : 0
+                }
+            )
+
             document.body.appendChild(renderer.domElement);
             $(renderer.domElement).hide();
             
@@ -74,37 +84,73 @@ export class StartupState extends State
             document.body.appendChild(htmlRenderer.domElement).style.pointerEvents = "none";
             $(htmlRenderer.domElement).hide();
             
-            window.scene = new PhysicsScene(); // TODO: FIXME: I don't really feel great about this, but it works, so it stays.
-            
-            window.camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 200);
+            window.camera = new THREE.PerspectiveCamera(50, sizes.width / sizes.height, 0.1, 500);
             camera.position.z = 10;
             camera.position.y = -12;
             camera.lookAt(new THREE.Vector3(0, 0, 0));
-            
-            window.addEventListener('resize', function()
+
+            window.scene = new PhysicsScene(); // TODO: FIXME: I don't really feel great about this, but it works, so it stays.
+
+            window.composer = new EffectComposer(renderer, renderTarget);
+            composer.setPixelRatio(1);
+            composer.setSize(sizes.width, sizes.height);
+
+            const renderPass = new RenderPass(scene, camera);
+            composer.addPass(renderPass);
+
+            const orderedDitherEffect = new OrderedDitherPass(sizes.width, sizes.height);
+            composer.addPass(orderedDitherEffect);
+
+            // https://github.com/samuelOsborne/PS1-demakes/
+            window.resize = () =>
             {
-                //  TODO: need to update CSS23D object here too.
-                camera.aspect = window.innerWidth / window.innerHeight;
-                camera.updateProjectionMatrix();
-                renderer.setSize(window.innerWidth, window.innerHeight);
-                console.log("Window resized.");
-            });
-        
+                if (!stretched)
+                {
+                    sizes.width = window.innerWidth;
+                    sizes.height = window.innerHeight;
+
+                    camera.aspect = sizes.width / sizes.height;
+                    camera.updateProjectionMatrix();
+
+                    renderer.setSize(sizes.width, sizes.height);
+                    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+
+                    effectComposer.setSize(sizes.width, sizes.height);
+                    effectComposer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+
+                    orderedDitherEffect.updateResolution(sizes.width, sizes.height);
+                    orderedDitherEffect.updateDitherScale(1);
+                    orderedDitherEffect.updateDitherIntensity(0.1);
+                }
+                else
+                {
+                    sizes.width = 300;
+                    sizes.height = 150;
+
+                    camera.aspect = sizes.width / sizes.height;
+                    camera.updateProjectionMatrix();
+
+                    renderer.setSize(sizes.width, sizes.height);
+                    renderer.setPixelRatio(1);
+                    renderer.domElement.style.width = "";
+                    renderer.domElement.style.height = "";
+
+                    effectComposer.setSize(sizes.width, sizes.height);
+                    effectComposer.setPixelRatio(1);
+
+                    orderedDitherEffect.updateResolution(sizes.width, sizes.height);
+                    orderedDitherEffect.updateDitherScale(0.01);
+                    orderedDitherEffect.updateDitherIntensity(0.05);
+
+                }
+            };
+
+            $(window).resize(resize);
+            
             window.freeControls = new OrbitControls(camera, renderer.domElement);
             freeControls.target.set(0, 0, 0);
             freeControls.update();
             freeControls.enabled = false;
-        
-            window.composer = new EffectComposer(renderer);
-            composer.addPass(new RenderPass(scene, camera));
-        
-            //composer.addPass(new UnrealBloomPass(new THREE.Vector2(2048, 2048), 1, 0.4, 0.8));
-            
-            const pixelPass = new ShaderPass(PixelShader);
-            pixelPass.uniforms['resolution'].value = new THREE.Vector2(window.innerWidth, window.innerHeight);
-            pixelPass.uniforms['resolution'].value.multiplyScalar(window.devicePixelRatio);
-            pixelPass.uniforms[ 'pixelSize' ].value = 6;
-            //composer.addPass(pixelPass);
         
             console.log("Three is ready.");
         }

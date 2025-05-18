@@ -54,6 +54,12 @@ export class PlayState extends State
                 
                 console.log("freecam toggled");
             }
+            else if (event.code == "KeyP")
+            {
+                stretched = !stretched;
+                console.log(stretched);
+                resize();
+            }
             else if (shop.newTile === null && !shop.inDeletionMode)
             {
                 if (event.code == "KeyB")
