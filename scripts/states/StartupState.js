@@ -189,10 +189,17 @@ export class StartupState extends State
                         // TODO: have every model loaded automatically
                         $("#progressText").text("Loading models");
     
+                        // models need to be loaded before game starts,
+                        // because model loader is async and cannot be
+                        // called by any functions in the game loop.
                         const models = [
                             "bottleKetchup",
                             "sodaCan",
-                            "tomato"
+                            "tomato",
+                            "shelf-boxes",
+                            "cash-register",
+                            "bottle-return",
+                            "freezers-standing"
                         ];
     
                         $("#progress").attr("max", models.length);

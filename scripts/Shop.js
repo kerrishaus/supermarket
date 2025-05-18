@@ -14,6 +14,7 @@ import { TriggerComponent } from "./entity/components/TriggerComponent.js";
 import { ContainerComponent } from "./entity/components/ContainerComponent.js";
 import { GeometryComponent } from "./entity/components/GeometryComponent.js";
 import { GeneratorComponent } from "./entity/components/GeneratorComponent.js";
+import { ModelComponent } from "./entity/components/ModelComponent.js";
 
 import * as GeometryUtil from "./GeometryUtility.js";
 import * as MathUtility from "./MathUtility.js";
@@ -141,10 +142,10 @@ export class Shop extends Group
                     tomatoStand.addComponent(new TriggerComponent);
 
                     const tomatoContainer = tomatoStand.addComponent(new ContainerComponent("Tomato Stand", "tomato"));
-                    tomatoStand.addComponent(new GeometryComponent(
-                        new BoxGeometry(1.5, 1.5, 1), 
-                        new MeshStandardMaterial({ color: 0xff0000 })
-                    )).mesh.position.z -= 0.5;
+                    const model = tomatoStand.addComponent(new ModelComponent("shelf-boxes")).model;
+                    
+                    model.position.z -= 1;
+                    model.scale.set(3, 3, 3);
 
                     tomatoStand.onTrigger = (object) => {
                         if (object instanceof Player)
@@ -187,10 +188,10 @@ export class Shop extends Group
                     sodaStand.addComponent(new TriggerComponent);
 
                     const sodaContainer = sodaStand.addComponent(new ContainerComponent("Soda Stand", "sodaCan"));
-                    sodaStand.addComponent(new GeometryComponent(
-                        new BoxGeometry(1.5, 1.5, 1), 
-                        new MeshStandardMaterial({ color: 0xff0000 })
-                    )).mesh.position.z -= 0.5;
+                    const model = sodaStand.addComponent(new ModelComponent("freezers-standing")).model;
+                    
+                    model.position.z -= 1;
+                    model.scale.set(3, 3, 3);
 
                     sodaStand.onTrigger = (object) => {
                         if (object instanceof Player)
@@ -212,10 +213,10 @@ export class Shop extends Group
                     const sodaMachineGenerator = sodaMaker.addComponent(new GeneratorComponent("Soda Maker", "sodaCan"));
                     sodaMachineGenerator.itemLength = 4;
                     
-                    sodaMaker.addComponent(new GeometryComponent(
-                        new BoxGeometry(1, 1, 2), 
-                        new MeshStandardMaterial({ color: 0xff0000 })
-                    ))
+                    const model = sodaMaker.addComponent(new ModelComponent("bottle-return")).model;
+                    
+                    model.position.z -= 1;
+                    model.scale.set(4, 4, 4);
 
                     sodaMaker.onTrigger = (object) => {
                         if (object instanceof Player)

@@ -1,14 +1,14 @@
-import { BoxGeometry, Vector3, MeshStandardMaterial } from "https://kerrishaus.com/assets/threejs/build/three.module.js";
+import { Vector3 } from "https://kerrishaus.com/assets/threejs/build/three.module.js";
 
 import { createMoney } from "../GeometryUtility.js";
 
 import { Player	  } from "../Player.js";
-import { Customer	} from "../Customer.js";
-import { Employee	} from "../Employee.js";
+import { Customer } from "../Customer.js";
+import { Employee } from "../Employee.js";
 
-import { Entity			    } from "../entity/Entity.js";
-import { TriggerComponent   } from "../entity/components/TriggerComponent.js";
-import { GeometryComponent  } from "../entity/components/GeometryComponent.js";
+import { Entity			  } from "../entity/Entity.js";
+import { TriggerComponent } from "../entity/components/TriggerComponent.js";
+import { ModelComponent   } from "../entity/components/ModelComponent.js";
 
 export class Register extends Entity
 {
@@ -16,12 +16,13 @@ export class Register extends Entity
 	{
 		super();
 		
-		this.addComponent(new TriggerComponent(7, 3, 2));
+		const trigger = this.addComponent(new TriggerComponent(4, 4, 2));
+		trigger.triggerGeometry.position.y -= 0.5;
 		
-		this.addComponent(new GeometryComponent(
-			new BoxGeometry(6, 2, 1), 
-			new MeshStandardMaterial({ color: 0xB27641 })
-		)).mesh.position.z -= 0.5;
+		const model = this.addComponent(new ModelComponent("cash-register")).model;
+
+		model.position.z -= 1;
+		model.scale.set(4, 4, 4);
 		
 		this.name = "register";
 
