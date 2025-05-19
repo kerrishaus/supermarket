@@ -28,14 +28,19 @@ export class Shop extends Group
         const shopWidth  = 8;
         const shopLength = 16;
         const wallThickness = 1;
+                
+        const floorTexture = new TextureLoader().load("textures/tile.jpg");
+        floorTexture.wrapS = RepeatWrapping;
+        floorTexture.wrapT = RepeatWrapping;
+        floorTexture.repeat.set(shopWidth / 2, shopLength / 2);
         
-        const shopFloor = new Mesh(
-            new PlaneGeometry(shopWidth, shopLength),
-            new MeshStandardMaterial({ color: 0xE0E0E0, side: FrontSide })
-        );
-        shopFloor.castShadow = true;
-        shopFloor.receiveShadow = true;
-        shopFloor.position.set(0, 0, -0.5);
+        const shopFloor = new Entity();
+        const phys = shopFloor.addComponent(new RigidBodyCubeComponent(
+            new BoxGeometry(shopWidth, shopLength, 1),
+            new MeshStandardMaterial({ map: floorTexture })
+        ));
+        phys.setKinematic(true);
+        phys.setPosition(new Vector3(0, 0, -1));
         scene.add(shopFloor);
         
         const backroomFloor = new Mesh(
