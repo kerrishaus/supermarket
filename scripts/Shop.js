@@ -439,6 +439,8 @@ export class Shop extends Group
             return false;
         }
         
+        this.allTiles.push(this.newTile.tile);
+        
         if (this.newTile.tile.hasComponent("ContainerComponent"))
             this.containerTiles.push(this.newTile.tile);
         
@@ -485,8 +487,6 @@ export class Shop extends Group
     
     finallyTilePlacement()
     {
-        this.allTiles.push(this.newTile.tile);
-        
         this.newTile = null;
 
         player.enableMovement();
