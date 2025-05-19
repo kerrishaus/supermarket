@@ -1,4 +1,4 @@
-import { Mesh, Quaternion } from "https://kerrishaus.com/assets/threejs/build/three.module.js";
+import { Mesh } from "https://kerrishaus.com/assets/threejs/build/three.module.js";
 
 import { OBB } from 'https://kerrishaus.com/assets/threejs/examples/jsm/math/OBB.js';
 
@@ -6,7 +6,10 @@ import { EntityComponent } from "./EntityComponent.js";
 
 export class RigidBodyCubeComponent extends EntityComponent
 {
-    init(geometry, material)
+    #parentPositionCopy;
+    #parentPositionAdd;
+    
+    init(geometry, material, mass = 10)
     {
         geometry.computeBoundingBox();
         geometry.userData.obb = new OBB().fromBox3(geometry.boundingBox);
@@ -31,16 +34,31 @@ export class RigidBodyCubeComponent extends EntityComponent
         this.transform.setRotation(new Ammo.btQuaternion(this.parentEntity.quaternion.x, this.parentEntity.quaternion.y, this.parentEntity.quaternion.z, this.parentEntity.quaternion.w));
         this.motionState = new Ammo.btDefaultMotionState(this.transform);
 
-        this.shape = new Ammo.btBoxShape(new Ammo.btVector3(geometry.parameters.width / 2, geometry.parameters.height / 2, geometry.parameters.depth / 2));
+        this.box = new Ammo.btVector3(geometry.parameters.width / 2, geometry.parameters.height / 2, geometry.parameters.depth / 2)
+        this.shape = new Ammo.btBoxShape(this.box);
         this.shape.setMargin(0.05);
+        Ammo.destroy(this.box);
 
-        let mass = 10;
-    
         this.inertia = new Ammo.btVector3(0, 0, 0);
         this.shape.calculateLocalInertia(mass, this.inertia);
     
         this.info = new Ammo.btRigidBodyConstructionInfo(mass, this.motionState, this.shape, this.inertia);
         this.body = new Ammo.btRigidBody(this.info);
+        
+        this.setRestitution(0.125);
+        this.setFriction(1);
+        this.setRollingFriction(1);
+
+        this.#parentPositionCopy = this.parentEntity.position.copy;
+        this.#parentPositionAdd  = this.parentEntity.position.add;
+
+        this.parentEntity.position.copy = (position) => {
+            return this.setPosition(this.#parentPositionCopy.apply(this.parentEntity.position, [ position ]));
+        };
+
+        this.parentEntity.position.add = (position) => {
+            return this.setPosition(this.#parentPositionAdd.apply(this.parentEntity.position, [ position ]));
+        };
     }
 
     destructor()
@@ -52,6 +70,9 @@ export class RigidBodyCubeComponent extends EntityComponent
 
         this.dispose(this.mesh);
         this.mesh = null;
+        
+        this.parentEntity.position.copy = this.#parentPositionCopy;
+        this.parentEntity.position.add  = this.#parentPositionAdd;
     }
 
     dispose(object)
@@ -90,6 +111,9 @@ export class RigidBodyCubeComponent extends EntityComponent
 
     setKinematic(kinematic = true)
     {
+        // This function causes shit to float on the floor like it's water.
+        return;
+
         if (kinematic)
         {
             this.body.setCollisionFlags(2); // kinematic
@@ -98,8 +122,8 @@ export class RigidBodyCubeComponent extends EntityComponent
         else
         {
             // TODO: find out what these numbers meand
-            this.body.setCollisionFlags(1); // kinematic
-            this.body.setActivationState(1); // never sleep
+            this.body.setCollisionFlags(1);
+            this.body.setActivationState(1);
         }
     }
 
@@ -122,7 +146,8 @@ export class RigidBodyCubeComponent extends EntityComponent
     {
         this.body.setFriction(friction);
     }
-
+    
+    // TODO: rigidbodycube probably doesn't need this
     setRollingFriction(rollingFriction)
     {
         this.body.setRollingFriction(rollingFriction);
@@ -131,7 +156,7 @@ export class RigidBodyCubeComponent extends EntityComponent
     setPosition(position, rotation = null)
     {
         if (rotation === null)
-            rotation = new Quaternion(0, 0, 0, 1);
+            rotation = this.parentEntity.quaternion;
 
         let transform = new Ammo.btTransform();
         transform.setIdentity();
@@ -140,6 +165,6 @@ export class RigidBodyCubeComponent extends EntityComponent
         this.motionState.setWorldTransform(transform);
         this.body.setWorldTransform(transform);
 
-        this.parentEntity.position.copy(position);
+        return position;
     }
 };
