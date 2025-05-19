@@ -4,8 +4,8 @@ import * as GeometryUtil from "./GeometryUtility.js";
 import * as MathUtility from "./MathUtility.js";
 
 import { Entity } from "./entity/Entity.js";
-import { GeometryComponent } from "./entity/components/GeometryComponent.js";
 import { ContainerComponent } from "./entity/components/ContainerComponent.js";
+import { RigidBodyCubeComponent } from "./entity/components/RigidBodyCubeComponent.js";
 
 export class Player extends Entity
 {
@@ -17,14 +17,17 @@ export class Player extends Entity
         this.carriedMoney = new Array();
         this.addComponent(new ContainerComponent());
         
-        this.addComponent(new GeometryComponent(
+        const phys = this.addComponent(new RigidBodyCubeComponent(
             new THREE.BoxGeometry(1, 1, 2),
-            new THREE.MeshStandardMaterial({ color: 0x0000ff })
+            new THREE.MeshStandardMaterial({ color: 0x0000aa }),
+            0
         ));
+
+        phys.setPosition(new THREE.Vector3(0, 0, 0.5));
         
-        const nose = GeometryUtil.createScaledCube(0.4, 1, 0.2, 0x0000aa);
+        const nose = GeometryUtil.createScaledCube(0.4, 0.5, 0.2, 0x0000aa);
         nose.position.z = 0.8;
-        nose.position.y = 0.5;
+        nose.position.y = 0.75;
         this.add(nose);
         
         this.maxSpeed = 0.15;
@@ -109,13 +112,10 @@ export class Player extends Entity
                     velocity = this.position.distanceTo(this.moveTarget.position) / 20;
                 }
                 
-                // set the player's direction
                 this.rotation.z = MathUtility.angleToPoint(position, target);
                 
-                // clamp the player's velocity
                 velocity = MathUtility.clamp(velocity, 0, this.maxSpeed);
                 
-                // move the player their direction
                 this.translateY(velocity);
                 
                 // TODO: do this in Shop class maybe

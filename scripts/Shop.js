@@ -1,4 +1,4 @@
-import { BoxGeometry, Vector3, Vector2, Raycaster, Plane, GridHelper, Group, PlaneGeometry, MeshStandardMaterial, Mesh, FrontSide, DirectionalLight, AmbientLight } from "https://kerrishaus.com/assets/threejs/build/three.module.js";
+import { BoxGeometry, Vector3, Vector2, Raycaster, Plane, GridHelper, Group, PlaneGeometry, MeshStandardMaterial, Mesh, FrontSide, DirectionalLight, AmbientLight, TextureLoader, RepeatWrapping } from "https://kerrishaus.com/assets/threejs/build/three.module.js";
 
 import { SingleSlidingDoor } from "./tiles/SingleSlidingDoor.js";
 import { Register          } from "./tiles/Register.js";
@@ -15,6 +15,7 @@ import { ContainerComponent } from "./entity/components/ContainerComponent.js";
 import { GeometryComponent } from "./entity/components/GeometryComponent.js";
 import { GeneratorComponent } from "./entity/components/GeneratorComponent.js";
 import { ModelComponent } from "./entity/components/ModelComponent.js";
+import { RigidBodyCubeComponent } from "./entity/components/RigidBodyCubeComponent.js";
 
 import * as GeometryUtil from "./GeometryUtility.js";
 import * as MathUtility from "./MathUtility.js";
@@ -28,7 +29,7 @@ export class Shop extends Group
         const shopWidth  = 8;
         const shopLength = 16;
         const wallThickness = 1;
-                
+        
         const floorTexture = new TextureLoader().load("textures/tile.jpg");
         floorTexture.wrapS = RepeatWrapping;
         floorTexture.wrapT = RepeatWrapping;
@@ -37,11 +38,22 @@ export class Shop extends Group
         const shopFloor = new Entity();
         const phys = shopFloor.addComponent(new RigidBodyCubeComponent(
             new BoxGeometry(shopWidth, shopLength, 1),
-            new MeshStandardMaterial({ map: floorTexture })
+            new MeshStandardMaterial({ map: floorTexture }),
+            0
         ));
-        phys.setKinematic(true);
         phys.setPosition(new Vector3(0, 0, -1));
+        shopFloor.dontTrigger = true;
         scene.add(shopFloor);
+        
+        // setInterval(() => {
+        //     const physObj2 = new Entity();
+        //     const phys2 = physObj2.addComponent(new RigidBodyCubeComponent(
+        //         new BoxGeometry(1, 1, 1),
+        //         new MeshStandardMaterial({ color: 0x00FF00 })
+        //     ));
+        //     phys2.setPosition(new Vector3(0, 0, 10))
+        //     scene.add(physObj2);
+        // }, 5000);
         
         const backroomFloor = new Mesh(
             new PlaneGeometry(shopWidth, shopLength / 2),

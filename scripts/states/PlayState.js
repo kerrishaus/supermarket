@@ -225,7 +225,12 @@ export class PlayState extends State
             const pos3 = new THREE.Vector3(pos.x(), pos.y(), pos.z());
             const quat3 = new THREE.Quaternion(quat.x(), quat.y(), quat.z(), quat.w());
             
-            object.parentEntity.position.copy(pos3);
+            // this intentionally does not use copy
+            // because copy has been hijacked by RigidBodyCubeComponent
+            object.parentEntity.position.x = pos3.x;
+            object.parentEntity.position.y = pos3.y;
+            object.parentEntity.position.z = pos3.z;
+
             object.parentEntity.quaternion.copy(quat3);
         }
     }
@@ -241,6 +246,7 @@ export class PlayState extends State
             // giving the oriented bounding boxes time to update into their proper positions.
             if (this.clock.getElapsedTime() > 2)
                 // if the object is a trigger, check if any geometry boxes are within it
+            
                 if (object instanceof Entity && object.hasComponent("TriggerComponent"))
                 {
                     const triggerComponent = object.getComponent("TriggerComponent");
@@ -253,12 +259,13 @@ export class PlayState extends State
                             object.parentEntity == object2)
                             return;
 
-                        if (object2 instanceof Entity && object2.hasComponent("GeometryComponent"))
+                        if (object2 instanceof Entity)
                         {
-                            const geometryComponent = object2.getComponent("GeometryComponent");
+                            const geometryComponent = object2.getComponent("GeometryComponent") ?? object2.getComponent("RigidBodyCubeComponent") ?? null;
 
-                            if (triggerComponent.triggerGeometry.userData.obb.intersectsOBB(geometryComponent.mesh.userData.obb))
-                                triggerComponent.triggeringEntities.push(object2);
+                            if (geometryComponent != null)
+                                if (triggerComponent.triggerGeometry.userData.obb.intersectsOBB(geometryComponent.mesh.userData.obb))
+                                    triggerComponent.triggeringEntities.push(object2);
                         }
                     });
                 }

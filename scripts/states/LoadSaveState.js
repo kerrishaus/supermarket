@@ -1,17 +1,9 @@
 import { State } from "./State.js";
 
-import * as THREE from "https://kerrishaus.com/assets/threejs/build/three.module.js";
-
-import { CSS2DRenderer } from "https://kerrishaus.com/assets/threejs/examples/jsm/renderers/CSS2DRenderer.js";
-
 import { PlayState } from "./PlayState.js";
 import { Shop } from "../Shop.js";
 import { Player } from "../Player.js";
 import { Customer } from "../Customer.js";
-import { Employee } from "../Employee.js";
-import { Tomato } from "../items/Tomato.js";
-import { SodaCan } from "../items/SodaCan.js";
-import { Ketchup } from "../items/Ketchup.js";
 
 import * as SaveLoader from "../SaveLoader.js";
 import * as ItemUtility from "../ItemUtility.js";
