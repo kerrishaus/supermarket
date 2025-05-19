@@ -47,8 +47,8 @@ export class StartupState extends State
             $("#progressText").text("Preparing Three.js");
 
             window.sizes = {
-                width: 300,
-                height: 150
+                width: window.innerWidth / 5,
+                height: window.innerHeight / 5
             };
 
             window.stretched = true;
@@ -112,8 +112,8 @@ export class StartupState extends State
                     renderer.setSize(sizes.width, sizes.height);
                     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
 
-                    effectComposer.setSize(sizes.width, sizes.height);
-                    effectComposer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+                    composer.setSize(sizes.width, sizes.height);
+                    composer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
 
                     orderedDitherEffect.updateResolution(sizes.width, sizes.height);
                     orderedDitherEffect.updateDitherScale(1);
@@ -121,27 +121,27 @@ export class StartupState extends State
                 }
                 else
                 {
-                    sizes.width = 300;
-                    sizes.height = 150;
-
+                    sizes.width = window.innerWidth / 5;
+                    sizes.height = window.innerHeight / 5;
+                    
                     camera.aspect = sizes.width / sizes.height;
                     camera.updateProjectionMatrix();
-
+                    
                     renderer.setSize(sizes.width, sizes.height);
                     renderer.setPixelRatio(1);
                     renderer.domElement.style.width = "";
                     renderer.domElement.style.height = "";
-
-                    effectComposer.setSize(sizes.width, sizes.height);
-                    effectComposer.setPixelRatio(1);
-
+                    
+                    composer.setSize(sizes.width, sizes.height);
+                    composer.setPixelRatio(1);
+                    
                     orderedDitherEffect.updateResolution(sizes.width, sizes.height);
                     orderedDitherEffect.updateDitherScale(0.01);
                     orderedDitherEffect.updateDitherIntensity(0.05);
 
                 }
             };
-
+            
             $(window).resize(resize);
             
             window.freeControls = new OrbitControls(camera, renderer.domElement);
@@ -152,25 +152,24 @@ export class StartupState extends State
             console.log("Three is ready.");
         }
         
-        function prepareAmmo(lib)
+        async function prepareAmmo(lib)
         {
             console.log("Preparing Ammo.");
             $("#progressText").text("Preparing Ammo.js");
         
-            let Ammo = lib;
-            window.Ammo = lib;
+            window.Ammo = await new AmmoLib();
         
-            window.collisionConfiguration_ = new Ammo.btDefaultCollisionConfiguration();
+            window.collisionConfiguration_  = new Ammo.btDefaultCollisionConfiguration();
             window.dispatcher_  			= new Ammo.btCollisionDispatcher(collisionConfiguration_);
             window.broadphase_  			= new Ammo.btDbvtBroadphase();
             window.solver_      			= new Ammo.btSequentialImpulseConstraintSolver();
-            window.physicsBodies    = [];
-            window.tmpTransform     = null;
+            window.physicsBodies            = [];
+            window.tmpTransform             = null;
             window.physicsWorld 			= new Ammo.btDiscreteDynamicsWorld(dispatcher_, broadphase_, solver_, collisionConfiguration_);
-            window.physicsWorld.setGravity(new Ammo.btVector3(0, 0, -100));
-        
+            window.physicsWorld.setGravity(new Ammo.btVector3(0, 0, -75));
+            
             tmpTransform = new Ammo.btTransform();
-        
+            
             console.log("Ammo is ready.");
         }
         
@@ -180,60 +179,50 @@ export class StartupState extends State
             {
                 prepareThree();
     
-                AmmoLib().then((lib) =>
+                await prepareAmmo();
+    
+                // TODO: have every model loaded automatically
+                console.log("Loading models...");
+                $("#progressText").text("Loading models...");
+
+                // models need to be loaded before game starts,
+                // because model loader is async and cannot be
+                // called by any functions in the game loop.
+                const models = [
+                    "bottleKetchup",
+                    "sodaCan",
+                    "tomato",
+                    "shelf-boxes",
+                    "cash-register",
+                    "bottle-return",
+                    "freezers-standing"
+                ];
+
+                $("#progress").attr("max", models.length);
+
+                // a traditional for loop is used here
+                // instead of a for...of loop because
+                // we can use i + 1 to conveniently
+                // increment the progress bar.
+                for (let i = 0; i < models.length; i++)
                 {
-                    prepareAmmo(lib);
-    
-                    new Promise(async (resolve) =>
-                    {
-                        // TODO: have every model loaded automatically
-                        $("#progressText").text("Loading models");
-    
-                        // models need to be loaded before game starts,
-                        // because model loader is async and cannot be
-                        // called by any functions in the game loop.
-                        const models = [
-                            "bottleKetchup",
-                            "sodaCan",
-                            "tomato",
-                            "shelf-boxes",
-                            "cash-register",
-                            "bottle-return",
-                            "freezers-standing"
-                        ];
-    
-                        $("#progress").attr("max", models.length);
-    
-                        // a traditional for loop is used here
-                        // instead of a for...of loop because
-                        // we can use i + 1 to conveniently
-                        // increment the progress bar.
-                        for (let i = 0; i < models.length; i++)
-                        {
-                            $("#progress").attr("value", i + 1);
-    
-                            const model = models[i];
-    
-                            $("#progressText").text(model);
-                            await loadModel(model);
-                        }
-    
-                        console.log("all models loaded");
-    
-                        resolve(true);
-                    }).then(() =>
-                    {
-                        console.log("Loading is complete.");
-                        $("#progressText").text("Ready!");
-                        
-                        this.stateMachine.popState();
-                        this.stateMachine.pushState(new LoadSaveState());
-                    });
-                });
+                    $("#progress").attr("value", i + 1);
+
+                    const model = models[i];
+
+                    $("#progressText").text(model);
+                    await loadModel(model);
+                }
+
+                console.log("Loading is complete.");
+                $("#progressText").text("Ready!");
+                
+                this.stateMachine.popState();
+                this.stateMachine.pushState(new LoadSaveState());
             }
             catch (exception)
             {
-                console.error("Exception occured trying to create ThreeJS WebGLRenderer.", exception);
+                console.error("Exception occured while starting the game.", exception);
                 $("#progressText").text("Fatal error.");
                 $("#progress").remove();
                 
