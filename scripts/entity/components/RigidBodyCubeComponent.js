@@ -8,6 +8,7 @@ export class RigidBodyCubeComponent extends EntityComponent
 {
     #parentPositionCopy;
     #parentPositionAdd;
+    #lerpVectors;
     
     init(geometry, material, mass = 10)
     {
@@ -51,6 +52,7 @@ export class RigidBodyCubeComponent extends EntityComponent
 
         this.#parentPositionCopy = this.parentEntity.position.copy;
         this.#parentPositionAdd  = this.parentEntity.position.add;
+        this.#lerpVectors        = this.parentEntity.position.lerpVectors;
 
         this.parentEntity.position.copy = (position) => {
             return this.setPosition(this.#parentPositionCopy.apply(this.parentEntity.position, [ position ]));
@@ -58,6 +60,10 @@ export class RigidBodyCubeComponent extends EntityComponent
 
         this.parentEntity.position.add = (position) => {
             return this.setPosition(this.#parentPositionAdd.apply(this.parentEntity.position, [ position ]));
+        };
+
+        this.parentEntity.position.lerpVectors = (position) => {
+            return this.setPosition(this.#lerpVectors.apply(this.parentEntity.position, [ position ]));
         };
     }
 
@@ -71,8 +77,9 @@ export class RigidBodyCubeComponent extends EntityComponent
         this.dispose(this.mesh);
         this.mesh = null;
         
-        this.parentEntity.position.copy = this.#parentPositionCopy;
-        this.parentEntity.position.add  = this.#parentPositionAdd;
+        this.parentEntity.position.copy        = this.#parentPositionCopy;
+        this.parentEntity.position.add         = this.#parentPositionAdd;
+        this.parentEntity.position.lerpVectors = this.#lerpVectors;
     }
 
     dispose(object)
