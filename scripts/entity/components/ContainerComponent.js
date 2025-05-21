@@ -15,7 +15,7 @@ export class ContainerComponent extends EntityComponent
 {
     init(name = null, itemType = null)
     {
-        this.carriedItems = new Array();
+        this.carriedItems = [];
         this.maxItems = 9;
         this.itemDeficit = this.maxItems;
         

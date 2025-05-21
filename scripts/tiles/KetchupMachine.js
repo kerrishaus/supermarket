@@ -42,7 +42,7 @@ export class KetchupMachine extends Entity
         // right now it prevents the triggers from working for some reason
         scene.add(this.generator);
         //this.attach(this.generator);
-
+        
         this.container = new ContainerTile(1, 1, 2, 2, 0xff0000);
         this.container.name = "ketchupGeneratorContainer";
         this.container.itemType = "tomato";
@@ -75,7 +75,7 @@ export class KetchupMachine extends Entity
 
                     console.debug(this.container.carriedItems.length + " tomatos left");
                     
-                    this.generator.addItem();
+                    this.generator.addItemToQueue();
 
                     this.timeSinceLastTransformation = 0;
                 }

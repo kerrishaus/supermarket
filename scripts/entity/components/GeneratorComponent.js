@@ -12,6 +12,7 @@ import * as ItemUtility from "../../ItemUtility.js";
 export class GeneratorComponent extends EntityComponent
 {
     #itemGenerationInProgress = false;
+    #manualItemGenerationQueue = 0;
     #timeSinceLastItem = 0;
 
     #column = 0;
@@ -94,6 +95,12 @@ export class GeneratorComponent extends EntityComponent
                     {
                         this.addItem();
                         this.#timeSinceLastItem = 0;
+                        
+                        if (--this.#manualItemGenerationQueue < 1)
+                        {
+                            this.#itemGenerationInProgress = false;
+                            this.#manualItemGenerationQueue = 0;
+                        }
                     }
                     
                     // only make generation progress if the generator isn't full
@@ -129,6 +136,12 @@ export class GeneratorComponent extends EntityComponent
         }
         
         this.updateItems();
+    }
+    
+    addItemToQueue(amount = 1)
+    {
+        this.#manualItemGenerationQueue += amount;
+        this.#itemGenerationInProgress = true;
     }
 
     updateItems()
