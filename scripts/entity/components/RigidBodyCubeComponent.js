@@ -8,7 +8,8 @@ export class RigidBodyCubeComponent extends EntityComponent
 {
     #parentPositionCopy;
     #parentPositionAdd;
-    #lerpVectors;
+    #parentPositionSet;
+    #parentPositionLerpVectors;
     
     init(geometry, material, mass = 10)
     {
@@ -42,17 +43,18 @@ export class RigidBodyCubeComponent extends EntityComponent
 
         this.inertia = new Ammo.btVector3(0, 0, 0);
         this.shape.calculateLocalInertia(mass, this.inertia);
-    
+        
         this.info = new Ammo.btRigidBodyConstructionInfo(mass, this.motionState, this.shape, this.inertia);
         this.body = new Ammo.btRigidBody(this.info);
         
         this.setRestitution(0.125);
         this.setFriction(1);
-        this.setRollingFriction(1);
+        this.setRollingFriction(0.2);
 
-        this.#parentPositionCopy = this.parentEntity.position.copy;
-        this.#parentPositionAdd  = this.parentEntity.position.add;
-        this.#lerpVectors        = this.parentEntity.position.lerpVectors;
+        this.#parentPositionCopy        = this.parentEntity.position.copy;
+        this.#parentPositionAdd         = this.parentEntity.position.add;
+        this.#parentPositionSet         = this.parentEntity.position.set;
+        this.#parentPositionLerpVectors = this.parentEntity.position.lerpVectors;
 
         this.parentEntity.position.copy = (position) => {
             return this.setPosition(this.#parentPositionCopy.apply(this.parentEntity.position, [ position ]));
@@ -62,8 +64,12 @@ export class RigidBodyCubeComponent extends EntityComponent
             return this.setPosition(this.#parentPositionAdd.apply(this.parentEntity.position, [ position ]));
         };
 
+        this.parentEntity.position.set = (x, y, z) => {
+            return this.setPosition(this.#parentPositionSet.apply(this.parentEntity.position, [ x, y, z ]));
+        };
+        
         this.parentEntity.position.lerpVectors = (position) => {
-            return this.setPosition(this.#lerpVectors.apply(this.parentEntity.position, [ position ]));
+            return this.setPosition(this.#parentPositionLerpVectors.apply(this.parentEntity.position, [ position ]));
         };
     }
 
@@ -77,9 +83,10 @@ export class RigidBodyCubeComponent extends EntityComponent
         this.dispose(this.mesh);
         this.mesh = null;
         
-        this.parentEntity.position.copy        = this.#parentPositionCopy;
-        this.parentEntity.position.add         = this.#parentPositionAdd;
-        this.parentEntity.position.lerpVectors = this.#lerpVectors;
+        this.parentEntity.position.copy                      = this.#parentPositionCopy;
+        this.parentEntity.position.add                       = this.#parentPositionAdd;
+        this.parentEntity.position.set                       = this.#parentPositionSet;
+        this.parentEntity.position.parentPositionLerpVectors = this.#parentPositionLerpVectors;
     }
 
     dispose(object)
@@ -173,5 +180,12 @@ export class RigidBodyCubeComponent extends EntityComponent
         this.body.setWorldTransform(transform);
 
         return position;
+    }
+    
+    deserialise(data)
+    {
+        // parentEntity has already been deserialised when components are deserialised,
+        // so position is already set. we can then use that position to update the physics body
+        this.setPosition(this.parentEntity.position);
     }
 };
