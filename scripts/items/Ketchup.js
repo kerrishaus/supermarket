@@ -13,9 +13,6 @@ export class Ketchup extends Item
         this.addComponent(new ModelComponent("bottleKetchup"));
         this.addComponent(new CarryableComponent);
 
-        // TODO: this does not work
-        this.rotation.y = 1.5708;
-
         this.type = "ketchup";
     }
 };

@@ -16,12 +16,15 @@ export class Register extends Entity
 	{
 		super();
 		
-		const trigger = this.addComponent(new TriggerComponent(4, 4, 2));
+		const trigger = this.addComponent(new TriggerComponent(4, 3, 2));
+		trigger.triggerGeometry.position.x -= 1;
 		trigger.triggerGeometry.position.y -= 0.5;
+		trigger.triggerGeometry.position.z -= 1;
 		
 		const model = this.addComponent(new ModelComponent("cash-register")).model;
 
 		model.position.z -= 1;
+		model.position.x -= 1;
 		model.scale.set(4, 4, 4);
 		
 		this.name = "register";

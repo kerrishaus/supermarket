@@ -1,4 +1,4 @@
-import { BoxGeometry, Vector3, Vector2, Raycaster, Plane, GridHelper, Group, PlaneGeometry, MeshStandardMaterial, Mesh, FrontSide, DirectionalLight, AmbientLight, TextureLoader, RepeatWrapping } from "https://kerrishaus.com/assets/threejs/build/three.module.js";
+import { BoxGeometry, Vector3, Vector2, Raycaster, Plane, GridHelper, Group, PlaneGeometry, PointLight, MeshStandardMaterial, Mesh, FrontSide, TextureLoader, RepeatWrapping } from "https://kerrishaus.com/assets/threejs/build/three.module.js";
 
 import { SingleSlidingDoor } from "./tiles/SingleSlidingDoor.js";
 import { Register          } from "./tiles/Register.js";
@@ -10,6 +10,8 @@ import { Employee } from "./Employee.js";
 import { Customer } from "./Customer.js";
 
 import { Entity } from "./entity/Entity.js";
+import { Vehicle } from "./entity/Vehicle.js";
+
 import { TriggerComponent } from "./entity/components/TriggerComponent.js";
 import { ContainerComponent } from "./entity/components/ContainerComponent.js";
 import { GeometryComponent } from "./entity/components/GeometryComponent.js";
@@ -26,8 +28,9 @@ export class Shop extends Group
     {
         super();
         
-        const shopWidth  = 8;
-        const shopLength = 16;
+        const shopWidth  = 12;
+        const shopLength = 12;
+        const wallHeight = 4;
         const wallThickness = 1;
         
         const floorTexture = new TextureLoader().load("textures/tile.jpg");
@@ -36,12 +39,12 @@ export class Shop extends Group
         floorTexture.repeat.set(shopWidth / 2, shopLength / 2);
         
         const shopFloor = new Entity();
-        const phys = shopFloor.addComponent(new RigidBodyCubeComponent(
+        shopFloor.addComponent(new RigidBodyCubeComponent(
             new BoxGeometry(shopWidth, shopLength, 1),
             new MeshStandardMaterial({ map: floorTexture }),
             0
         ));
-        phys.setPosition(new Vector3(0, 0, -1));
+        shopFloor.position.copy(new Vector3(0, 0, -1));
         shopFloor.dontTrigger = true;
         scene.add(shopFloor);
         
@@ -49,50 +52,34 @@ export class Shop extends Group
         //     const physObj2 = new Entity();
         //     const phys2 = physObj2.addComponent(new RigidBodyCubeComponent(
         //         new BoxGeometry(1, 1, 1),
-        //         new MeshStandardMaterial({ color: 0x00FF00 })
+        //         new MeshStandardMaterial({ color: 0x00FF00 })https://github.com/samuelOsborne/PS1-demakes/
         //     ));
         //     phys2.setPosition(new Vector3(0, 0, 10))
         //     scene.add(physObj2);
         // }, 5000);
         
-        const backroomFloor = new Mesh(
-            new PlaneGeometry(shopWidth, shopLength / 2),
-            new MeshStandardMaterial({ color: 0x878787, side: FrontSide })
-        );
-        backroomFloor.castShadow = true;
-        backroomFloor.receiveShadow = true;
-        backroomFloor.position.set(0, -12, -0.5);
+        const backroomFloor = GeometryUtil.createRigidBodyCube(shopWidth, shopLength / 2, 1, { color: 0x878787 }, 0);
+        backroomFloor.position.set(0, ((shopLength / 2) + (backroomFloor.getComponent("RigidBodyCubeComponent").mesh.geometry.parameters.height / 2)) * -1, -1);
+        backroomFloor.dontTrigger = true;
         scene.add(backroomFloor);
         
-        // shop north wall
-        const northWall = GeometryUtil.createCube(new Vector3(shopWidth, wallThickness, 4), new Vector3(0, shopLength / 2 - wallThickness / 2 + 1, 1.5), 0xbfbfbf);
+        const northWall = GeometryUtil.createRigidBodyCube(shopWidth, wallThickness, wallHeight, { color: 0xbfbfbf }, 0);
+        northWall.position.set(0, shopLength / 2 - wallThickness / 2 + 1, 1.5);
         scene.add(northWall);
         
-        // west wall
-        //scene.add(GeometryUtil.createCube(new Vector3(wallThickness, shopWidth, 4), new Vector3(shopWidth / 2 - wallThickness / 2 + 1, 0, 1.5), 0xbfbfbf));
-        // east wall
-        //scene.add(GeometryUtil.createCube(new Vector3(wallThickness, shopWidth, 4), new Vector3(-shopWidth / 2 - wallThickness / 2, 0, 1.5), 0xbfbfbf));
+        const westWall = GeometryUtil.createRigidBodyCube(wallThickness, shopWidth + 1, wallHeight, { color: 0xbfbfbf }, 0);
+        westWall.position.set(shopWidth / 2 - wallThickness / 2 + 1, 0 + 0.5, 1.5);
+        scene.add(westWall);
         
-        //const backroomFloor = new RigidBodyCube(new Vector3(shopWidth, shopLength / 2, wallThickness), 0x878787, new Vector3(0, -15, -1), new Quaternion(), 0);
-        //scene.add(backroomFloor);
+        const eastWall = GeometryUtil.createCube(new Vector3(wallThickness, shopWidth + 1, 4), new Vector3(-shopWidth / 2 - wallThickness / 2, 0 + 0.5, 1.5), 0xbfbfbf);
+        eastWall.position.set(-shopWidth / 2 - wallThickness / 2, 0 + 0.5, 1.5);
+        scene.add(eastWall);
 
-        const light = new DirectionalLight(0xffffff, 0.5);
-        light.position.set(0, 5, 5);
-        light.target.position.set(0, 0, 0);
+        const light = new PointLight(0xffffff, 0.5);
+        light.position.set(0, 0, 5);
         light.castShadow = true
-        light.shadow.mapSize.width = 4096;
-        light.shadow.mapSize.height = 4096;
-        light.shadow.camera.near = 0.5;
-        light.shadow.camera.far = 40;
-        light.shadow.camera.left = -40;
-        light.shadow.camera.right = 40;
-        light.shadow.camera.top = 40;
-        light.shadow.camera.bottom = -40;
         scene.add(light);
     
-        const light2 = new AmbientLight(0xaaaaaa);
-        scene.add(light2);
-
         this.doors = new SingleSlidingDoor(new Vector3(-1, northWall.position.y - 0.001, 1.25), 0x0000ff);
         scene.add(this.doors);
         
@@ -162,7 +149,7 @@ export class Shop extends Group
                     const model = tomatoStand.addComponent(new ModelComponent("shelf-boxes")).model;
                     
                     model.position.z -= 1;
-                    model.scale.set(3, 3, 3);
+                    model.scale.set(2.5, 2.5, 2.5);
 
                     tomatoStand.onTrigger = (object) => {
                         if (object instanceof Player)
@@ -199,16 +186,18 @@ export class Shop extends Group
                 name: "Soda Stand",
                 price: 100,
                 getTile: () => {
-                    const sodaStand     = new Entity();
+                    const sodaStand = new Entity();
                     sodaStand.name = "sodaStand";
 
-                    sodaStand.addComponent(new TriggerComponent);
+                    const sodaTrigger = sodaStand.addComponent(new TriggerComponent(4, 2, 4));
+                    sodaTrigger.triggerGeometry.position.x -= 1;
 
                     const sodaContainer = sodaStand.addComponent(new ContainerComponent("Soda Stand", "sodaCan"));
                     const model = sodaStand.addComponent(new ModelComponent("freezers-standing")).model;
                     
                     model.position.z -= 1;
-                    model.scale.set(3, 3, 3);
+                    model.position.x -= 1;
+                    model.scale.set(4, 4, 2);
 
                     sodaStand.onTrigger = (object) => {
                         if (object instanceof Player)
@@ -233,7 +222,7 @@ export class Shop extends Group
                     const model = sodaMaker.addComponent(new ModelComponent("bottle-return")).model;
                     
                     model.position.z -= 1;
-                    model.scale.set(4, 4, 4);
+                    model.scale.set(3, 3, 3);
 
                     sodaMaker.onTrigger = (object) => {
                         if (object instanceof Player)
@@ -253,10 +242,10 @@ export class Shop extends Group
                     ketchupStand.addComponent(new TriggerComponent);
 
                     const ketchupContainer = ketchupStand.addComponent(new ContainerComponent("Ketchup Stand", "ketchup"));
-                    ketchupStand.addComponent(new GeometryComponent(
-                        new BoxGeometry(1.5, 1.5, 1), 
-                        new MeshStandardMaterial({ color: 0xff0000 })
-                    )).mesh.position.z -= 0.5;
+                    const model = ketchupStand.addComponent(new ModelComponent("shelf-boxes")).model;
+                    
+                    model.position.z -= 1;
+                    model.scale.set(2.5, 2.5, 2.5);
 
                     ketchupStand.onTrigger = (object) => {
                         if (object instanceof Player)
@@ -286,6 +275,8 @@ export class Shop extends Group
         this.populateTilesInBuyMenu();
         
         $(window).mousemove(this.mousemove);
+        
+        scene.add(new Vehicle());
     }
 
     populateTilesInBuyMenu()

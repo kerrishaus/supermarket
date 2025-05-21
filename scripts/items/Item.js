@@ -6,6 +6,6 @@ export class Item extends Entity
     {
         super.update(deltaTime);
 
-        this.getComponent("ModelComponent").model.rotation.y += 0.01;
+        this.model = this.getComponent("ModelComponent").model.rotation.y += 0.01;
     }
 };

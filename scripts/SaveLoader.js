@@ -16,7 +16,7 @@ const saveDataRaw =
             {
                 "type":"tomatoStand",
                 "position":{
-                    "x":3,
+                    "x":5,
                     "y":5,
                     "z":0.5
                 }
@@ -25,7 +25,7 @@ const saveDataRaw =
                 "type":"tomatoPlant",
                 "position":{
                     "x":3,
-                    "y":-15,
+                    "y":-11,
                     "z":0.5
                 },
                 "amount":3
@@ -33,8 +33,8 @@ const saveDataRaw =
             {
                 "type":"register",
                 "position":{
-                    "x":-1,
-                    "y":-7,
+                    "x":-3,
+                    "y":-5,
                     "z":0.5
                 },
                 "rotation":{
@@ -47,7 +47,7 @@ const saveDataRaw =
                 "type":"recycleBin",
                 "position":{
                     "x":-3,
-                    "y":-15,
+                    "y":-11,
                     "z":0.5
                 }
             }

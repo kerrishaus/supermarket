@@ -92,7 +92,6 @@ export class LoadSaveState extends State
         */
         
         window.player = new Player();
-        
         scene.add(player);
         
         player.setMoney(saveData.player.money);

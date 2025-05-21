@@ -154,7 +154,7 @@ export class Player extends Entity
 
     setMoney(amount)
     {
-        console.debug("updated player money to " + amount);
+        //console.debug("updated player money to " + amount);
         this.money = amount;
         $("#money").html(this.money);
         return this.money;

@@ -64,7 +64,7 @@ export class StartupState extends State
             renderer.domElement.style.width = "";
             renderer.domElement.style.height = "";
             renderer.setPixelRatio(1)
-            renderer.setClearColor(new THREE.Color('#6EB1FF'))
+            //renderer.setClearColor(new THREE.Color("#6EB1FF"))
             renderer.domElement.classList.add("webgl");
 
             const renderTarget = new THREE.WebGLRenderTarget(
