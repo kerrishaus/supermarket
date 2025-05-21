@@ -67,7 +67,7 @@ export class Employee extends Entity
         
         this.actions.push(action);
         
-        console.debug("Pushed action: " + action.type, action);
+        //console.debug("Pushed action: " + action.type, action);
     }
     
     focusAction(action)
@@ -90,7 +90,7 @@ export class Employee extends Entity
         
         this.labelDiv.textContent = action.type;
         
-        console.debug("focused action");
+        //console.debug(`Focused action ${action.type}.`);
     }
 
     nextAction()
@@ -222,12 +222,7 @@ export class Employee extends Entity
                           null);
 
             if (testType == type)
-            {
                 containers.push(container);
-                console.debug(`${testType} == ${type}`);
-            }
-            else
-                console.debug(`${testType} != ${type}`);
         }
         
         return containers;
@@ -308,7 +303,7 @@ export class Employee extends Entity
         // try to find an applicable container
         if (this.#container.carriedItems.length > 0)
         {
-            console.debug("Searching for containers for carried items...");
+            //console.debug("Searching for containers for carried items...");
 
             let lastItemType = null;
             
@@ -320,7 +315,7 @@ export class Employee extends Entity
 
                 const containers = this.getTilesFromListByType(this.shop.containerTiles, item.type);
 
-                console.debug(`Containers of type ${item.type}:`, containers);
+                //console.debug(`Containers of type ${item.type}:`, containers);
 
                 const container = this.findEmptiestContainerInList(containers);
                 
