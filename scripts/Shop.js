@@ -1,4 +1,4 @@
-import { BoxGeometry, Vector3, Vector2, Raycaster, Plane, GridHelper, Group, PlaneGeometry, PointLight, MeshStandardMaterial, Mesh, FrontSide, TextureLoader, RepeatWrapping } from "https://kerrishaus.com/assets/threejs/build/three.module.js";
+import { BoxGeometry, Vector3, Vector2, Raycaster, Plane, GridHelper, Group, PlaneGeometry, PointLight, MeshStandardMaterial, Mesh, FrontSide, Quaternion, TextureLoader, RepeatWrapping } from "https://kerrishaus.com/assets/threejs/build/three.module.js";
 
 import { SingleSlidingDoor } from "./tiles/SingleSlidingDoor.js";
 import { Register          } from "./tiles/Register.js";
@@ -10,7 +10,6 @@ import { Employee } from "./Employee.js";
 import { Customer } from "./Customer.js";
 
 import { Entity } from "./entity/Entity.js";
-import { Vehicle } from "./entity/Vehicle.js";
 
 import { TriggerComponent } from "./entity/components/TriggerComponent.js";
 import { ContainerComponent } from "./entity/components/ContainerComponent.js";
@@ -48,17 +47,6 @@ export class Shop extends Group
         shopFloor.dontTrigger = true;
         scene.add(shopFloor);
         
-        // setInterval(() => {
-        //     const physObj2 = new Entity();
-        //     const phys2 = physObj2.addComponent(new RigidBodyComponent(
-        //         new BoxGeometry(1, 1, 1),
-        //         new MeshStandardMaterial({ color: 0x00FF00 }),
-        //         10
-        //     ));
-        //     phys2.setPosition(new Vector3(0, 0, 10))
-        //     scene.add(physObj2);
-        // }, 5000);
-        
         const backroomFloor = GeometryUtil.createRigidBodyCube(shopWidth, shopLength / 2, 1, { color: 0x878787 }, 0);
         backroomFloor.position.set(0, ((shopLength / 2) + ((shopLength / 2) / 2)) * -1, -1);
         backroomFloor.dontTrigger = true;
@@ -72,7 +60,7 @@ export class Shop extends Group
         westWall.position.set(shopWidth / 2 - wallThickness / 2 + 1, 0 + 0.5, 1.5);
         scene.add(westWall);
         
-        const eastWall = GeometryUtil.createCube(new Vector3(wallThickness, shopWidth + 1, 4), new Vector3(-shopWidth / 2 - wallThickness / 2, 0 + 0.5, 1.5), 0xbfbfbf);
+        const eastWall = GeometryUtil.createRigidBodyCube(wallThickness, shopWidth + 1, wallHeight, { color: 0xbfbfbf }, 0);
         eastWall.position.set(-shopWidth / 2 - wallThickness / 2, 0 + 0.5, 1.5);
         scene.add(eastWall);
         
@@ -276,12 +264,6 @@ export class Shop extends Group
         this.populateTilesInBuyMenu();
         
         $(window).mousemove(this.mousemove);
-        
-        //this.vehicle = new Vehicle();
-        //scene.add(this.vehicle);
-        
-        //this.vehicle.position.set(0, 0, 1);
-        
     }
 
     populateTilesInBuyMenu()

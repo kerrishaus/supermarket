@@ -167,7 +167,7 @@ export class StartupState extends State
             window.physicsBodies            = [];
             window.tmpTransform             = null;
             window.physicsWorld 			= new Ammo.btDiscreteDynamicsWorld(dispatcher_, broadphase_, solver_, collisionConfiguration_);
-            window.physicsWorld.setGravity(new Ammo.btVector3(0, 0, -75));
+            window.physicsWorld.setGravity(new Ammo.btVector3(0, 0, -9.82));
             
             tmpTransform = new Ammo.btTransform();
             

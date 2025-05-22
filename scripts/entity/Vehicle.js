@@ -1,6 +1,7 @@
 import { BoxGeometry, Vector3, Vector2, Raycaster, Quaternion, MeshStandardMaterial, CylinderGeometry, Mesh } from "https://kerrishaus.com/assets/threejs/build/three.module.js";
 
 import { Entity } from "./Entity.js";
+import { GeometryComponent } from "./components/GeometryComponent.js";
 import { RigidBodyComponent } from "./components/RigidBodyComponent.js";
 
 import * as GeometryUtil from "../GeometryUtility.js";
@@ -8,9 +9,9 @@ import * as MathUtility from "../MathUtility.js";
 
 export class Vehicle extends Entity
 {
-    #chassisLength = 4;
     #chassisWidth  = 1.8;
-    #chassisHeight = 0.6;
+    #chassisHeight = .6;
+    #chassisLength = 4;
     #vehicleMass   = 800;
     
 	#wheelAxisPositionBack = -1;
@@ -37,8 +38,8 @@ export class Vehicle extends Entity
     #suspensionRestLength  = 0.6;
 	#rollInfluence         = 0.2;
 
-	#steeringIncrement = .04;
-	#steeringClamp     = .5;
+	#steeringIncrement = 0.04;
+	#steeringClamp     = 0.5;
 	#maxEngineForce    = 2000;
 	#maxBreakingForce  = 100;
 	
@@ -58,7 +59,6 @@ export class Vehicle extends Entity
     
     constructor()
     {
-        window.DISABLE_DEACTIVATION = 4;
 		window.TRANSFORM_AUX = new Ammo.btTransform();
 		window.ZERO_QUATERNION = new Quaternion(0, 0, 0, 1);
 		
@@ -66,71 +66,34 @@ export class Vehicle extends Entity
         
         console.log("Creating vehicle...");
         
-    	// Chassis
-        this.phys = this.addComponent(new RigidBodyComponent(
-            new BoxGeometry(this.#chassisLength, this.#chassisWidth, this.#chassisHeight),
-            new MeshStandardMaterial({ color: 0x0000FF }),
-            this.#vehicleMass
-        ));
-        
-        //this.phys.body.setActivationState(DISABLE_DEACTIVATION);
-        
-        this.chassisMesh = this.getComponent("GeometryComponent").mesh;
-        
-        /*
-    	// Raycast Vehicle
-    	this.tuning = new Ammo.btVehicleTuning();
-    	this.raycaster = new Ammo.btDefaultVehicleRaycaster(physicsWorld);
-    	this.vehicle = new Ammo.btRaycastVehicle(this.tuning, this.phys.body, this.raycaster);
-    	this.vehicle.setCoordinateSystem(0, 1, 2);
-    	physicsWorld.addAction(this.vehicle);
-        
-		this.createVehicle(new Vector3(0, 4, -20), ZERO_QUATERNION);
+		this.transform = new Ammo.btTransform();
+		this.transform.setIdentity();
+		this.transform.setOrigin(new Ammo.btVector3(0, 0, 0));
+		this.transform.setRotation(new Ammo.btQuaternion(0, 0, 0, 1));
+		this.motionState = new Ammo.btDefaultMotionState(this.transform);
 		
-		$(document).keydown((event) => { this.keydown(event) });
-		$(document).keyup((event) => { this.keyup(event) });
-    	*/
+		this.box = new Ammo.btBoxShape(new Ammo.btVector3(this.#chassisWidth * .5, this.#chassisHeight * .5, this.#chassisLength * .5));
 		
-		console.log("Vehicle is ready.");
-    }
-    
-	keyup(e)
-	{
-		if (this.#keysActions[e.code]) 
-		{
-			this.#actions[this.#keysActions[e.code]] = false;
-			e.preventDefault();
-			e.stopPropagation();
-			return false;
-		}
-	}
-	
-	keydown(e)
-	{
-		if (this.#keysActions[e.code])
-		{
-			this.#actions[this.#keysActions[e.code]] = true;
-			e.preventDefault();
-			e.stopPropagation();
-			return false;
-		}
-	}
-    
-    createWheelMesh(radius, width)
-    {
-        console.log("Creating wheel mesh...");
-        
-    	const t = new CylinderGeometry(radius, radius, width, 24, 1);
-    	t.rotateZ(Math.PI / 2);
-    	const mesh = new Mesh(t, new MeshStandardMaterial({ color: 0x000000 }));
-    	mesh.add(new Mesh(new BoxGeometry(width * 1.5, radius * 1.75, radius*.25, 1, 1, 1), new MeshStandardMaterial({ color: 0x000000 })));
-    	scene.add(mesh);
-    	return mesh;
-    }
-    
-    createVehicle(pos, quat)
-    {
-        console.log("Creating vehicle...");
+		this.inertia = new Ammo.btVector3(0, 0, 0);
+		this.box.calculateLocalInertia(this.#vehicleMass, this.inertia);
+		
+		this.body = new Ammo.btRigidBody(new Ammo.btRigidBodyConstructionInfo(this.#vehicleMass, this.motionState, this.box, this.inertia));
+		this.body.setActivationState(RigidBodyComponent.DISABLE_DEACTIVATION);
+		
+		physicsWorld.addRigidBody(this.body);
+		//physicsBodies.push({ object: this, motionState: this.motionState });
+		
+		this.chassisMesh = new Mesh(
+		    new BoxGeometry(this.#chassisWidth, this.#chassisHeight, this.#chassisLength),
+		    new MeshStandardMaterial({ color: 0x0000FF })
+	    );
+		scene.add(this.chassisMesh);
+		
+        this.tuning    = new Ammo.btVehicleTuning();
+        this.raycaster = new Ammo.btDefaultVehicleRaycaster(physicsWorld);
+        this.vehicle   = new Ammo.btRaycastVehicle(this.tuning, this.body, this.raycaster);
+        this.vehicle.setCoordinateSystem(0, 1, 2);
+        physicsWorld.addAction(this.vehicle);
         
     	var wheelDirectionCS0 = new Ammo.btVector3(0, -1, 0);
     	var wheelAxleCS = new Ammo.btVector3(-1, 0, 0);
@@ -162,23 +125,78 @@ export class Vehicle extends Entity
     	addWheel(true,  new Ammo.btVector3(-this.#wheelHalfTrackFront, this.#wheelAxisHeightFront, this.#wheelAxisFrontPosition), this.#wheelRadiusFront, this.#wheelWidthFront, this.#FRONT_RIGHT);
     	addWheel(false, new Ammo.btVector3(this.#wheelHalfTrackBack  , this.#wheelAxisHeightBack , this.#wheelAxisPositionBack) , this.#wheelRadiusBack , this.#wheelWidthBack , this.#BACK_LEFT);
     	addWheel(false, new Ammo.btVector3(-this.#wheelHalfTrackBack , this.#wheelAxisHeightBack , this.#wheelAxisPositionBack) , this.#wheelRadiusBack , this.#wheelWidthBack , this.#BACK_RIGHT);
+    	
+		$(document).keydown((event) => { this.keydown(event) });
+		$(document).keyup((event) => { this.keyup(event) });
+		
+		// TODO: eventually get the wheels and thing added this entity so the position is right.
+		// after it works.
+		// remove code that sets position of things, just set position of this,
+		// and keep quaternion code.
+		//this.position.copy(0, 0, 10);
+		//this.mesh.position.copy(0, 0, 10);
+		
+		setTimeout(() => {
+		    const rotation = new Ammo.btVector3(1, 0, 0);
+		    rotation.op_mul(5);
+		    
+		    this.body.setAngularVelocity(rotation);
+		}, 1000);
+		
+		console.log("Vehicle is ready.");
+    }
+    
+	keyup(e)
+	{
+		if (this.#keysActions[e.code]) 
+		{
+			this.#actions[this.#keysActions[e.code]] = false;
+			e.preventDefault();
+			e.stopPropagation();
+			return false;
+		}
+	}
+	
+	keydown(e)
+	{
+		if (this.#keysActions[e.code])
+		{
+			this.#actions[this.#keysActions[e.code]] = true;
+			e.preventDefault();
+			e.stopPropagation();
+			return false;
+		}
+	}
+    
+    createWheelMesh(radius, width)
+    {
+        console.log("Creating wheel mesh...");
+        
+        const t = new CylinderGeometry(radius, radius, width, 24, 1);
+        t.rotateZ(Math.PI / 2);
+        
+        const mesh = new Mesh(t, new MeshStandardMaterial({ color: 0x000000 }));
+        
+        mesh.add(new Mesh(
+            new BoxGeometry(width * 1.5, radius * 1.75, radius * .25), 
+            new MeshStandardMaterial({ color: 0x000000 })
+        ));
+        
+        scene.add(mesh);
+        return mesh;
     }
     
     update(deltatime)
     {
-        return;
-        
 		var speed = this.vehicle.getCurrentSpeedKmHour();
 
-		$("#waitingCustomers").text((speed < 0 ? "(R) " : "") + Math.abs(speed).toFixed(1) + " km/h");
+		$("#speed").text((speed < 0 ? "(R) " : "") + Math.abs(speed).toFixed(1) + " km/h");
 
 		this.#breakingForce = 0;
 		this.#engineForce = 0;
 
 		if (this.#actions.acceleration)
 		{
-		    console.log("waaa");
-		    
 			if (speed < -1)
 				this.#breakingForce = this.#maxBreakingForce;
 			else
@@ -218,9 +236,9 @@ export class Vehicle extends Entity
 				}
 			}
 		}
-
-		this.vehicle.applyEngineForce(this.#engineForce, this.#BACK_LEFT);
-		this.vehicle.applyEngineForce(this.#engineForce, this.#BACK_RIGHT);
+        
+		this.vehicle.applyEngineForce(100, this.#BACK_LEFT);
+		this.vehicle.applyEngineForce(100, this.#BACK_RIGHT);
 
 		this.vehicle.setBrake(this.#breakingForce / 2, this.#FRONT_LEFT);
 		this.vehicle.setBrake(this.#breakingForce / 2, this.#FRONT_RIGHT);
@@ -230,9 +248,10 @@ export class Vehicle extends Entity
 		this.vehicle.setSteeringValue(this.#vehicleSteering, this.#FRONT_LEFT);
 		this.vehicle.setSteeringValue(this.#vehicleSteering, this.#FRONT_RIGHT);
 
-		let tm, p, q, i;
+        let tm, p, q, i;
+		var n = this.vehicle.getNumWheels();
 		
-		for (i = 0; i < this.vehicle.getNumWheels(); i++)
+		for (i = 0; i < n; i++)
 		{
 			this.vehicle.updateWheelTransform(i, true);
 			tm = this.vehicle.getWheelTransformWS(i);
@@ -241,7 +260,7 @@ export class Vehicle extends Entity
 			this.#wheelMeshes[i].position.set(p.x(), p.y(), p.z());
 			this.#wheelMeshes[i].quaternion.set(q.x(), q.y(), q.z(), q.w());
 		}
-
+		
 		tm = this.vehicle.getChassisWorldTransform();
 		p = tm.getOrigin();
 		q = tm.getRotation();

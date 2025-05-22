@@ -46,6 +46,7 @@ export class LoadSaveState extends State
                     </div>
                     <div>
                         <i class='fa fa-users'></i> Customers waiting to checkout: <span id="waitingCustomers">0</span>
+                        <i class='fa fa-speedometer'></i> Speed: <span id="speed">0</span>
                     </div>
                 </div>
                 

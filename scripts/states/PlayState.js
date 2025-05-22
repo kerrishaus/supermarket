@@ -3,6 +3,8 @@ import { State } from "./State.js";
 import * as THREE from "https://kerrishaus.com/assets/threejs/build/three.module.js";
 
 import { Entity } from "../entity/Entity.js";
+import { Vehicle } from "../entity/Vehicle.js";
+import { RigidBodyComponent } from "../entity/components/RigidBodyComponent.js";
 
 import * as PageUtility from "../PageUtility.js";
 
@@ -68,7 +70,7 @@ export class PlayState extends State
                 console.log(stretched);
                 resize();
             }
-            else if (event.code == "KeyI")
+            else if (event.code == "KeyF")
             {
                 fullbright = !fullbright;
                 
@@ -76,6 +78,30 @@ export class PlayState extends State
                     renderer.setClearColor(0xFFFFFF);
                 else
                     renderer.setClearColor(0x000000);
+            }
+            else if (event.code == "KeyC")
+            {
+                const physObj2 = new Entity();
+                const phys2 = physObj2.addComponent(new RigidBodyComponent(
+                    new THREE.BoxGeometry(1, 1, 1),
+                    new THREE.MeshStandardMaterial({ color: 0x00FF00 }),
+                    10
+                ));
+                phys2.setPosition(new THREE.Vector3(0, 0, 10))
+                scene.add(physObj2);
+            }
+            else if (event.code == "KeyV")
+            {
+                const vehicle = new Vehicle();
+                scene.add(vehicle);
+                
+                /*
+                const quaternion = new THREE.Quaternion();
+                quaternion.setFromAxisAngle(new THREE.Vector3(-1, 0, 0), Math.PI / 2);
+                
+                vehicle.rotation.copy(quaternion);
+                */
+                //vehicle.getComponent("RigidBodyComponent").setPosition(new THREE.Vector3(0, 0, 4), quaternion);
             }
             else if (shop.newTile === null && !shop.inDeletionMode)
             {
@@ -225,21 +251,20 @@ export class PlayState extends State
     {
         physicsWorld.stepSimulation(deltaTime, 10);
 
-        for (const object of physicsBodies)
+        for (const body of physicsBodies)
         {
-            object.motionState.getWorldTransform(tmpTransform);
+            body.motionState.getWorldTransform(tmpTransform);
 
             const pos = tmpTransform.getOrigin();
             const quat = tmpTransform.getRotation();
-            const quat3 = new THREE.Quaternion(quat.x(), quat.y(), quat.z(), quat.w());
             
             // this intentionally does not use copy
             // because copy has been hijacked by RigidBodyComponent
-            object.parentEntity.position.x = pos.x();
-            object.parentEntity.position.y = pos.y();
-            object.parentEntity.position.z = pos.z();
-
-            object.parentEntity.quaternion.copy(quat3);
+            body.object.position.x = pos.x();
+            body.object.position.y = pos.y();
+            body.object.position.z = pos.z();
+            
+            body.object.quaternion.set(quat.x(), quat.y(), quat.z(), quat.w());
         }
     }
     
@@ -249,6 +274,9 @@ export class PlayState extends State
 
         scene.traverse((object) =>
         {
+            if ("update" in object)
+                object.update(deltaTime);
+            
             // TODO: this is a really ugly hack, but it prevents
             // anything from being triggered during the first 3 frames of the game
             // giving the oriented bounding boxes time to update into their proper positions.
@@ -277,9 +305,6 @@ export class PlayState extends State
                         }
                     });
                 }
-
-            if ("update" in object)
-                object.update(deltaTime);
         });
 
         this.physicsStep(deltaTime);

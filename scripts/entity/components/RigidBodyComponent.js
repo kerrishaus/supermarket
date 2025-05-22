@@ -10,6 +10,8 @@ export class RigidBodyComponent extends EntityComponent
     #parentPositionSet;
     #parentPositionLerpVectors;
     
+    static DISABLE_DEACTIVATION = 4;
+    
     init(geometry, material, mass = 10)
     {
         if (!this.parentEntity.hasComponent("GeometryComponent"))
@@ -22,18 +24,19 @@ export class RigidBodyComponent extends EntityComponent
         this.transform.setOrigin(new Ammo.btVector3(this.parentEntity.position.x, this.parentEntity.position.y, this.parentEntity.position.z));
         this.transform.setRotation(new Ammo.btQuaternion(this.parentEntity.quaternion.x, this.parentEntity.quaternion.y, this.parentEntity.quaternion.z, this.parentEntity.quaternion.w));
         this.motionState = new Ammo.btDefaultMotionState(this.transform);
-
+        
         if (geometry instanceof BoxGeometry)
             this.shape = new Ammo.btBoxShape(new Ammo.btVector3(geometry.parameters.width / 2, geometry.parameters.height / 2, geometry.parameters.depth / 2));
         else
             console.error("Invalid geometry type passed to RigidBodyComponent.", geometry);
         
-        this.shape.setMargin(0.05);
-
         this.inertia = new Ammo.btVector3(0, 0, 0);
         this.shape.calculateLocalInertia(mass, this.inertia);
         
         this.body = new Ammo.btRigidBody(new Ammo.btRigidBodyConstructionInfo(mass, this.motionState, this.shape, this.inertia));
+        
+        if (mass < 0)
+            this.phys.body.setActivationState(RigidBodyComponent.DISABLE_DEACTIVATION);
         
         this.setRestitution(0.125);
         this.setFriction(1);
@@ -65,8 +68,8 @@ export class RigidBodyComponent extends EntityComponent
             return this.setPosition(this.#parentPositionSet.apply(this.parentEntity.position, [ x, y, z ]));
         };
         
-        this.parentEntity.position.lerpVectors = (position) => {
-            return this.setPosition(this.#parentPositionLerpVectors.apply(this.parentEntity.position, [ position ]));
+        this.parentEntity.position.lerpVectors = (start, end, time) => {
+            return this.setPosition(this.#parentPositionLerpVectors.apply(this.parentEntity.position, [ start, end, time ]));
         };
     }
     

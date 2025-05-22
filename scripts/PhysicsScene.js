@@ -8,7 +8,7 @@ export class PhysicsScene extends Scene
     {
         super();
     }
-
+    
     // this is a very important override of Object3D#traverse,
     // becasue it prevents traverse from being called on children
     // which may no longer exist in the scene.
@@ -21,17 +21,17 @@ export class PhysicsScene extends Scene
         for (let i = 0, l = children.length; i < l; i++)
             children[i]?.traverse(callback);
     }
-
+    
     add(object)
     {
         super.add(object);
-
+        
         if (object instanceof Entity && object.hasComponent("RigidBodyComponent"))
         {
-            const physComp = object.getComponent("RigidBodyComponent");
-
-            physicsBodies.push(physComp);
-            physicsWorld.addRigidBody(physComp.body);
+            const phys = object.getComponent("RigidBodyComponent");
+            
+            physicsBodies.push({ object: object, motionState: phys.motionState });
+            physicsWorld.addRigidBody(phys.body);
         }
     }
 
