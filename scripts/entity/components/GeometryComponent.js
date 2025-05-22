@@ -18,19 +18,17 @@ export class GeometryComponent extends EntityComponent
 
         this.mesh.userData.obb = new OBB();
 
-        // TODO: make sure it gets removed from the scene properly.
-        // right now it just sits around wherever it was last
-        this.parentEntity.attach(this.mesh);
+        this.parentEntity.add(this.mesh);
 
         this.dontTrigger = false;
     }
-
+    
     destructor()
     {
         super.destructor();
 
+        this.parentEntity.remove(this.mesh);
         scene.remove(this.mesh);
-        this.mesh.removeFromParent();
 
         this.dispose(this.mesh);
         this.mesh = null;

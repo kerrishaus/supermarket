@@ -52,6 +52,7 @@ export class StartupState extends State
             };
 
             window.stretched = true;
+            window.fullbright = false;
             
             window.renderer = new THREE.WebGLRenderer({
                 antialias: false,

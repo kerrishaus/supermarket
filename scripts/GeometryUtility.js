@@ -3,7 +3,7 @@ import { Vector3, BoxGeometry, MeshStandardMaterial, Mesh, Quaternion, TextureLo
 import { Entity } from "./entity/Entity.js";
 import { CarryableComponent } from "./entity/components/CarryableComponent.js";
 import { GeometryComponent } from "./entity/components/GeometryComponent.js";
-import { RigidBodyCubeComponent } from "./entity/components/RigidBodyCubeComponent.js";
+import { RigidBodyComponent } from "./entity/components/RigidBodyComponent.js";
 
 export function createCube(size, position, color)
 {
@@ -27,8 +27,22 @@ export function createScaledCube(width, height, thickness, color)
 export function createRigidBodyCube(x, y, z, settings, mass = 10)
 {
     const object = new Entity();
-    const phys = object.addComponent(new RigidBodyCubeComponent(
+    const phys = object.addComponent(new RigidBodyComponent(
         new BoxGeometry(x, y, z),
+        new MeshStandardMaterial(settings),
+        mass
+    ));
+    object.dontTrigger = true;
+    scene.add(object);
+    
+    return object;
+}
+
+export function createRigidBodyCylinder(height, diameter, settings, mass = 10)
+{
+    const object = new Entity();
+    const phys = object.addComponent(new RigidBodyComponent(
+        new CylinderGeometry(diameter, diameter, height),
         new MeshStandardMaterial(settings),
         mass
     ));

@@ -1,4 +1,4 @@
-import { getModel } from '../../ModelLoader.js';
+import { getModel } from "../../ModelLoader.js";
 
 import { EntityComponent } from "./EntityComponent.js";
 

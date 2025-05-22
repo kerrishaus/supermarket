@@ -1,10 +1,9 @@
-import { Mesh } from "https://kerrishaus.com/assets/threejs/build/three.module.js";
-
-import { OBB } from 'https://kerrishaus.com/assets/threejs/examples/jsm/math/OBB.js';
+import { BoxGeometry } from "https://kerrishaus.com/assets/threejs/build/three.module.js";
 
 import { EntityComponent } from "./EntityComponent.js";
+import { GeometryComponent } from "./GeometryComponent.js";
 
-export class RigidBodyCubeComponent extends EntityComponent
+export class RigidBodyComponent extends EntityComponent
 {
     #parentPositionCopy;
     #parentPositionAdd;
@@ -13,48 +12,46 @@ export class RigidBodyCubeComponent extends EntityComponent
     
     init(geometry, material, mass = 10)
     {
-        geometry.computeBoundingBox();
-        geometry.userData.obb = new OBB().fromBox3(geometry.boundingBox);
+        if (!this.parentEntity.hasComponent("GeometryComponent"))
+            this.parentEntity.addComponent(new GeometryComponent(geometry, material));
         
-        this.mesh = new Mesh(geometry, material);
-
-        this.mesh.userData.obb = new OBB();
-
-        this.mesh.castShadow = true;
-        this.mesh.receiveShadow = true;
-
-        // TODO: make sure it gets removed from the scene properly.
-        // right now it just sits around wherever it was last
-        // i think this is fixed tho
-        this.parentEntity.attach(this.mesh);
-
-        // phys below here
-
+        // physics
+        
         this.transform = new Ammo.btTransform();
         this.transform.setIdentity();
         this.transform.setOrigin(new Ammo.btVector3(this.parentEntity.position.x, this.parentEntity.position.y, this.parentEntity.position.z));
         this.transform.setRotation(new Ammo.btQuaternion(this.parentEntity.quaternion.x, this.parentEntity.quaternion.y, this.parentEntity.quaternion.z, this.parentEntity.quaternion.w));
         this.motionState = new Ammo.btDefaultMotionState(this.transform);
 
-        this.box = new Ammo.btVector3(geometry.parameters.width / 2, geometry.parameters.height / 2, geometry.parameters.depth / 2)
-        this.shape = new Ammo.btBoxShape(this.box);
+        if (geometry instanceof BoxGeometry)
+            this.shape = new Ammo.btBoxShape(new Ammo.btVector3(geometry.parameters.width / 2, geometry.parameters.height / 2, geometry.parameters.depth / 2));
+        else
+            console.error("Invalid geometry type passed to RigidBodyComponent.", geometry);
+        
         this.shape.setMargin(0.05);
-        Ammo.destroy(this.box);
 
         this.inertia = new Ammo.btVector3(0, 0, 0);
         this.shape.calculateLocalInertia(mass, this.inertia);
         
-        this.info = new Ammo.btRigidBodyConstructionInfo(mass, this.motionState, this.shape, this.inertia);
-        this.body = new Ammo.btRigidBody(this.info);
+        this.body = new Ammo.btRigidBody(new Ammo.btRigidBodyConstructionInfo(mass, this.motionState, this.shape, this.inertia));
         
         this.setRestitution(0.125);
         this.setFriction(1);
         this.setRollingFriction(0.2);
+        
+        // end physics
 
         this.#parentPositionCopy        = this.parentEntity.position.copy;
         this.#parentPositionAdd         = this.parentEntity.position.add;
         this.#parentPositionSet         = this.parentEntity.position.set;
         this.#parentPositionLerpVectors = this.parentEntity.position.lerpVectors;
+        
+        // scritcly speaking, these functions are wasteful because they
+        // 1 set the position of the geometry
+        // 2 update the physics box to match
+        // 3 geometry is moved to physics box location in global update after all entity updates are finished
+        // so the geometry position is set twice. however, I do not want to rewrite the add and lerpVectors functions
+        // so we use them and set the geometry twice anyway :)
 
         this.parentEntity.position.copy = (position) => {
             return this.setPosition(this.#parentPositionCopy.apply(this.parentEntity.position, [ position ]));
@@ -72,55 +69,20 @@ export class RigidBodyCubeComponent extends EntityComponent
             return this.setPosition(this.#parentPositionLerpVectors.apply(this.parentEntity.position, [ position ]));
         };
     }
-
+    
     destructor()
     {
         super.destructor();
 
-        scene.remove(this.mesh);
-        this.mesh.removeFromParent();
-
-        this.dispose(this.mesh);
-        this.mesh = null;
-        
         this.parentEntity.position.copy                      = this.#parentPositionCopy;
         this.parentEntity.position.add                       = this.#parentPositionAdd;
         this.parentEntity.position.set                       = this.#parentPositionSet;
         this.parentEntity.position.parentPositionLerpVectors = this.#parentPositionLerpVectors;
-    }
-
-    dispose(object)
-    {
-        if (!object)
-        {
-            console.error("Object provided to dispose was invalid!");
-            return;
-        }
         
-        object.geometry?.dispose()
-
-        if (object.material)
-            if (object.material.length)
-                for (const material of object.material)
-                    material.dispose()
-            else
-                object.material.dispose()
-        
-        scene.remove(object);
-
         Ammo.destroy(this.body);
-        Ammo.destroy(this.info);
         Ammo.destroy(this.shape);
         Ammo.destroy(this.motionState);
         Ammo.destroy(this.transform);
-    }
-    
-    update(deltaTime)
-    {
-        super.update(deltaTime);
-
-        this.mesh.userData.obb.copy(this.mesh.geometry.userData.obb);
-        this.mesh.userData.obb.applyMatrix4(this.mesh.matrixWorld);
     }
 
     setKinematic(kinematic = true)

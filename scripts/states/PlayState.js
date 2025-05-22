@@ -2,9 +2,9 @@ import { State } from "./State.js";
 
 import * as THREE from "https://kerrishaus.com/assets/threejs/build/three.module.js";
 
-import * as PageUtility from "../PageUtility.js";
-
 import { Entity } from "../entity/Entity.js";
+
+import * as PageUtility from "../PageUtility.js";
 
 export class PlayState extends State
 {
@@ -67,6 +67,15 @@ export class PlayState extends State
                 stretched = !stretched;
                 console.log(stretched);
                 resize();
+            }
+            else if (event.code == "KeyI")
+            {
+                fullbright = !fullbright;
+                
+                if (fullbright)
+                    renderer.setClearColor(0xFFFFFF);
+                else
+                    renderer.setClearColor(0x000000);
             }
             else if (shop.newTile === null && !shop.inDeletionMode)
             {
@@ -211,7 +220,7 @@ export class PlayState extends State
         $("#pauseMenu").attr("data-visibility", "hidden");
         player.enableMovement();
     }
-
+    
     physicsStep(deltaTime)
     {
         physicsWorld.stepSimulation(deltaTime, 10);
@@ -222,14 +231,13 @@ export class PlayState extends State
 
             const pos = tmpTransform.getOrigin();
             const quat = tmpTransform.getRotation();
-            const pos3 = new THREE.Vector3(pos.x(), pos.y(), pos.z());
             const quat3 = new THREE.Quaternion(quat.x(), quat.y(), quat.z(), quat.w());
             
             // this intentionally does not use copy
-            // because copy has been hijacked by RigidBodyCubeComponent
-            object.parentEntity.position.x = pos3.x;
-            object.parentEntity.position.y = pos3.y;
-            object.parentEntity.position.z = pos3.z;
+            // because copy has been hijacked by RigidBodyComponent
+            object.parentEntity.position.x = pos.x();
+            object.parentEntity.position.y = pos.y();
+            object.parentEntity.position.z = pos.z();
 
             object.parentEntity.quaternion.copy(quat3);
         }
@@ -261,7 +269,7 @@ export class PlayState extends State
 
                         if (object2 instanceof Entity)
                         {
-                            const geometryComponent = object2.getComponent("GeometryComponent") ?? object2.getComponent("RigidBodyCubeComponent") ?? null;
+                            const geometryComponent = object2.getComponent("GeometryComponent") ?? object2.getComponent("RigidBodyComponent") ?? null;
 
                             if (geometryComponent != null)
                                 if (triggerComponent.triggerGeometry.userData.obb.intersectsOBB(geometryComponent.mesh.userData.obb))

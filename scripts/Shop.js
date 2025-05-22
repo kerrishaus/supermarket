@@ -17,7 +17,7 @@ import { ContainerComponent } from "./entity/components/ContainerComponent.js";
 import { GeometryComponent } from "./entity/components/GeometryComponent.js";
 import { GeneratorComponent } from "./entity/components/GeneratorComponent.js";
 import { ModelComponent } from "./entity/components/ModelComponent.js";
-import { RigidBodyCubeComponent } from "./entity/components/RigidBodyCubeComponent.js";
+import { RigidBodyComponent } from "./entity/components/RigidBodyComponent.js";
 
 import * as GeometryUtil from "./GeometryUtility.js";
 import * as MathUtility from "./MathUtility.js";
@@ -39,7 +39,7 @@ export class Shop extends Group
         floorTexture.repeat.set(shopWidth / 2, shopLength / 2);
         
         const shopFloor = new Entity();
-        shopFloor.addComponent(new RigidBodyCubeComponent(
+        shopFloor.addComponent(new RigidBodyComponent(
             new BoxGeometry(shopWidth, shopLength, 1),
             new MeshStandardMaterial({ map: floorTexture }),
             0
@@ -50,16 +50,17 @@ export class Shop extends Group
         
         // setInterval(() => {
         //     const physObj2 = new Entity();
-        //     const phys2 = physObj2.addComponent(new RigidBodyCubeComponent(
+        //     const phys2 = physObj2.addComponent(new RigidBodyComponent(
         //         new BoxGeometry(1, 1, 1),
-        //         new MeshStandardMaterial({ color: 0x00FF00 })https://github.com/samuelOsborne/PS1-demakes/
+        //         new MeshStandardMaterial({ color: 0x00FF00 }),
+        //         10
         //     ));
         //     phys2.setPosition(new Vector3(0, 0, 10))
         //     scene.add(physObj2);
         // }, 5000);
         
         const backroomFloor = GeometryUtil.createRigidBodyCube(shopWidth, shopLength / 2, 1, { color: 0x878787 }, 0);
-        backroomFloor.position.set(0, ((shopLength / 2) + (backroomFloor.getComponent("RigidBodyCubeComponent").mesh.geometry.parameters.height / 2)) * -1, -1);
+        backroomFloor.position.set(0, ((shopLength / 2) + ((shopLength / 2) / 2)) * -1, -1);
         backroomFloor.dontTrigger = true;
         scene.add(backroomFloor);
         
@@ -74,14 +75,14 @@ export class Shop extends Group
         const eastWall = GeometryUtil.createCube(new Vector3(wallThickness, shopWidth + 1, 4), new Vector3(-shopWidth / 2 - wallThickness / 2, 0 + 0.5, 1.5), 0xbfbfbf);
         eastWall.position.set(-shopWidth / 2 - wallThickness / 2, 0 + 0.5, 1.5);
         scene.add(eastWall);
-
+        
+        this.doors = new SingleSlidingDoor(new Vector3(-1, northWall.position.y - 0.001, 1.25), 0x0000ff);
+        scene.add(this.doors);
+        
         const light = new PointLight(0xffffff, 0.5);
         light.position.set(0, 0, 5);
         light.castShadow = true
         scene.add(light);
-    
-        this.doors = new SingleSlidingDoor(new Vector3(-1, northWall.position.y - 0.001, 1.25), 0x0000ff);
-        scene.add(this.doors);
         
         this.spawnPosition = new Vector3(-1, 14, 0.5);
         this.readyPosition = new Vector3(-1, 7, 0.5);
@@ -276,7 +277,11 @@ export class Shop extends Group
         
         $(window).mousemove(this.mousemove);
         
-        scene.add(new Vehicle());
+        //this.vehicle = new Vehicle();
+        //scene.add(this.vehicle);
+        
+        //this.vehicle.position.set(0, 0, 1);
+        
     }
 
     populateTilesInBuyMenu()

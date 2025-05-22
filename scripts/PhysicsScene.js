@@ -26,9 +26,9 @@ export class PhysicsScene extends Scene
     {
         super.add(object);
 
-        if (object instanceof Entity && object.hasComponent("RigidBodyCubeComponent"))
+        if (object instanceof Entity && object.hasComponent("RigidBodyComponent"))
         {
-            const physComp = object.getComponent("RigidBodyCubeComponent");
+            const physComp = object.getComponent("RigidBodyComponent");
 
             physicsBodies.push(physComp);
             physicsWorld.addRigidBody(physComp.body);
@@ -37,7 +37,7 @@ export class PhysicsScene extends Scene
 
     remove(object)
     {
-        if (object instanceof Entity && object.hasComponent("RigidBodyCubeComponent"))
+        if (object instanceof Entity && object.hasComponent("RigidBodyComponent"))
         {
             // TODO: probably make physicsBodies and physicsWorld maps
             // remove from physicsBodies

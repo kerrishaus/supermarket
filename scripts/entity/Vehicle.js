@@ -1,168 +1,251 @@
-import { BoxGeometry, Vector3, Vector2, Raycaster, Plane, GridHelper, Group, PlaneGeometry, MeshStandardMaterial, Mesh, FrontSide, PointLight, TextureLoader, RepeatWrapping, CylinderGeometry } from "https://kerrishaus.com/assets/threejs/build/three.module.js";
+import { BoxGeometry, Vector3, Vector2, Raycaster, Quaternion, MeshStandardMaterial, CylinderGeometry, Mesh } from "https://kerrishaus.com/assets/threejs/build/three.module.js";
 
 import { Entity } from "./Entity.js";
-import { TriggerComponent } from "./components/TriggerComponent.js";
-import { ContainerComponent } from "./components/ContainerComponent.js";
-import { GeometryComponent } from "./components/GeometryComponent.js";
-import { GeneratorComponent } from "./components/GeneratorComponent.js";
-import { ModelComponent } from "./components/ModelComponent.js";
-import { RigidBodyCubeComponent } from "./components/RigidBodyCubeComponent.js";
+import { RigidBodyComponent } from "./components/RigidBodyComponent.js";
 
 import * as GeometryUtil from "../GeometryUtility.js";
 import * as MathUtility from "../MathUtility.js";
 
 export class Vehicle extends Entity
 {
-    #frontLeftWheel;
-    #frontRightWheel;
-    #rearLeftWheel;
-    #rearRightWheel;
+    #chassisLength = 4;
+    #chassisWidth  = 1.8;
+    #chassisHeight = 0.6;
+    #vehicleMass   = 800;
     
-    #body;
+	#wheelAxisPositionBack = -1;
+	#wheelRadiusBack       = .4;
+	#wheelWidthBack        = .3;
+	#wheelHalfTrackBack    = 1;
+	#wheelAxisHeightBack   = .3;
+
+	#wheelAxisFrontPosition = 1.7;
+	#wheelHalfTrackFront    = 1;
+	#wheelAxisHeightFront   = .3;
+	#wheelRadiusFront       = .35;
+	#wheelWidthFront        = .2;
+	
+	#FRONT_LEFT  = 0;
+	#FRONT_RIGHT = 1;
+	#BACK_LEFT   = 2;
+	#BACK_RIGHT  = 3;
+
+    #friction              = 1000;
+    #suspensionStiffness   = 20.0;
+    #suspensionDamping     = 2.3;
+    #suspensionCompression = 4.4;
+    #suspensionRestLength  = 0.6;
+	#rollInfluence         = 0.2;
+
+	#steeringIncrement = .04;
+	#steeringClamp     = .5;
+	#maxEngineForce    = 2000;
+	#maxBreakingForce  = 100;
+	
+	#engineForce = 0;
+	#vehicleSteering = 0;
+	#breakingForce = 0;
+	
+	#wheelMeshes = [];
+	
+	#actions = {};
+	#keysActions = {
+		"KeyW": "acceleration",
+		"KeyS": "braking",
+		"KeyA": "left",
+		"KeyD": "right"
+	};
     
-    constructor(bodyGeometry, wheelGeometries)
+    constructor()
     {
+        window.DISABLE_DEACTIVATION = 4;
+		window.TRANSFORM_AUX = new Ammo.btTransform();
+		window.ZERO_QUATERNION = new Quaternion(0, 0, 0, 1);
+		
         super();
         
-        this.#frontLeftWheel  = Vehicle.createWheel();
-        this.#frontRightWheel = Vehicle.createWheel();
-        this.#rearLeftWheel   = Vehicle.createWheel();
-        this.#rearRightWheel  = Vehicle.createWheel();
+        console.log("Creating vehicle...");
+        
+    	// Chassis
+        this.phys = this.addComponent(new RigidBodyComponent(
+            new BoxGeometry(this.#chassisLength, this.#chassisWidth, this.#chassisHeight),
+            new MeshStandardMaterial({ color: 0x0000FF }),
+            this.#vehicleMass
+        ));
+        
+        //this.phys.body.setActivationState(DISABLE_DEACTIVATION);
+        
+        this.chassisMesh = this.getComponent("GeometryComponent").mesh;
         
         /*
-    	var rightIndex = 0;
-    	var upIndex = 1; 
-    	var forwardIndex = 2;
-    	var wheelDirectionCS0 = new Ammo.btVector3(0,-1,0);
-    	var wheelAxleCS = new Ammo.btVector3(-1,0,0);
-    	
-    	var CUBE_HALF_EXTENTS = 1.03;
-    	gEngineForce = 0.0;
-    	gBreakingForce = 0.0;
-    	
-    	maxEngineForce = 1000.0;//th should be engine/velocity dependent
-    	maxBreakingForce = 100.0;
-    	
-    	gVehicleSteering = 0.0;
-    	var steeringIncrement = 0.06;
-    	var steeringClamp = 0.3;
-    	var wheelRadius = 0.4;
-    	var wheelWidth = 0.3;
-    	var wheelFriction = 100;//BT_LARGE_VAR;
-    	var suspensionStiffness = 20.0;
-    	var suspensionDamping = 2.3;
-    	var suspensionCompression = 4.4;
-    	var suspensionRestLength = 0.6;
-    	var rollInfluence = 0.1;//1.0f;
-    	
-    	var m_collisionShapes = [];
-    	
-    	var localTrans = new Ammo.btTransform();
-    	localTrans.setIdentity();
-    	
-    	var chassisShape = new Ammo.btBoxShape(new Ammo.btVector3(1,0.7,2.5));
-    	m_collisionShapes.push(chassisShape);
-    	
-    	var compound = new Ammo.btCompoundShape();
-    	m_collisionShapes.push(compound);
-    	var localTrans = new Ammo.btTransform();
-    	localTrans.setIdentity();
-    	
-    	var tr = new Ammo.btTransform();
-    	tr.setIdentity();
-    	
-    	// localTrans effectively shifts the center of mass with respect to the chassis
-    	localTrans.setOrigin(new Ammo.btVector3(0,1.3,0));
-    	compound.addChildShape(localTrans,chassisShape);
-    	tr.setOrigin(new Ammo.btVector3(-6,0,-6));
-    	
-    	var options = {threemesh:new THREE.Object3D()};
-    	options.threemesh.add(bodyGeometry);
-    	
-    	var m_carChassis = th.localCreateRigidBody(50,tr,compound,options);
-    	//m_carChassis.setDamping(0.2,0.2);
-    	
-    	var m_wheelShape = new Ammo.btCylinderShapeX(new Ammo.btVector3(wheelWidth,wheelRadius,wheelRadius));
-    	
-    	// --- create vehicle ---
-    	var m_tuning = new Ammo.btVehicleTuning();
-    	var m_vehicleRayCaster = new Ammo.btDefaultVehicleRaycaster(th.getDynamicsWorld());
-    	m_vehicle = new Ammo.btRaycastVehicle(m_tuning, m_carChassis, m_vehicleRayCaster);
-    	
-    	///never deactivate the vehicle
-    	m_carChassis.setActivationState(th.DISABLE_DEACTIVATION);
-    	var connectionHeight = 1.3;
-    	var isFrontWheel = true;
-    	
-    	// choose coordinate system
-    	m_vehicle.setCoordinateSystem(rightIndex,upIndex,forwardIndex);
-    	
-    	var connectionPointCS0 = new Ammo.btVector3(CUBE_HALF_EXTENTS-(0.3*wheelWidth),
-    		connectionHeight,
-    		2*CUBE_HALF_EXTENTS-wheelRadius);
-    	
-    	m_vehicle.addWheel(connectionPointCS0,
-    		wheelDirectionCS0,
-    		wheelAxleCS,
-    		suspensionRestLength,
-    		wheelRadius,
-    		m_tuning,
-    		isFrontWheel);
-    		
-    	connectionPointCS0 = new Ammo.btVector3(-CUBE_HALF_EXTENTS+(0.3*wheelWidth),
-    		connectionHeight,
-    		2*CUBE_HALF_EXTENTS-wheelRadius);
-    
-    	m_vehicle.addWheel(connectionPointCS0,
-    		wheelDirectionCS0,
-    		wheelAxleCS,
-    		suspensionRestLength,
-    		wheelRadius,
-    		m_tuning,
-    		isFrontWheel);
-    
-    	connectionPointCS0 = new Ammo.btVector3(-CUBE_HALF_EXTENTS+(0.3*wheelWidth),
-    	connectionHeight,
-    	-2*CUBE_HALF_EXTENTS+wheelRadius);
-    	isFrontWheel = false;
-    	m_vehicle.addWheel(connectionPointCS0,
-    		wheelDirectionCS0,
-    		wheelAxleCS,
-    		suspensionRestLength,
-    		wheelRadius,
-    		m_tuning,
-    		isFrontWheel);
-    		
-    	connectionPointCS0 = new Ammo.btVector3(CUBE_HALF_EXTENTS-(0.3*wheelWidth),
-    	connectionHeight,
-    	-2*CUBE_HALF_EXTENTS+wheelRadius);
-    
-    	m_vehicle.addWheel(connectionPointCS0,
-    		wheelDirectionCS0,
-    		wheelAxleCS,
-    		suspensionRestLength,
-    		wheelRadius,
-    		m_tuning,
-    		isFrontWheel);
-    		
-    	for (var i=0; i<m_vehicle.getNumWheels(); i++){
-    		var wheel = m_vehicle.getWheelInfo(i);
-    		wheel.set_m_suspensionStiffness(suspensionStiffness);
-    		wheel.set_m_wheelsDampingRelaxation(suspensionDamping);
-    		wheel.set_m_wheelsDampingCompression(suspensionCompression);
-    		wheel.set_m_frictionSlip(wheelFriction);
-    		wheel.set_m_rollInfluence(rollInfluence);
-    	}
-    	th.addVehicle(m_vehicle,m_wheelShape,{threemeshes:wheelGeometries});
+    	// Raycast Vehicle
+    	this.tuning = new Ammo.btVehicleTuning();
+    	this.raycaster = new Ammo.btDefaultVehicleRaycaster(physicsWorld);
+    	this.vehicle = new Ammo.btRaycastVehicle(this.tuning, this.phys.body, this.raycaster);
+    	this.vehicle.setCoordinateSystem(0, 1, 2);
+    	physicsWorld.addAction(this.vehicle);
+        
+		this.createVehicle(new Vector3(0, 4, -20), ZERO_QUATERNION);
+		
+		$(document).keydown((event) => { this.keydown(event) });
+		$(document).keyup((event) => { this.keyup(event) });
     	*/
+		
+		console.log("Vehicle is ready.");
     }
     
-    static createWheel()
+	keyup(e)
+	{
+		if (this.#keysActions[e.code]) 
+		{
+			this.#actions[this.#keysActions[e.code]] = false;
+			e.preventDefault();
+			e.stopPropagation();
+			return false;
+		}
+	}
+	
+	keydown(e)
+	{
+		if (this.#keysActions[e.code])
+		{
+			this.#actions[this.#keysActions[e.code]] = true;
+			e.preventDefault();
+			e.stopPropagation();
+			return false;
+		}
+	}
+    
+    createWheelMesh(radius, width)
     {
-        return new CylinderGeometry(
-            0.33,
-            0.33,
-            0.2
-        );
+        console.log("Creating wheel mesh...");
+        
+    	const t = new CylinderGeometry(radius, radius, width, 24, 1);
+    	t.rotateZ(Math.PI / 2);
+    	const mesh = new Mesh(t, new MeshStandardMaterial({ color: 0x000000 }));
+    	mesh.add(new Mesh(new BoxGeometry(width * 1.5, radius * 1.75, radius*.25, 1, 1, 1), new MeshStandardMaterial({ color: 0x000000 })));
+    	scene.add(mesh);
+    	return mesh;
+    }
+    
+    createVehicle(pos, quat)
+    {
+        console.log("Creating vehicle...");
+        
+    	var wheelDirectionCS0 = new Ammo.btVector3(0, -1, 0);
+    	var wheelAxleCS = new Ammo.btVector3(-1, 0, 0);
+        
+    	const addWheel = (isFront, pos, radius, width, index) =>
+    	{
+    		var wheelInfo = this.vehicle.addWheel(
+				pos,
+				wheelDirectionCS0,
+				wheelAxleCS,
+				this.#suspensionRestLength,
+				radius,
+				this.tuning,
+				isFront
+			);
+            
+    		wheelInfo.set_m_suspensionStiffness(this.#suspensionStiffness);
+    		wheelInfo.set_m_wheelsDampingRelaxation(this.#suspensionDamping);
+    		wheelInfo.set_m_wheelsDampingCompression(this.#suspensionCompression);
+    		wheelInfo.set_m_frictionSlip(this.#friction);
+    		wheelInfo.set_m_rollInfluence(this.#rollInfluence);
+            
+    		this.#wheelMeshes[index] = this.createWheelMesh(radius, width);
+    		
+    		console.log("Created wheel.");
+    	}
+        
+    	addWheel(true,  new Ammo.btVector3(this.#wheelHalfTrackFront , this.#wheelAxisHeightFront, this.#wheelAxisFrontPosition), this.#wheelRadiusFront, this.#wheelWidthFront, this.#FRONT_LEFT);
+    	addWheel(true,  new Ammo.btVector3(-this.#wheelHalfTrackFront, this.#wheelAxisHeightFront, this.#wheelAxisFrontPosition), this.#wheelRadiusFront, this.#wheelWidthFront, this.#FRONT_RIGHT);
+    	addWheel(false, new Ammo.btVector3(this.#wheelHalfTrackBack  , this.#wheelAxisHeightBack , this.#wheelAxisPositionBack) , this.#wheelRadiusBack , this.#wheelWidthBack , this.#BACK_LEFT);
+    	addWheel(false, new Ammo.btVector3(-this.#wheelHalfTrackBack , this.#wheelAxisHeightBack , this.#wheelAxisPositionBack) , this.#wheelRadiusBack , this.#wheelWidthBack , this.#BACK_RIGHT);
+    }
+    
+    update(deltatime)
+    {
+        return;
+        
+		var speed = this.vehicle.getCurrentSpeedKmHour();
+
+		$("#waitingCustomers").text((speed < 0 ? "(R) " : "") + Math.abs(speed).toFixed(1) + " km/h");
+
+		this.#breakingForce = 0;
+		this.#engineForce = 0;
+
+		if (this.#actions.acceleration)
+		{
+		    console.log("waaa");
+		    
+			if (speed < -1)
+				this.#breakingForce = this.#maxBreakingForce;
+			else
+			    this.#engineForce = this.#maxEngineForce;
+		}
+		
+		if (this.#actions.braking)
+		{
+			if (speed > 1)
+				this.#breakingForce = this.#maxBreakingForce;
+			else
+			    this.#engineForce = -this.#maxEngineForce / 2;
+		}
+		
+		if (this.#actions.left)
+		{
+			if (this.#vehicleSteering < this.#steeringClamp)
+				this.#vehicleSteering += this.#steeringIncrement;
+		}
+		else
+		{
+			if (this.#actions.right)
+			{
+				if (this.#vehicleSteering > -this.#steeringClamp)
+					this.#vehicleSteering -= this.#steeringIncrement;
+			}
+			else
+			{
+				if (this.#vehicleSteering < -this.#steeringIncrement)
+					this.#vehicleSteering += this.#steeringIncrement;
+				else
+				{
+					if (this.#vehicleSteering > this.#steeringIncrement)
+						this.#vehicleSteering -= this.#steeringIncrement;
+					else
+						this.#vehicleSteering = 0;
+				}
+			}
+		}
+
+		this.vehicle.applyEngineForce(this.#engineForce, this.#BACK_LEFT);
+		this.vehicle.applyEngineForce(this.#engineForce, this.#BACK_RIGHT);
+
+		this.vehicle.setBrake(this.#breakingForce / 2, this.#FRONT_LEFT);
+		this.vehicle.setBrake(this.#breakingForce / 2, this.#FRONT_RIGHT);
+		this.vehicle.setBrake(this.#breakingForce, this.#BACK_LEFT);
+		this.vehicle.setBrake(this.#breakingForce, this.#BACK_RIGHT);
+
+		this.vehicle.setSteeringValue(this.#vehicleSteering, this.#FRONT_LEFT);
+		this.vehicle.setSteeringValue(this.#vehicleSteering, this.#FRONT_RIGHT);
+
+		let tm, p, q, i;
+		
+		for (i = 0; i < this.vehicle.getNumWheels(); i++)
+		{
+			this.vehicle.updateWheelTransform(i, true);
+			tm = this.vehicle.getWheelTransformWS(i);
+			p = tm.getOrigin();
+			q = tm.getRotation();
+			this.#wheelMeshes[i].position.set(p.x(), p.y(), p.z());
+			this.#wheelMeshes[i].quaternion.set(q.x(), q.y(), q.z(), q.w());
+		}
+
+		tm = this.vehicle.getChassisWorldTransform();
+		p = tm.getOrigin();
+		q = tm.getRotation();
+		this.chassisMesh.position.set(p.x(), p.y(), p.z());
+		this.chassisMesh.quaternion.set(q.x(), q.y(), q.z(), q.w());
     }
 }

@@ -5,7 +5,7 @@ import * as MathUtility from "./MathUtility.js";
 
 import { Entity } from "./entity/Entity.js";
 import { ContainerComponent } from "./entity/components/ContainerComponent.js";
-import { RigidBodyCubeComponent } from "./entity/components/RigidBodyCubeComponent.js";
+import { RigidBodyComponent } from "./entity/components/RigidBodyComponent.js";
 
 export class Player extends Entity
 {
@@ -17,7 +17,7 @@ export class Player extends Entity
         this.carriedMoney = new Array();
         this.addComponent(new ContainerComponent());
         
-        const phys = this.addComponent(new RigidBodyCubeComponent(
+        const phys = this.addComponent(new RigidBodyComponent(
             new THREE.BoxGeometry(1, 1, 2),
             new THREE.MeshStandardMaterial({ color: 0x0000aa }),
             0
