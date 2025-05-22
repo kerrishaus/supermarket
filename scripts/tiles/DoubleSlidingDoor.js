@@ -75,6 +75,11 @@ export class DoubleSlidingDoor extends Entity
     
     onStopTrigger()
     {
+        // always open the door when triggered, in case it was shut for some reason
+        // only close the door when nothing else is left in the trigger.
+        if (this.trigger.triggered)
+            return;
+        
         this.rightDoor.getComponent("CarryableComponent").setTarget(
             new Vector3(1, 0, 0),
             new Vector3(0, 0, 0),

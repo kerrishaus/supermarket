@@ -12,7 +12,7 @@ export class SingleSlidingDoor extends Entity
     {
         super();
 
-        this.addComponent(new TriggerComponent(2, 4, 3.5));
+        this.trigger = this.addComponent(new TriggerComponent(2, 4, 3.5));
         
         this.leftDoor = new Entity();
         this.add(this.leftDoor);
@@ -50,6 +50,11 @@ export class SingleSlidingDoor extends Entity
     
     onStopTrigger()
     {
+        // always open the door when triggered, in case it was shut for some reason
+        // only close the door when nothing else is left in the trigger.
+        if (this.trigger.triggered)
+            return;
+        
         this.leftDoor.getComponent("CarryableComponent").setTarget(
             new Vector3(0, 0, 0),
             new Vector3(0, 0, 0),
