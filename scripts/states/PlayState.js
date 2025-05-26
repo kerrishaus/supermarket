@@ -54,16 +54,7 @@ export class PlayState extends State
         
         $(window).keydown((event) =>
         {
-            if (event.code == "KeyO")
-            {
-                player.freeCam = !player.freeCam;
-                freeControls.enabled = player.freeCam;
-                freeControls.target.copy(player.position);
-                freeControls.update();
-                
-                console.log("freecam toggled");
-            }
-            else if (event.code == "KeyP")
+            if (event.code == "KeyP")
             {
                 stretched = !stretched;
                 console.log(stretched);

@@ -1,16 +1,15 @@
 import { State } from "./State.js";
 
+import AmmoLib from "https://kerrishaus.com/assets/ammojs/ammo.module.js";
+
 import * as THREE from "https://kerrishaus.com/assets/threejs/build/three.module.js";
 
 import { CSS2DRenderer } from "https://kerrishaus.com/assets/threejs/examples/jsm/renderers/CSS2DRenderer.js";
-
-import AmmoLib from "https://kerrishaus.com/assets/ammojs/ammo.module.js";
 
 import { EffectComposer } from "https://kerrishaus.com/assets/threejs/examples/jsm/postprocessing/EffectComposer.js";
 import { RenderPass } from 'https://kerrishaus.com/assets/threejs/examples/jsm/postprocessing/RenderPass.js';
 import { OrderedDitherPass } from '../passes/OrderedDitherPass.js'
 
-import { OrbitControls } from 'https://kerrishaus.com/assets/threejs/examples/jsm/controls/OrbitControls.js';
 import { PhysicsScene } from "../PhysicsScene.js";
 
 import { loadModel } from "../ModelLoader.js";
@@ -86,11 +85,6 @@ export class StartupState extends State
             $(htmlRenderer.domElement).hide();
             
             window.camera = new THREE.PerspectiveCamera(65, sizes.width / sizes.height, 0.1, 5000);
-
-            window.freeControls = new OrbitControls(camera, renderer.domElement);
-            freeControls.target.set(0, 0, 0);
-            freeControls.update();
-            freeControls.enabled = false;
 
             window.scene = new PhysicsScene(); // TODO: FIXME: I don't really feel great about this, but it works, so it stays.
 

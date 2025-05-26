@@ -1,11 +1,13 @@
 import * as THREE from "https://kerrishaus.com/assets/threejs/build/three.module.js";
 
-import * as GeometryUtil from "./GeometryUtility.js";
-import * as MathUtility from "./MathUtility.js";
+import { OrbitControls } from 'https://kerrishaus.com/assets/threejs/examples/jsm/controls/OrbitControls.js';
 
 import { Entity } from "./entity/Entity.js";
 import { ContainerComponent } from "./entity/components/ContainerComponent.js";
 import { RigidBodyComponent } from "./entity/components/RigidBodyComponent.js";
+
+import * as GeometryUtil from "./GeometryUtility.js";
+import * as MathUtility from "./MathUtility.js";
 
 export class Player extends Entity
 {
@@ -32,7 +34,6 @@ export class Player extends Entity
         
         this.maxSpeed = 0.15;
         
-        this.freeCam = false;
         this.controlsEnabled = true;
         
         this.MoveType = {
@@ -61,11 +62,16 @@ export class Player extends Entity
         this.mouse      = new THREE.Vector2();
         this.raycaster  = new THREE.Raycaster();
         this.intersects = new THREE.Vector3();
+
+        this.freeControls = new OrbitControls(camera, renderer.domElement);
+        this.freeControls.target.set(0, 0, 0);
+        this.freeControls.update();
+        this.freeControls.enabled = false;
     }
     
     update(deltaTime)
     {
-        if (!this.freeCam)
+        if (!this.freeControls.enabled)
         {
             if (this.move !== null)
             {
@@ -132,7 +138,7 @@ export class Player extends Entity
             camera.lookAt(this.position);
         }
         else
-            freeControls.update();
+            this.freeControls.update();
         
         // money needs to be moved AFTER the player has moved
         for (const money of this.carriedMoney)
@@ -285,6 +291,14 @@ export class Player extends Entity
 
         switch (event.code)
         {
+            case "KeyO":
+                player.freeControls.enabled = !player.freeControls.enabled;
+                player.freeControls.target.copy(player.position);
+                player.freeControls.update();
+                
+                console.log("freecam toggled");
+                break;
+
             case "KeyW":
             case "ArrowUp":
             case "KeyA":
