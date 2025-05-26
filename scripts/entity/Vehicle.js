@@ -12,7 +12,7 @@ export class Vehicle extends Entity
     #chassisWidth  = 1.8;
     #chassisHeight = .6;
     #chassisLength = 4;
-    #vehicleMass   = 800;
+    #vehicleMass   = 500;
     
 	#wheelAxisPositionBack = -1;
 	#wheelRadiusBack       = .4;
@@ -36,25 +36,26 @@ export class Vehicle extends Entity
     #suspensionDamping     = 2.3;
     #suspensionCompression = 4.4;
     #suspensionRestLength  = 0.6;
-	#rollInfluence         = 0.2;
+	#rollInfluence         = 0;
 
 	#steeringIncrement = 0.04;
 	#steeringClamp     = 0.5;
 	#maxEngineForce    = 2000;
-	#maxBreakingForce  = 100;
+	#maxBrakingForce  = 100;
 	
 	#engineForce = 0;
 	#vehicleSteering = 0;
-	#breakingForce = 0;
+	#brakingForce = 0;
 	
 	#wheelMeshes = [];
 	
 	#actions = {};
 	#keysActions = {
-		"KeyW": "acceleration",
-		"KeyS": "braking",
-		"KeyA": "left",
-		"KeyD": "right"
+		"KeyW"    : "acceleration",
+		"KeyS"    : "braking",
+		"KeySpace": "handbrake",
+		"KeyA"    : "left",
+		"KeyD"    : "right"
 	};
     
     constructor()
@@ -138,10 +139,10 @@ export class Vehicle extends Entity
 		
 		setTimeout(() => {
 		    const rotation = new Ammo.btVector3(1, 0, 0);
-		    rotation.op_mul(5);
+		    rotation.op_mul(2);
 		    
 		    this.body.setAngularVelocity(rotation);
-		}, 1000);
+		}, 100);
 		
 		console.log("Vehicle is ready.");
     }
@@ -192,24 +193,33 @@ export class Vehicle extends Entity
 
 		$("#speed").text((speed < 0 ? "(R) " : "") + Math.abs(speed).toFixed(1) + " km/h");
 
-		this.#breakingForce = 0;
+		this.#brakingForce = 0;
 		this.#engineForce = 0;
 
 		if (this.#actions.acceleration)
 		{
 			if (speed < -1)
-				this.#breakingForce = this.#maxBreakingForce;
+				this.#brakingForce = this.#maxBrakingForce;
 			else
 			    this.#engineForce = this.#maxEngineForce;
 		}
-		
-		if (this.#actions.braking)
+		else if (this.#actions.braking)
 		{
 			if (speed > 1)
-				this.#breakingForce = this.#maxBreakingForce;
+				this.#brakingForce = this.#maxBrakingForce;
 			else
 			    this.#engineForce = -this.#maxEngineForce / 2;
 		}
+		else
+		{
+			this.#brakingForce = this.#maxBrakingForce / 10;
+		}
+
+		$("#brakingForce").text(this.#brakingForce);
+		$("#engineForce").text(this.#engineForce);
+
+		$("#forward").text(this.#actions.acceleration);
+		$("#braking").text(this.#actions.braking);
 		
 		if (this.#actions.left)
 		{
@@ -237,13 +247,22 @@ export class Vehicle extends Entity
 			}
 		}
         
-		this.vehicle.applyEngineForce(100, this.#BACK_LEFT);
-		this.vehicle.applyEngineForce(100, this.#BACK_RIGHT);
+		this.vehicle.applyEngineForce(this.#engineForce, this.#BACK_LEFT);
+		this.vehicle.applyEngineForce(this.#engineForce, this.#BACK_RIGHT);
 
-		this.vehicle.setBrake(this.#breakingForce / 2, this.#FRONT_LEFT);
-		this.vehicle.setBrake(this.#breakingForce / 2, this.#FRONT_RIGHT);
-		this.vehicle.setBrake(this.#breakingForce, this.#BACK_LEFT);
-		this.vehicle.setBrake(this.#breakingForce, this.#BACK_RIGHT);
+		this.vehicle.setBrake(this.#brakingForce / 2, this.#FRONT_LEFT);
+		this.vehicle.setBrake(this.#brakingForce / 2, this.#FRONT_RIGHT);
+
+		if (this.#actions.handbraking)
+		{
+			this.vehicle.setBrake(this.#maxBrakingForce, this.#BACK_LEFT);
+			this.vehicle.setBrake(this.#maxBrakingForce, this.#BACK_RIGHT);
+		}
+		else
+		{
+			this.vehicle.setBrake(this.#brakingForce, this.#BACK_LEFT);
+			this.vehicle.setBrake(this.#brakingForce, this.#BACK_RIGHT);
+		}
 
 		this.vehicle.setSteeringValue(this.#vehicleSteering, this.#FRONT_LEFT);
 		this.vehicle.setSteeringValue(this.#vehicleSteering, this.#FRONT_RIGHT);

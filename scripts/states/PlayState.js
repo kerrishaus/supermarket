@@ -82,14 +82,6 @@ export class PlayState extends State
             {
                 const vehicle = new Vehicle();
                 scene.add(vehicle);
-                
-                /*
-                const quaternion = new THREE.Quaternion();
-                quaternion.setFromAxisAngle(new THREE.Vector3(-1, 0, 0), Math.PI / 2);
-                
-                vehicle.rotation.copy(quaternion);
-                */
-                //vehicle.getComponent("RigidBodyComponent").setPosition(new THREE.Vector3(0, 0, 4), quaternion);
             }
             else if (shop.newTile === null && !shop.inDeletionMode)
             {
