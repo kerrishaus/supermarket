@@ -4,7 +4,7 @@ import { CSS2DObject } from "https://kerrishaus.com/assets/threejs/examples/jsm/
 
 import { Entity } from "./entity/Entity.js";
 import { ContainerComponent } from "./entity/components/ContainerComponent.js";
-import { GeometryComponent } from "./entity/components/GeometryComponent.js";
+import { RigidBodyComponent } from "./entity/components/RigidBodyComponent.js";
 
 import * as MathUtility from "./MathUtility.js";
 import { Register } from "./tiles/Register.js";
@@ -19,9 +19,10 @@ export class Employee extends Entity
         
         this.#container = this.addComponent(new ContainerComponent());
         
-        this.addComponent(new GeometryComponent(
+        this.addComponent(new RigidBodyComponent(
             new BoxGeometry(1, 1, 2),
-            new MeshStandardMaterial({color: 0x42b6f5})
+            new MeshStandardMaterial({color: 0x42b6f5}),
+            0
         ));
         
         this.shop = shop;
