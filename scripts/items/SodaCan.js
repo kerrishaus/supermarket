@@ -10,7 +10,7 @@ export class SodaCan extends Item
 
         this.position.copy(position);
 
-        this.addComponent(new ModelComponent("sodaCan"));
+        this.addComponent(new ModelComponent("items/sodaCan"));
         this.addComponent(new CarryableComponent);
         
         this.type = "sodaCan";

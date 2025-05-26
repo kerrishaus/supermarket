@@ -10,7 +10,7 @@ export class Ketchup extends Item
 
         this.position.copy(position);
 
-        this.addComponent(new ModelComponent("bottleKetchup"));
+        this.addComponent(new ModelComponent("items/bottleKetchup"));
         this.addComponent(new CarryableComponent);
 
         this.type = "ketchup";

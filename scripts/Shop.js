@@ -135,7 +135,7 @@ export class Shop extends Group
                     tomatoStand.addComponent(new TriggerComponent);
 
                     const tomatoContainer = tomatoStand.addComponent(new ContainerComponent("Tomato Stand", "tomato"));
-                    const model = tomatoStand.addComponent(new ModelComponent("shelf-boxes")).model;
+                    const model = tomatoStand.addComponent(new ModelComponent("tiles/shelf-boxes")).model;
                     
                     model.position.z -= 1;
                     model.scale.set(2.5, 2.5, 2.5);
@@ -182,7 +182,7 @@ export class Shop extends Group
                     sodaTrigger.triggerGeometry.position.x -= 1;
 
                     const sodaContainer = sodaStand.addComponent(new ContainerComponent("Soda Stand", "sodaCan"));
-                    const model = sodaStand.addComponent(new ModelComponent("freezers-standing")).model;
+                    const model = sodaStand.addComponent(new ModelComponent("tiles/freezers-standing")).model;
                     
                     model.position.z -= 1;
                     model.position.x -= 1;
@@ -208,7 +208,7 @@ export class Shop extends Group
                     const sodaMachineGenerator = sodaMaker.addComponent(new GeneratorComponent("Soda Maker", "sodaCan"));
                     sodaMachineGenerator.itemLength = 4;
                     
-                    const model = sodaMaker.addComponent(new ModelComponent("bottle-return")).model;
+                    const model = sodaMaker.addComponent(new ModelComponent("tiles/bottle-return")).model;
                     
                     model.position.z -= 1;
                     model.scale.set(3, 3, 3);
@@ -231,7 +231,7 @@ export class Shop extends Group
                     ketchupStand.addComponent(new TriggerComponent);
 
                     const ketchupContainer = ketchupStand.addComponent(new ContainerComponent("Ketchup Stand", "ketchup"));
-                    const model = ketchupStand.addComponent(new ModelComponent("shelf-boxes")).model;
+                    const model = ketchupStand.addComponent(new ModelComponent("tiles/shelf-boxes")).model;
                     
                     model.position.z -= 1;
                     model.scale.set(2.5, 2.5, 2.5);

@@ -180,13 +180,14 @@ export class StartupState extends State
                 // because model loader is async and cannot be
                 // called by any functions in the game loop.
                 const models = [
-                    "bottleKetchup",
-                    "sodaCan",
-                    "tomato",
-                    "shelf-boxes",
-                    "cash-register",
-                    "bottle-return",
-                    "freezers-standing"
+                    "items/bottleKetchup",
+                    "items/sodaCan",
+                    "items/tomato",
+
+                    "tiles/shelf-boxes",
+                    "tiles/cash-register",
+                    "tiles/bottle-return",
+                    "tiles/freezers-standing"
                 ];
 
                 $("#progress").attr("max", models.length);

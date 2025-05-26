@@ -10,7 +10,7 @@ export class Tomato extends Item
 
         this.position.copy(position);
 
-        this.addComponent(new ModelComponent("tomato"));
+        this.addComponent(new ModelComponent("items/tomato"));
         this.addComponent(new CarryableComponent);
         
         this.type = "tomato";

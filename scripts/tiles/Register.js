@@ -21,7 +21,7 @@ export class Register extends Entity
 		trigger.triggerGeometry.position.y -= 0.5;
 		trigger.triggerGeometry.position.z -= 1;
 		
-		const model = this.addComponent(new ModelComponent("cash-register")).model;
+		const model = this.addComponent(new ModelComponent("tiles/cash-register")).model;
 
 		model.position.z -= 1;
 		model.position.x -= 1;
