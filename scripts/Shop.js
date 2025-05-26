@@ -64,16 +64,16 @@ export class Shop extends Group
         eastWall.position.set(-shopWidth / 2 - wallThickness / 2, 0 + 0.5, 1.5);
         scene.add(eastWall);
         
-        this.doors = new SingleSlidingDoor(new Vector3(-1, northWall.position.y - 0.001, 1.25), 0x0000ff);
-        scene.add(this.doors);
+        this.door = new SingleSlidingDoor(new Vector3(-1, northWall.position.y - 0.001, 1.25), 0x0000ff);
+        scene.add(this.door);
         
         const light = new PointLight(0xffffff, 0.5);
         light.position.set(0, 0, 5);
         light.castShadow = true
         scene.add(light);
         
-        this.spawnPosition = new Vector3(-1, 14, 0.5);
-        this.readyPosition = new Vector3(-1, 7, 0.5);
+        this.spawnPosition = new Vector3(this.door.position.x, this.door.position.y + 4, 0.5);
+        this.readyPosition = new Vector3(this.door.position.x, this.door.position.y - 3, 0.5);
         
         const size = 20;
         const divisions = 10;
