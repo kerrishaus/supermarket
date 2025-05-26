@@ -43,7 +43,7 @@ export class StartupState extends State
 
         function prepareThree()
         {
-            console.log("Preparing Three.");
+            console.log("Preparing Three...");
             $("#progressText").text("Preparing Three.js");
 
             window.sizes = {
@@ -160,24 +160,13 @@ export class StartupState extends State
             console.log("Three is ready.");
         }
         
-        async function prepareAmmo(lib)
+        async function prepareAmmo()
         {
-            console.log("Preparing Ammo.");
+            console.log("Preparing Ammo...");
             $("#progressText").text("Preparing Ammo.js");
         
             window.Ammo = await new AmmoLib();
         
-            window.collisionConfiguration_  = new Ammo.btDefaultCollisionConfiguration();
-            window.dispatcher_  			= new Ammo.btCollisionDispatcher(collisionConfiguration_);
-            window.broadphase_  			= new Ammo.btDbvtBroadphase();
-            window.solver_      			= new Ammo.btSequentialImpulseConstraintSolver();
-            window.physicsBodies            = [];
-            window.tmpTransform             = null;
-            window.physicsWorld 			= new Ammo.btDiscreteDynamicsWorld(dispatcher_, broadphase_, solver_, collisionConfiguration_);
-            window.physicsWorld.setGravity(new Ammo.btVector3(0, 0, -9.82));
-            
-            tmpTransform = new Ammo.btTransform();
-            
             console.log("Ammo is ready.");
         }
         
@@ -185,9 +174,9 @@ export class StartupState extends State
         {
             try
             {
-                prepareThree();
-    
                 await prepareAmmo();
+
+                prepareThree();
     
                 // TODO: have every model loaded automatically
                 console.log("Loading models...");

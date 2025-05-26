@@ -8,7 +8,16 @@ export class PhysicsScene extends Scene
     constructor()
     {
         super();
-
+        
+        window.collisionConfiguration_  = new Ammo.btDefaultCollisionConfiguration();
+        window.dispatcher_  			= new Ammo.btCollisionDispatcher(collisionConfiguration_);
+        window.broadphase_  			= new Ammo.btDbvtBroadphase();
+        window.solver_      			= new Ammo.btSequentialImpulseConstraintSolver();
+        window.physicsBodies            = [];
+        window.tmpTransform             = new Ammo.btTransform();
+        window.physicsWorld 			= new Ammo.btDiscreteDynamicsWorld(dispatcher_, broadphase_, solver_, collisionConfiguration_);
+        window.physicsWorld.setGravity(new Ammo.btVector3(0, 0, -9.82));
+        
         $(window).keydown((event) =>
         {
             // shoots a small physics cube in from the mouse position away from the camera
