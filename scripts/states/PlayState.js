@@ -227,27 +227,6 @@ export class PlayState extends State
         player.enableMovement();
     }
     
-    physicsStep(deltaTime)
-    {
-        physicsWorld.stepSimulation(deltaTime, 10);
-
-        for (const body of physicsBodies)
-        {
-            body.motionState.getWorldTransform(tmpTransform);
-
-            const pos = tmpTransform.getOrigin();
-            const quat = tmpTransform.getRotation();
-            
-            // this intentionally does not use copy
-            // because copy has been hijacked by RigidBodyComponent
-            body.object.position.x = pos.x();
-            body.object.position.y = pos.y();
-            body.object.position.z = pos.z();
-            
-            body.object.quaternion.set(quat.x(), quat.y(), quat.z(), quat.w());
-        }
-    }
-    
     animate()
     {
         const deltaTime = this.clock.getDelta();
@@ -286,8 +265,8 @@ export class PlayState extends State
                     });
                 }
         });
-
-        this.physicsStep(deltaTime);
+        
+        scene.physicsStep(deltaTime);
 
         /*
         if (mixer)
