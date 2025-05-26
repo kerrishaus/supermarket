@@ -4,7 +4,6 @@ import * as THREE from "https://kerrishaus.com/assets/threejs/build/three.module
 
 import { Entity } from "../entity/Entity.js";
 import { Vehicle } from "../entity/Vehicle.js";
-import { RigidBodyComponent } from "../entity/components/RigidBodyComponent.js";
 
 import * as PageUtility from "../PageUtility.js";
 
@@ -78,17 +77,6 @@ export class PlayState extends State
                     renderer.setClearColor(0xFFFFFF);
                 else
                     renderer.setClearColor(0x000000);
-            }
-            else if (event.code == "KeyC")
-            {
-                const physObj2 = new Entity();
-                const phys2 = physObj2.addComponent(new RigidBodyComponent(
-                    new THREE.BoxGeometry(1, 1, 1),
-                    new THREE.MeshStandardMaterial({ color: 0x00FF00 }),
-                    10
-                ));
-                phys2.setPosition(new THREE.Vector3(0, 0, 10))
-                scene.add(physObj2);
             }
             else if (event.code == "KeyV")
             {

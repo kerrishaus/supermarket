@@ -87,6 +87,11 @@ export class StartupState extends State
             
             window.camera = new THREE.PerspectiveCamera(65, sizes.width / sizes.height, 0.1, 5000);
 
+            window.freeControls = new OrbitControls(camera, renderer.domElement);
+            freeControls.target.set(0, 0, 0);
+            freeControls.update();
+            freeControls.enabled = false;
+
             window.scene = new PhysicsScene(); // TODO: FIXME: I don't really feel great about this, but it works, so it stays.
 
             window.composer = new EffectComposer(renderer, renderTarget);
@@ -139,16 +144,18 @@ export class StartupState extends State
                     orderedDitherEffect.updateResolution(sizes.width, sizes.height);
                     orderedDitherEffect.updateDitherScale(0.01);
                     orderedDitherEffect.updateDitherIntensity(0.05);
-
                 }
             };
             
             $(window).resize(resize);
-            
-            window.freeControls = new OrbitControls(camera, renderer.domElement);
-            freeControls.target.set(0, 0, 0);
-            freeControls.update();
-            freeControls.enabled = false;
+
+            window.screenMousePosition = new THREE.Vector2();
+
+            $(window).mousemove(function(event)
+            {
+                window.screenMousePosition.x = (event.clientX / window.innerWidth) * 2 - 1;
+                window.screenMousePosition.y = - (event.clientY / window.innerHeight) * 2 + 1;
+            });
         
             console.log("Three is ready.");
         }

@@ -290,12 +290,9 @@ export class Shop extends Group
         }
     }
     
-    mousemove(event)
+    mousemove()
     {
-        shop.mousePos.x = (event.clientX / window.innerWidth) * 2 - 1;
-        shop.mousePos.y = - (event.clientY / window.innerHeight) * 2 + 1;
-        
-        shop.raycaster.setFromCamera(shop.mousePos, camera);
+        shop.raycaster.setFromCamera(screenMousePosition, camera);
     }
 
     keydownDuringTilePlacement(event)
