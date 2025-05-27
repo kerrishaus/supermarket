@@ -1,27 +1,29 @@
-import { BoxGeometry, Vector3, Vector2, Raycaster, Plane, GridHelper, Group, PlaneGeometry, PointLight, MeshStandardMaterial, Mesh, FrontSide, Quaternion, TextureLoader, RepeatWrapping } from "https://kerrishaus.com/assets/threejs/build/three.module.js";
+import { BoxGeometry, Vector3, Vector2, Raycaster, Plane, GridHelper, PointLight, MeshStandardMaterial, TextureLoader, RepeatWrapping } from "https://kerrishaus.com/assets/threejs/build/three.module.js";
 
-import { SingleSlidingDoor } from "./tiles/SingleSlidingDoor.js";
-import { Register          } from "./tiles/Register.js";
-import { RecycleBin        } from "./tiles/RecycleBin.js";
-import { KetchupMachine    } from "./tiles/KetchupMachine.js";
+import { PlayerOwnedShop } from "./PlayerOwnedShop.js";
 
-import { Player   } from "./Player.js";
-import { Employee } from "./Employee.js";
-import { Customer } from "./Customer.js";
+import { SingleSlidingDoor } from "../../tiles/SingleSlidingDoor.js";
+import { Register          } from "../../tiles/Register.js";
+import { RecycleBin        } from "../../tiles/RecycleBin.js";
+import { KetchupMachine    } from "../../tiles/KetchupMachine.js";
 
-import { Entity } from "./entity/Entity.js";
+import { Player   } from "../../Player.js";
+import { Employee } from "../../Employee.js";
+import { Customer } from "../../Customer.js";
 
-import { TriggerComponent } from "./entity/components/TriggerComponent.js";
-import { ContainerComponent } from "./entity/components/ContainerComponent.js";
-import { GeometryComponent } from "./entity/components/GeometryComponent.js";
-import { GeneratorComponent } from "./entity/components/GeneratorComponent.js";
-import { ModelComponent } from "./entity/components/ModelComponent.js";
-import { RigidBodyComponent } from "./entity/components/RigidBodyComponent.js";
+import { Entity } from "../../entity/Entity.js";
 
-import * as GeometryUtil from "./GeometryUtility.js";
-import * as MathUtility from "./MathUtility.js";
+import { TriggerComponent } from "../../entity/components/TriggerComponent.js";
+import { ContainerComponent } from "../../entity/components/ContainerComponent.js";
+import { GeometryComponent } from "../../entity/components/GeometryComponent.js";
+import { GeneratorComponent } from "../../entity/components/GeneratorComponent.js";
+import { ModelComponent } from "../../entity/components/ModelComponent.js";
+import { RigidBodyComponent } from "../../entity/components/RigidBodyComponent.js";
 
-export class Shop extends Group
+import * as GeometryUtil from "../../GeometryUtility.js";
+import * as MathUtility from "../../MathUtility.js";
+
+export class SmallShop extends PlayerOwnedShop
 {
     constructor()
     {
@@ -29,7 +31,7 @@ export class Shop extends Group
         
         const shopWidth  = 12;
         const shopLength = 12;
-        const wallHeight = 4;
+        const wallHeight = 6;
         const wallThickness = 1;
         
         const floorTexture = new TextureLoader().load("textures/tile.jpg");
@@ -44,33 +46,54 @@ export class Shop extends Group
             0
         ));
         shopFloor.position.copy(new Vector3(0, 0, -1));
-        shopFloor.dontTrigger = true;
-        scene.add(shopFloor);
-        
-        const backroomFloor = GeometryUtil.createRigidBodyCube(shopWidth, shopLength / 2, 1, { color: 0x878787 }, 0);
-        backroomFloor.position.set(0, ((shopLength / 2) + ((shopLength / 2) / 2)) * -1, -1);
-        backroomFloor.dontTrigger = true;
-        scene.add(backroomFloor);
+        this.add(shopFloor);
         
         const northWall = GeometryUtil.createRigidBodyCube(shopWidth, wallThickness, wallHeight, { color: 0xbfbfbf }, 0);
-        northWall.position.set(0, shopLength / 2 - wallThickness / 2 + 1, 1.5);
-        scene.add(northWall);
+        northWall.position.set(0, shopLength / 2 - wallThickness / 2 + 1, wallHeight / 2 - 0.5);
+        this.add(northWall);
         
         const westWall = GeometryUtil.createRigidBodyCube(wallThickness, shopWidth + 1, wallHeight, { color: 0xbfbfbf }, 0);
-        westWall.position.set(shopWidth / 2 - wallThickness / 2 + 1, 0 + 0.5, 1.5);
-        scene.add(westWall);
+        westWall.position.set(shopWidth / 2 - wallThickness / 2 + 1, 0 + 0.5, wallHeight / 2 - 0.5);
+        this.add(westWall);
         
         const eastWall = GeometryUtil.createRigidBodyCube(wallThickness, shopWidth + 1, wallHeight, { color: 0xbfbfbf }, 0);
-        eastWall.position.set(-shopWidth / 2 - wallThickness / 2, 0 + 0.5, 1.5);
-        scene.add(eastWall);
+        eastWall.position.set(-shopWidth / 2 - wallThickness / 2, 0 + 0.5, wallHeight / 2 - 0.5);
+        this.add(eastWall);
+
+        this.exteriorModel = new Entity();
+        const exteriorModel = this.exteriorModel.addComponent(new ModelComponent(`buildings/commercial/building-a`)).model;
+        exteriorModel.scale.set(16, 16, 16);
+
+        this.triggerEnt = new Entity();
+        this.triggerEnt.position.z = wallHeight / 2 - 0.5;
+        this.trigger = this.triggerEnt.addComponent(new TriggerComponent(shopWidth, shopLength, wallHeight));
+        this.add(this.triggerEnt);
+
+        this.triggerEnt.onStartTrigger = (object) =>
+        {
+            if (object instanceof Player)
+            {
+                console.log("Player has entered shop.");
+                this.remove(this.exteriorModel);
+            }
+        };
+
+        this.triggerEnt.onStopTrigger = (object) =>
+        {
+            if (object instanceof Player)
+            {
+                console.log("Player has exited shop.");
+                this.add(this.exteriorModel);
+            }
+        };
         
         this.door = new SingleSlidingDoor(new Vector3(-1, northWall.position.y - 0.001, 1.25), 0x0000ff);
-        scene.add(this.door);
+        this.add(this.door);
         
-        const light = new PointLight(0xffffff, 0.5);
-        light.position.set(0, 0, 5);
-        light.castShadow = true
-        scene.add(light);
+        const light = new PointLight(0xffffff, 0.4);
+        light.position.set(0, 0, 3.5);
+        light.castShadow = true;
+        this.add(light);
         
         this.spawnPosition = new Vector3(this.door.position.x, this.door.position.y + 4, 0.5);
         this.readyPosition = new Vector3(this.door.position.x, this.door.position.y - 3, 0.5);
@@ -81,7 +104,6 @@ export class Shop extends Group
         this.gridHelper.rotation.x = 1.5708;
         this.gridHelper.position.z = -0.5;
         
-        this.mousePos          = new Vector2(0, 0);
         this.mouseWorldPos     = new Vector3();
         this.intersectionPos   = new Vector3();
         this.intersectionPlane = new Plane(shopFloor.position, 0);
@@ -378,7 +400,7 @@ export class Shop extends Group
         
         this.updateTilePlacement();
         
-        scene.add(this.newTile.tile);
+        this.add(this.newTile.tile);
         
         console.log("Started placement of entity", this.newTile);
     }
@@ -392,7 +414,7 @@ export class Shop extends Group
         }
         
         // TODO: check if placement intersects with any other objets, set invalid flag if so
-        this.raycaster.setFromCamera(this.mousePos, camera);
+        this.raycaster.setFromCamera(screenMousePosition, camera);
         this.raycaster.ray.intersectPlane(this.intersectionPlane, this.intersectionPos);
         
         const tileCoordinates = new Vector2(

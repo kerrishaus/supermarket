@@ -1,9 +1,10 @@
 import { State } from "./State.js";
 
 import { PlayState } from "./PlayState.js";
-import { Shop } from "../Shop.js";
-import { Player } from "../Player.js";
-import { Customer } from "../Customer.js";
+import { SmallShop } from "../interiors/shops/SmallShop.js";
+import { World     } from "../World.js";
+import { Player    } from "../Player.js";
+import { Customer  } from "../Customer.js";
 
 import * as SaveLoader from "../SaveLoader.js";
 import * as ItemUtility from "../ItemUtility.js";
@@ -98,6 +99,9 @@ export class LoadSaveState extends State
             saveData = SaveLoader.getDefaultSave();
         */
         
+        window.world = new World();
+        scene.add(world);
+        
         window.player = new Player();
         scene.add(player);
         
@@ -107,7 +111,7 @@ export class LoadSaveState extends State
         
         console.log("loading shop");
         
-        window.shop = new Shop();
+        window.shop = new SmallShop();
         
         if ("tiles" in saveData.shop)
             for (const tile of saveData.shop.tiles)
@@ -126,7 +130,7 @@ export class LoadSaveState extends State
                 scene.add(employee);
             }
         
-        scene.add(shop);
+        world.add(shop);
         
         this.stateMachine.changeState(new PlayState());
     }

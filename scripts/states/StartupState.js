@@ -45,6 +45,23 @@ export class StartupState extends State
             console.log("Preparing Three...");
             $("#progressText").text("Preparing Three.js");
 
+            // this is a very important override of Object3D#traverse,
+            // becasue it prevents traverse from being called on children
+            // which may no longer exist in the scene.
+            THREE.Object3D.prototype.traverse = function(callback)
+            {
+                callback(this);
+
+                const children = this.children;
+
+                for (let i = 0, l = children.length; i < l; i++)
+                    children[i]?.traverse(callback);
+            }
+
+            // TODO: need to probably override Scene#remove
+            // because sometimes items are not removed from the scene they were added to ?
+            // that would remove the need for the override above, I think, but don't know for sure.
+
             window.sizes = {
                 width: window.innerWidth / 5,
                 height: window.innerHeight / 5
@@ -57,8 +74,8 @@ export class StartupState extends State
                 antialias: false,
             });
             
-            renderer.shadowMap.enabled = true;
-            renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+            renderer.shadowMap.enabled = false;
+            //renderer.shadowMap.type = THREE.PCFSoftShadowMap;
 
             renderer.setSize(sizes.width, sizes.height)
             renderer.domElement.style.width = "";
@@ -187,7 +204,13 @@ export class StartupState extends State
                     "tiles/shelf-boxes",
                     "tiles/cash-register",
                     "tiles/bottle-return",
-                    "tiles/freezers-standing"
+                    "tiles/freezers-standing",
+
+                    "roads/light-square",
+                    "roads/road-straight",
+                    "roads/road-crossroad-path",
+
+                    "buildings/commercial/building-a",
                 ];
 
                 $("#progress").attr("max", models.length);

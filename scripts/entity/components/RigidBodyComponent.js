@@ -17,8 +17,6 @@ export class RigidBodyComponent extends EntityComponent
         if (!this.parentEntity.hasComponent("GeometryComponent"))
             this.parentEntity.addComponent(new GeometryComponent(geometry, material));
         
-        // physics
-        
         this.transform = new Ammo.btTransform();
         this.transform.setIdentity();
         this.transform.setOrigin(new Ammo.btVector3(this.parentEntity.position.x, this.parentEntity.position.y, this.parentEntity.position.z));
@@ -42,7 +40,8 @@ export class RigidBodyComponent extends EntityComponent
         this.setFriction(1);
         this.setRollingFriction(0.2);
         
-        // end physics
+        physicsBodies.push({ object: this.parentEntity, motionState: this.motionState });
+        physicsWorld.addRigidBody(this.body);
 
         this.#parentPositionCopy        = this.parentEntity.position.copy;
         this.#parentPositionAdd         = this.parentEntity.position.add;
@@ -86,6 +85,8 @@ export class RigidBodyComponent extends EntityComponent
         Ammo.destroy(this.shape);
         Ammo.destroy(this.motionState);
         Ammo.destroy(this.transform);
+
+        // remove from RigidBodies and PhysicsWorld
     }
 
     setKinematic(kinematic = true)

@@ -1,4 +1,4 @@
-import { Mesh, BoxGeometry, MeshStandardMaterial } from "https://kerrishaus.com/assets/threejs/build/three.module.js";
+import { Mesh, BoxGeometry, MeshBasicMaterial } from "https://kerrishaus.com/assets/threejs/build/three.module.js";
 
 import { OBB } from 'https://kerrishaus.com/assets/threejs/examples/jsm/math/OBB.js';
 
@@ -10,7 +10,7 @@ export class TriggerComponent extends EntityComponent
     {
         this.triggerGeometry = new Mesh(
             new BoxGeometry(x, y, z),
-            new MeshStandardMaterial({ color: 0xff0000, transparent: true, opacity: 0.2 })
+            new MeshBasicMaterial({ color: 0xff0000, transparent: true, opacity: 0.2 })
         );
 
         this.triggerGeometry.geometry.computeBoundingBox();
@@ -18,9 +18,7 @@ export class TriggerComponent extends EntityComponent
 
         this.triggerGeometry.userData.obb = new OBB();
 
-        // TODO: make sure it gets removed from the scene properly.
-        // right now it just sits around wherever it was last
-        this.parentEntity.attach(this.triggerGeometry);
+        this.parentEntity.add(this.triggerGeometry);
 
         this.triggeringEntitiesLastUpdate = [];
         this.triggeringEntities           = [];
@@ -33,8 +31,7 @@ export class TriggerComponent extends EntityComponent
     {
         super.destructor();
 
-        // TODO: this is not properly disposed of
-        scene.remove(this.triggerGeometry);
+        this.parentEntity.remove(this.triggerGeometry);
     }
 
     update(deltaTime)

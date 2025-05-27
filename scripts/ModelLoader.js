@@ -29,6 +29,9 @@ export async function loadModel(modelName)
     model.scene.traverse((object) => {
         if ('material' in object)
             object.material.metalness = 0;
+
+        object.castShadow = true;
+        object.receiveShadow = true;
     });
 
     modelCache.set(modelName, model.scene);

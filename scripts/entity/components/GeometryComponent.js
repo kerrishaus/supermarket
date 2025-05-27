@@ -28,7 +28,6 @@ export class GeometryComponent extends EntityComponent
         super.destructor();
 
         this.parentEntity.remove(this.mesh);
-        scene.remove(this.mesh);
 
         this.dispose(this.mesh);
         this.mesh = null;

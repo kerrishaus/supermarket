@@ -261,7 +261,7 @@ export class Player extends Entity
     {
         if (!player.controlsEnabled)
             return;
-            
+
         if (player.move !== null)
             return;
             

@@ -31,29 +31,6 @@ export class KetchupMachine extends Entity
         this.generator = this.addComponent(new GeneratorComponent("Ketchup", "ketchup"));
         this.generator.noAutomaticGeneration = true;
 
-        /*
-        this.generator = new GeneratorTile(new Vector2(1, 1), new Vector2(2, 2), 0x0000ff, "Ketchup", "ketchup");
-        this.generator.createItem = () => { return new Ketchup(this.generator.position) };
-        this.generator.position.x = x - 1.25;
-        this.generator.position.y = y;
-        // this prevents the 
-        this.generator.itemTime = -1;
-        // TODO: replace scene.add with this.attach
-        // right now it prevents the triggers from working for some reason
-        scene.add(this.generator);
-        //this.attach(this.generator);
-        
-        this.container = new ContainerTile(1, 1, 2, 2, 0xff0000);
-        this.container.name = "ketchupGeneratorContainer";
-        this.container.itemType = "tomato";
-        this.container.position.x = x + 1.25;
-        this.container.position.y = y;
-        // TODO: replace scene.add with this.attach
-        // right now it prevents the triggers from working for some reason
-        scene.add(this.container);
-        //this.attach(this.container);
-        */
-
         this.transformTime = 5;
         this.timeSinceLastTransformation = 0;
     }

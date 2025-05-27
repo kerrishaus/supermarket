@@ -30,7 +30,7 @@ export class PhysicsScene extends Scene
                 const phys = object.addComponent(new RigidBodyComponent(
                     new BoxGeometry(1, 1, 1),
                     new MeshStandardMaterial({ color: 0x00FF00 }),
-                    10
+                    30
                 ));
 
                 const pos = new Vector3();
@@ -47,46 +47,6 @@ export class PhysicsScene extends Scene
         });
     }
     
-    // this is a very important override of Object3D#traverse,
-    // becasue it prevents traverse from being called on children
-    // which may no longer exist in the scene.
-    traverse = function(callback)
-    {
-        callback(this);
-
-        const children = this.children;
-
-        for (let i = 0, l = children.length; i < l; i++)
-            children[i]?.traverse(callback);
-    }
-    
-    add(object)
-    {
-        super.add(object);
-        
-        if (object instanceof Entity && object.hasComponent("RigidBodyComponent"))
-        {
-            const phys = object.getComponent("RigidBodyComponent");
-            
-            physicsBodies.push({ object: object, motionState: phys.motionState });
-            physicsWorld.addRigidBody(phys.body);
-        }
-    }
-
-    remove(object)
-    {
-        if (object instanceof Entity && object.hasComponent("RigidBodyComponent"))
-        {
-            // TODO: probably make physicsBodies and physicsWorld maps
-            // remove from physicsBodies
-            // remove from physicsWorld
-            
-            console.error("Remove physics bodies from the scene!");
-        }
-
-        super.remove(object);
-    }
-
     physicsStep(deltaTime)
     {
         physicsWorld.stepSimulation(deltaTime, 10);
