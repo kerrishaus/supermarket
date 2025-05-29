@@ -10,6 +10,11 @@ export class RigidBodyComponent extends EntityComponent
     #parentPositionSet;
     #parentPositionLerpVectors;
     
+    #parentRotationCopy;
+    #parentRotationSet;
+    
+    #parentRotateOnAxis;
+    
     static DISABLE_DEACTIVATION = 4;
     
     init(geometry, material, mass = 10)
@@ -48,21 +53,26 @@ export class RigidBodyComponent extends EntityComponent
         this.#parentPositionSet         = this.parentEntity.position.set;
         this.#parentPositionLerpVectors = this.parentEntity.position.lerpVectors;
         
+        this.#parentRotationCopy = this.parentEntity.rotation.copy;
+        this.#parentRotationSet  = this.parentEntity.rotation.set;
+        
+        this.#parentRotateOnAxis = this.parentEntity.rotateOnAxis;
+        
         // scritcly speaking, these functions are wasteful because they
         // 1 set the position of the geometry
         // 2 update the physics box to match
         // 3 geometry is moved to physics box location in global update after all entity updates are finished
         // so the geometry position is set twice. however, I do not want to rewrite the add and lerpVectors functions
         // so we use them and set the geometry twice anyway :)
-
+        
         this.parentEntity.position.copy = (position) => {
             return this.setPosition(this.#parentPositionCopy.apply(this.parentEntity.position, [ position ]));
         };
-
+        
         this.parentEntity.position.add = (position) => {
             return this.setPosition(this.#parentPositionAdd.apply(this.parentEntity.position, [ position ]));
         };
-
+        
         this.parentEntity.position.set = (x, y, z) => {
             return this.setPosition(this.#parentPositionSet.apply(this.parentEntity.position, [ x, y, z ]));
         };
@@ -70,22 +80,48 @@ export class RigidBodyComponent extends EntityComponent
         this.parentEntity.position.lerpVectors = (start, end, time) => {
             return this.setPosition(this.#parentPositionLerpVectors.apply(this.parentEntity.position, [ start, end, time ]));
         };
+        
+        // TODO: these might need to be structured more like rotateOnAxis
+        // it's possible, because copy and set might return a Euler when
+        // this#setPosition is expecting a Quaternion.
+        this.parentEntity.rotation.copy = (rotation) => {
+            return this.setRotation(this.#parentRotationCopy.apply(this.parentEntity.rotation, [ rotation ]));
+        };
+        
+        this.parentEntity.rotation.set = (...vars) => {
+            return this.setRotation(this.#parentRotationSet.apply(this.parentEntity.rotation, vars));
+        };
+        
+        this.parentEntity.rotateOnAxis = (axis, angle) => {
+            // rotateOnAxis returns the object it was called on, and so cannot
+            // be used as the parameter for setRotation and cannot be returned.
+            this.#parentRotateOnAxis.apply(this.parentEntity, [ axis, angle ]);
+            
+            this.setRotation(this.parentEntity.quaternion);
+            
+            return this.parentEntity;
+        };
     }
     
     destructor()
     {
         super.destructor();
-
+        
         this.parentEntity.position.copy                      = this.#parentPositionCopy;
         this.parentEntity.position.add                       = this.#parentPositionAdd;
         this.parentEntity.position.set                       = this.#parentPositionSet;
         this.parentEntity.position.parentPositionLerpVectors = this.#parentPositionLerpVectors;
         
+        this.parentEntity.rotation.copy = this.#parentRotationCopy;
+        this.parentEntity.rotation.set  = this.#parentRotationSet;
+        
+        this.parentEntity.rotateOnAxis = this.#parentRotateOnAxis;
+        
         Ammo.destroy(this.body);
         Ammo.destroy(this.shape);
         Ammo.destroy(this.motionState);
         Ammo.destroy(this.transform);
-
+        
         // remove from RigidBodies and PhysicsWorld
     }
 
@@ -106,22 +142,22 @@ export class RigidBodyComponent extends EntityComponent
             this.body.setActivationState(1);
         }
     }
-
+    
     isKinematic()
     {
         return this.body.isStaticOrKinematicObject();
     }
-
+    
     setRestitution(restitution)
     {
         this.body.setRestitution(restitution);
     }
-
+    
     setBounciness(factor)
     {
         this.body.setRestitution(factor);
     }
-
+    
     setFriction(friction)
     {
         this.body.setFriction(friction);
@@ -137,15 +173,29 @@ export class RigidBodyComponent extends EntityComponent
     {
         if (rotation === null)
             rotation = this.parentEntity.quaternion;
-
-        let transform = new Ammo.btTransform();
-        transform.setIdentity();
-        transform.setOrigin(new Ammo.btVector3(position.x, position.y, position.z));
-        transform.setRotation(new Ammo.btQuaternion(rotation.x, rotation.y, rotation.z, rotation.w));
-        this.motionState.setWorldTransform(transform);
-        this.body.setWorldTransform(transform);
+        
+        this.transform.setIdentity();
+        this.transform.setOrigin(new Ammo.btVector3(position.x, position.y, position.z));
+        this.transform.setRotation(new Ammo.btQuaternion(rotation.x, rotation.y, rotation.z, rotation.w));
+        this.motionState.setWorldTransform(this.transform);
+        this.body.setWorldTransform(this.transform);
 
         return position;
+    }
+    
+    // rotation needs to be quaternion
+    setRotation(rotation, position = null)
+    {
+        if (position === null)
+            position = this.parentEntity.position;
+        
+        this.transform.setIdentity();
+        this.transform.setOrigin(new Ammo.btVector3(position.x, position.y, position.z));
+        this.transform.setRotation(new Ammo.btQuaternion(rotation.x, rotation.y, rotation.z, rotation.w));
+        this.motionState.setWorldTransform(this.transform);
+        this.body.setWorldTransform(this.transform);
+
+        return rotation;
     }
     
     deserialise(data)
