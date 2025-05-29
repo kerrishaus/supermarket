@@ -148,7 +148,7 @@ export class Player extends Entity
                 idealLookat.applyQuaternion(this.quaternion);
                 idealLookat.add(this.position);
 
-                const t = 1.0 - Math.pow(0.0001, deltaTime);
+                const t = 1.0 - Math.pow(0.00001, deltaTime);
 
                 camera.position.copy(this.currentCameraPosition.lerp(idealOffset, t));
                 camera.lookAt(this.currentCameraAngle.lerp(idealLookat, t));
