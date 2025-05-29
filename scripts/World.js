@@ -24,39 +24,36 @@ export class World extends Group
         //scene.add(sunLight);
 
         const tile1 = this.getRoadTile("road-straight");
-        tile1.position.set(0, 14, -0.5);
+        tile1.position.set(0, -0.5, 14);
 
         const tile2 = this.getRoadTile("road-straight");
-        tile2.position.set(14, 0, -0.5);
-        tile2.rotation.z = Math.PI / 2;
+        tile2.position.set(14, -0.5, 0);
 
         const tile3 = this.getRoadTile("road-crossroad-path");
-        tile3.position.set(14, 14, -0.5);
+        tile3.position.set(14, -0.5, 14);
 
         const tile4 = this.getRoadTile("road-straight");
-        tile4.position.set(14, 28, -0.5);
-        tile4.rotation.z = Math.PI / 2;
+        tile4.position.set(14, -0.5, 28);
 
         const tile5 = this.getRoadTile("road-straight");
-        tile5.position.set(28, 14, -0.5);
+        tile5.position.set(28, -0.5, 14);
 
         const tile6 = this.getRoadTile("road-straight");
-        tile6.position.set(14, -14, -0.5);
-        tile6.rotation.z = Math.PI / 2;
+        tile6.position.set(14, -0.5, -14);
 
         const lamp1 = new StreetLamp();
-        lamp1.position.set(20.25, 7.75, -0.5);
-        lamp1.rotation.z = Math.PI / 4;
+        lamp1.position.set(20.25, -0.5, 7.75);
+        lamp1.rotation.y = Math.PI / 4;
         this.add(lamp1);
 
         const lamp2 = new StreetLamp();
-        lamp2.position.set(20.25, 20.25, -0.5);
-        lamp2.rotation.z = Math.PI / 1.4;
+        lamp2.position.set(20.25, -0.5, 20.25);
+        lamp2.rotation.y = Math.PI / 1.4;
         this.add(lamp2);
 
         const lamp3 = new StreetLamp();
-        lamp3.position.set(7.75, 20.25, -0.5);
-        lamp3.rotation.z = -Math.PI / 1.4;
+        lamp3.position.set(7.75, -0.5, 20.25);
+        lamp3.rotation.y = -Math.PI / 1.4;
         this.add(lamp3);
     }
 

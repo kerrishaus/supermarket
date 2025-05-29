@@ -144,7 +144,7 @@ export class ContainerComponent extends EntityComponent
                 this.layer_ += 1;
             }
             
-            this.carriedItems[i].getComponent("CarryableComponent").setTarget(this.parentEntity.position, new Vector3(this.column_ - 1, this.row_ - 1, this.layer_ + 1));
+            this.carriedItems[i].getComponent("CarryableComponent").setTarget(this.parentEntity.position, new Vector3(this.column_ - 1, this.layer_ + 1, this.row_ - 1));
             
             this.column_ += 1;
         }
@@ -163,7 +163,7 @@ export class ContainerComponent extends EntityComponent
             {
                 let item = this.carriedItems[i];
                 
-                const carryPos = ((item.scale.z / 2) * i) + this.parentEntity.scale.z + item.scale.z / 2;
+                const carryPos = ((item.scale.y / 2) * i) + this.parentEntity.scale.y + item.scale.y / 2;
                 
                 item.quaternion.copy(this.parentEntity.quaternion);
                 
@@ -174,7 +174,7 @@ export class ContainerComponent extends EntityComponent
                     continue;
                 }
                 
-                item.getComponent("CarryableComponent").updateTarget(this.parentEntity.position, new Vector3(0, 0, carryPos));
+                item.getComponent("CarryableComponent").updateTarget(this.parentEntity.position, new Vector3(0, carryPos, 0));
             }
         }
         

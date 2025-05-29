@@ -21,6 +21,8 @@ export class DoubleSlidingDoor extends Entity
         this.leftDoor.addComponent(new CarryableComponent)
             .setTarget(this.leftDoor.position, new Vector3(0, 0, 0));
         
+        // TODO: POSITIONS STILL NEED TO BE UPDATED TO XYZ FROM XZY
+        
         // door glass
         this.leftDoor.add(createCube(new Vector3(2, 1, 3.5), new Vector3(0, 0, 0), 0x00d1e8));
 

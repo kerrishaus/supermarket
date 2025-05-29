@@ -19,12 +19,12 @@ export class KetchupMachine extends Entity
 
         this.name = "ketchupMachine";
 
-        this.trigger = this.addComponent(new TriggerComponent(7, 3, 2));
+        this.trigger = this.addComponent(new TriggerComponent(7, 2, 3));
 
         this.addComponent(new GeometryComponent(
-            new BoxGeometry(6, 2, 1),
+            new BoxGeometry(6, 1, 2),
             new MeshStandardMaterial({ color: 0xff0000 })
-        )).mesh.position.z -= 0.5;
+        )).mesh.position.y -= 0.5;
 
         this.container = this.addComponent(new ContainerComponent("Tomatoes", "tomato"));
         

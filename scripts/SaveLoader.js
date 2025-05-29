@@ -17,16 +17,16 @@ const saveDataRaw =
                 "type":"tomatoStand",
                 "position":{
                     "x":5,
-                    "y":5,
-                    "z":0.5
+                    "y":0.5,
+                    "z":5
                 }
             },
             {
                 "type":"tomatoPlant",
                 "position":{
                     "x":5,
-                    "y":-5,
-                    "z":0.5
+                    "y":0.5,
+                    "z":-5
                 },
                 "amount":3
             },
@@ -34,21 +34,21 @@ const saveDataRaw =
                 "type":"register",
                 "position":{
                     "x":-5,
-                    "y":-3,
-                    "z":0.5
+                    "y":0.5,
+                    "z":-3
                 },
                 "rotation":{
                     "x":0,
-                    "y":0,
-                    "z":-3.141592653589793
+                    "y":-3.141592653589793,
+                    "z":0
                 }
             },
             {
                 "type":"recycleBin",
                 "position":{
                     "x":-5,
-                    "y":5,
-                    "z":0.5
+                    "y":0.5,
+                    "z":5
                 }
             }
         ],
@@ -57,8 +57,8 @@ const saveDataRaw =
                 "reputation":0,
                 "position":{
                     "x":0,
-                    "y":0,
-                    "z":0.5
+                    "y":0.5,
+                    "z":0
                 },
                 "rotation":{
                     "x":0,
@@ -89,8 +89,8 @@ const saveDataRaw =
             {
                 "position":{
                     "x":0,
-                    "y":0,
-                    "z":0.5
+                    "y":0.5,
+                    "z":0
                 },
                 "rotation":{
                     "x":0,
@@ -114,8 +114,8 @@ const saveDataRaw =
         "money":1000,
         "position":{
             "x":0,
-            "y":0,
-            "z":0.5
+            "y":0.5,
+            "z":0
         },
         "rotation":{
             "x":0,

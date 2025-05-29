@@ -17,9 +17,9 @@ export class RecycleBin extends Entity
         this.addComponent(new TriggerComponent);
         
         this.addComponent(new GeometryComponent(
-            new BoxGeometry(1.5, 1.5, 1), 
+            new BoxGeometry(1.5, 1, 1.5), 
             new MeshStandardMaterial({ color: 0xff0000 })
-        )).mesh.position.z -= 0.5;
+        )).mesh.position.y -= 0.5;
         
         this.itemBuffer = [];
         

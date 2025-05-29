@@ -16,15 +16,15 @@ export class Register extends Entity
 	{
 		super();
 		
-		const trigger = this.addComponent(new TriggerComponent(4, 3, 2));
+		const trigger = this.addComponent(new TriggerComponent(4, 2, 3));
 		trigger.triggerGeometry.position.x -= 1;
-		trigger.triggerGeometry.position.y -= 0.5;
-		trigger.triggerGeometry.position.z -= 1;
+		trigger.triggerGeometry.position.y -= 1;
+		trigger.triggerGeometry.position.z -= 0.5;
 		
 		const model = this.addComponent(new ModelComponent("tiles/cash-register")).model;
 
-		model.position.z -= 1;
 		model.position.x -= 1;
+		model.position.y -= 1;
 		model.scale.set(4, 4, 4);
 		
 		this.name = "register";
@@ -81,8 +81,8 @@ export class Register extends Entity
 		
 		money.position.copy(this.position);
 		money.getComponent("CarryableComponent").setTarget(this.position, new Vector3(this.column_ * this.moneyLength - 0.6 - 1,
-															this.row_ * this.moneyWidth - 0.5,
-															this.position.z - (this.scale.z / 2) + (this.layer_ * this.moneyThickness) + this.moneyThickness / 2));
+		                                                    this.position.z - (this.scale.z / 2) + (this.layer_ * this.moneyThickness) + this.moneyThickness / 2),
+															this.row_ * this.moneyWidth - 0.5);
 		
 		scene.add(money);
 		this.money.push(money);

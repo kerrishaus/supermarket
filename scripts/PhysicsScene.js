@@ -16,7 +16,7 @@ export class PhysicsScene extends Scene
         window.physicsBodies            = [];
         window.tmpTransform             = new Ammo.btTransform();
         window.physicsWorld 			= new Ammo.btDiscreteDynamicsWorld(dispatcher_, broadphase_, solver_, collisionConfiguration_);
-        window.physicsWorld.setGravity(new Ammo.btVector3(0, 0, -9.82));
+        window.physicsWorld.setGravity(new Ammo.btVector3(0, -9.82, 0));
         
         $(window).keydown((event) =>
         {

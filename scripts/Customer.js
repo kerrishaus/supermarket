@@ -20,7 +20,7 @@ export class Customer extends Entity
 		this.#container.maxItems = 4;
 		
 		this.addComponent(new GeometryComponent(
-			new BoxGeometry(1, 1, 2),
+			new BoxGeometry(1, 2, 1),
 			new MeshStandardMaterial({ color: 0xaabbcc })
 		));
 		
@@ -240,7 +240,7 @@ export class Customer extends Entity
 		{
 			this.position.lerpVectors(this.startPosition, this.targetPosition, this.elapsedTime / this.actionTime);
 			
-			this.rotation.z = MathUtility.angleToPoint(this.position, this.targetPosition);
+			this.rotation.y = MathUtility.angleToPoint(this.position, this.targetPosition);
 		}
 		
 		super.update(deltaTime);

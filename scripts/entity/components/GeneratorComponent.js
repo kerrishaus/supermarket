@@ -129,8 +129,8 @@ export class GeneratorComponent extends EntityComponent
             
             item.position.copy(this.parentEntity.position);
             item.getComponent("CarryableComponent").setTarget(this.parentEntity.position, new Vector3(this.#column * this.itemLength - 0.6 - 1,
-                                                    this.#row * this.itemWidth - 0.5,
-                                                    (this.parentEntity.scale.z / 2) + (this.#layer * this.itemThickness) + this.itemThickness / 2));
+                                                    (this.parentEntity.scale.z / 2) + (this.#layer * this.itemThickness) + this.itemThickness / 2),
+                                                    this.#row * this.itemWidth - 0.5);
             
             this.carriedItems.push(item);
         }
@@ -151,7 +151,7 @@ export class GeneratorComponent extends EntityComponent
         {
             let item = this.carriedItems[i];
 
-            const carryPos = ((item.scale.z / 2) * i) + this.parentEntity.scale.z + item.scale.z / 2;
+            const carryPos = ((item.scale.y / 2) * i) + this.parentEntity.scale.y + item.scale.y / 2;
             
             item.quaternion.copy(this.parentEntity.quaternion);
             
@@ -162,7 +162,7 @@ export class GeneratorComponent extends EntityComponent
                 continue;
             }
             
-            item.getComponent("CarryableComponent").setTarget(this.parentEntity.position, new Vector3(0, 0, carryPos));
+            item.getComponent("CarryableComponent").setTarget(this.parentEntity.position, new Vector3(0, carryPos, 0));
         }
 
         this.#countLabelDiv.textContent = this.carriedItems.length;

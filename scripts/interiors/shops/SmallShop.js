@@ -30,8 +30,8 @@ export class SmallShop extends PlayerOwnedShop
         super();
         
         const shopWidth  = 12;
-        const shopLength = 12;
         const wallHeight = 6;
+        const shopLength = 12;
         const wallThickness = 1;
         
         const floorTexture = new TextureLoader().load("textures/tile.jpg");
@@ -41,23 +41,23 @@ export class SmallShop extends PlayerOwnedShop
         
         const shopFloor = new Entity();
         shopFloor.addComponent(new RigidBodyComponent(
-            new BoxGeometry(shopWidth, shopLength, 1),
+            new BoxGeometry(shopWidth, 1, shopLength),
             new MeshStandardMaterial({ map: floorTexture }),
             0
         ));
-        shopFloor.position.copy(new Vector3(0, 0, -1));
+        shopFloor.position.copy(new Vector3(0, -1, 0));
         this.add(shopFloor);
         
-        const northWall = GeometryUtil.createRigidBodyCube(shopWidth, wallThickness, wallHeight, { color: 0xbfbfbf }, 0);
-        northWall.position.set(0, shopLength / 2 - wallThickness / 2 + 1, wallHeight / 2 - 0.5);
+        const northWall = GeometryUtil.createRigidBodyCube(shopWidth, wallHeight, wallThickness, { color: 0xbfbfbf }, 0);
+        northWall.position.set(0, wallHeight / 2 - 0.5, shopLength / 2 - wallThickness / 2 + 1);
         this.add(northWall);
         
-        const westWall = GeometryUtil.createRigidBodyCube(wallThickness, shopWidth + 1, wallHeight, { color: 0xbfbfbf }, 0);
-        westWall.position.set(shopWidth / 2 - wallThickness / 2 + 1, 0 + 0.5, wallHeight / 2 - 0.5);
+        const westWall = GeometryUtil.createRigidBodyCube(wallThickness, wallHeight, shopWidth + 1, { color: 0xbfbfbf }, 0);
+        westWall.position.set(shopWidth / 2 - wallThickness / 2 + 1,  wallHeight / 2 - 0.5, 0.5);
         this.add(westWall);
         
-        const eastWall = GeometryUtil.createRigidBodyCube(wallThickness, shopWidth + 1, wallHeight, { color: 0xbfbfbf }, 0);
-        eastWall.position.set(-shopWidth / 2 - wallThickness / 2, 0 + 0.5, wallHeight / 2 - 0.5);
+        const eastWall = GeometryUtil.createRigidBodyCube(wallThickness, wallHeight, shopWidth + 1, { color: 0xbfbfbf }, 0);
+        eastWall.position.set(-shopWidth / 2 - wallThickness / 2, wallHeight / 2 - 0.5, 0.5);
         this.add(eastWall);
 
         this.exteriorModel = new Entity();
@@ -65,9 +65,11 @@ export class SmallShop extends PlayerOwnedShop
         exteriorModel.scale.set(16, 16, 16);
 
         this.triggerEnt = new Entity();
-        this.triggerEnt.position.z = wallHeight / 2 - 0.5;
-        this.trigger = this.triggerEnt.addComponent(new TriggerComponent(shopWidth, shopLength, wallHeight));
+        this.triggerEnt.position.y = wallHeight / 2 - 0.5;
+        this.trigger = this.triggerEnt.addComponent(new TriggerComponent(shopWidth, wallHeight, shopLength));
         this.add(this.triggerEnt);
+        
+        this.interiorCameraPosition = new Vector3(0, wallHeight * 2, -shopWidth);
 
         this.triggerEnt.onStartTrigger = (object) =>
         {
@@ -75,6 +77,7 @@ export class SmallShop extends PlayerOwnedShop
             {
                 console.log("Player has entered shop.");
                 this.remove(this.exteriorModel);
+                player.interior = this;
             }
         };
 
@@ -84,10 +87,11 @@ export class SmallShop extends PlayerOwnedShop
             {
                 console.log("Player has exited shop.");
                 this.add(this.exteriorModel);
+                player.interior = null;
             }
         };
         
-        this.door = new SingleSlidingDoor(new Vector3(-1, northWall.position.y - 0.001, 1.25), 0x0000ff);
+        this.door = new SingleSlidingDoor(new Vector3(-1, 1.25, northWall.position.z - 0.001), 0x0000ff);
         this.add(this.door);
         
         const light = new PointLight(0xffffff, 0.4);
@@ -95,14 +99,13 @@ export class SmallShop extends PlayerOwnedShop
         light.castShadow = true;
         this.add(light);
         
-        this.spawnPosition = new Vector3(this.door.position.x, this.door.position.y + 4, 0.5);
-        this.readyPosition = new Vector3(this.door.position.x, this.door.position.y - 3, 0.5);
+        this.spawnPosition = new Vector3(this.door.position.x, 0.5, this.door.position.z + 4);
+        this.readyPosition = new Vector3(this.door.position.x, 0.5, this.door.position.z - 3);
         
         const size = 20;
         const divisions = 10;
         this.gridHelper = new GridHelper(size, divisions);
-        this.gridHelper.rotation.x = 1.5708;
-        this.gridHelper.position.z = -0.5;
+        this.gridHelper.position.y = -0.5;
         
         this.mouseWorldPos     = new Vector3();
         this.intersectionPos   = new Vector3();
@@ -126,10 +129,11 @@ export class SmallShop extends PlayerOwnedShop
         this.lifeCustomers                    = 0;
         this.lifeReputation                   = 0;
         
-        this.allTiles       = [];
-        this.containerTiles = [];
-        this.generatorTiles = [];
-        this.registerTiles  = [];
+        this.allTiles             = [];
+        this.containerTiles       = [];
+        this.generatorTiles       = [];
+        this.registerTiles        = [];
+        this.tilesPendingDeletion = [];
         
         this.availableTiles = {
             register: {
@@ -159,7 +163,7 @@ export class SmallShop extends PlayerOwnedShop
                     const tomatoContainer = tomatoStand.addComponent(new ContainerComponent("Tomato Stand", "tomato"));
                     const model = tomatoStand.addComponent(new ModelComponent("tiles/shelf-boxes")).model;
                     
-                    model.position.z -= 1;
+                    model.position.y -= 1;
                     model.scale.set(2.5, 2.5, 2.5);
 
                     tomatoStand.onTrigger = (object) => {
@@ -181,9 +185,9 @@ export class SmallShop extends PlayerOwnedShop
 
                     const tomatoPlantGenerator = tomatoPlant.addComponent(new GeneratorComponent("Tomato Plant", "tomato"));
                     tomatoPlant.addComponent(new GeometryComponent(
-                        new BoxGeometry(1.5, 1.5, 1), 
+                        new BoxGeometry(1.5, 1, 1.5), 
                         new MeshStandardMaterial({ color: 0xff0000 })
-                    )).mesh.position.z -= 0.5;
+                    )).mesh.position.y -= 0.5;
 
                     tomatoPlant.onTrigger = (object) => {
                         if (object instanceof Player)
@@ -207,8 +211,8 @@ export class SmallShop extends PlayerOwnedShop
                     const model = sodaStand.addComponent(new ModelComponent("tiles/freezers-standing")).model;
                     
                     model.position.z -= 1;
-                    model.position.x -= 1;
-                    model.scale.set(4, 4, 2);
+                    model.position.y -= 1;
+                    model.scale.set(4, 2, 4);
 
                     sodaStand.onTrigger = (object) => {
                         if (object instanceof Player)
@@ -232,7 +236,7 @@ export class SmallShop extends PlayerOwnedShop
                     
                     const model = sodaMaker.addComponent(new ModelComponent("tiles/bottle-return")).model;
                     
-                    model.position.z -= 1;
+                    model.position.y -= 1;
                     model.scale.set(3, 3, 3);
 
                     sodaMaker.onTrigger = (object) => {
@@ -255,7 +259,7 @@ export class SmallShop extends PlayerOwnedShop
                     const ketchupContainer = ketchupStand.addComponent(new ContainerComponent("Ketchup Stand", "ketchup"));
                     const model = ketchupStand.addComponent(new ModelComponent("tiles/shelf-boxes")).model;
                     
-                    model.position.z -= 1;
+                    model.position.y -= 1;
                     model.scale.set(2.5, 2.5, 2.5);
 
                     ketchupStand.onTrigger = (object) => {
@@ -320,7 +324,7 @@ export class SmallShop extends PlayerOwnedShop
     keydownDuringTilePlacement(event)
     {
         if (event.code == "KeyR")
-            shop.newTile.tile.rotateZ(Math.PI / 2);
+            shop.newTile.tile.rotateY(Math.PI / 2);
         else if (event.code == "Escape")
             shop.cancelTilePlacement();
     }
@@ -375,6 +379,8 @@ export class SmallShop extends PlayerOwnedShop
             this.newTile.tile.getComponent("GeneratorComponent").noAutomaticGeneration = true;
         }
         
+        this.gridHelper.position.x = Math.floor(player.position.x / 2) * 2;
+        this.gridHelper.position.z = Math.floor(player.position.z / 2) * 2;
         scene.add(this.gridHelper);
         
         // TODO: have these buttons move up and down as the keys are pressed
@@ -419,10 +425,10 @@ export class SmallShop extends PlayerOwnedShop
         
         const tileCoordinates = new Vector2(
             Math.floor(this.intersectionPos.x / 2) * 2 + 1,
-            Math.floor(this.intersectionPos.y / 2) * 2 + 1,
+            Math.floor(this.intersectionPos.z / 2) * 2 + 1,
         );
 
-        this.newTile.tile.position.set(tileCoordinates.x, tileCoordinates.y, 0.5);
+        this.newTile.tile.position.set(tileCoordinates.x, 0.5, tileCoordinates.y);
     }
     
     cancelTilePlacement()
@@ -445,6 +451,20 @@ export class SmallShop extends PlayerOwnedShop
         {
             console.error("Trying to finish tile placement, but newTile is invalid!", this.newTile);
             this.finallyTilePlacement();
+            return false;
+        }
+        
+        const tileCoordinates = new Vector2(
+            Math.floor(this.intersectionPos.x / 2) * 2 + 1,
+            Math.floor(this.intersectionPos.z / 2) * 2 + 1,
+        );
+
+        if (this.newTile.tile.position.x > this.shopWidth ||
+            this.newTile.tile.position.x < -this.shopWidth ||
+            this.newTile.tile.position.y > this.shopLength ||
+            this.newTile.tile.position.y < -this.shopLength)
+        {
+            console.error("Selected tile position is outside of acceptable area.");
             return false;
         }
         
@@ -512,7 +532,51 @@ export class SmallShop extends PlayerOwnedShop
         console.log("Tile placement is finished.");
     }
     
-    keydownDuringDeletion(event)
+    startDeletionMode()
+    {
+        this.inDeletionMode = true;
+        
+        document.dispatchEvent(new CustomEvent("closeBuyMenu"));
+        player.disableMovement(); // closeBuyMenu enables player movement
+        
+        $(window).keydown(this.keydownDuringDeletion);
+        $(window).mousemove(this.mousemoveDuringDeletion);
+        $(window).mousedown(this.mousedownDuringDeletion);
+        
+        shop.gridHelper.position.x = Math.floor(this.position.x / 2) * 2;
+        shop.gridHelper.position.z = Math.floor(this.position.z / 2) * 2;
+        scene.add(this.gridHelper);
+        
+        $("#interface").append(`<div id="deletionModeOverlay" class="mouse-pass-through">
+            <div>
+                <span><kbd>Escape</kbd>&nbsp;or&nbsp;<kbd>Right-Click</kbd>&nbsp;Cancel</span>
+                <br/>
+                <br/>
+                <span><kbd>Left-Click</kbd>&nbsp;Confirm</span>
+            </div>
+        </div>`);
+        
+        this.tileDeletionTarget = null;
+    }
+    
+    stopDeletionMode()
+    {
+        player.enableMovement();
+        
+        $(window).off("keydown", this.keydownDuringDeletion);
+        $(window).off("mousemove", this.mousemoveDuringDeletion);
+        $(window).off("mousedown", this.mousedownDuringDeletion);
+        
+        scene.remove(this.gridHelper);
+        
+        delete this.tileDeletionTarget;
+        
+        $("#deletionModeOverlay").remove();
+        
+        this.inDeletionMode = false;
+    }
+    
+        keydownDuringDeletion(event)
     {
         if (event.code == "Escape")
             shop.stopDeletionMode();
@@ -548,7 +612,7 @@ export class SmallShop extends PlayerOwnedShop
                     break;
                 }
                 
-                const index = shop.allTiles.indexOf(object);
+                const allTilesIndex   = shop.allTiles.indexOf(object);
                 const containersIndex = shop.containerTiles.indexOf(object);
                 const generatorsIndex = shop.generatorTiles.indexOf(object);
                 const registersIndex  = shop.registerTiles.indexOf(object);
@@ -556,16 +620,15 @@ export class SmallShop extends PlayerOwnedShop
                 // for some dumbass god damn reason, any number in JS
                 // other than 0 or NaN evaluates to true!!! STUPID!!
                 // also, 0 is a valid index
-                if (index != -1)
+                if (allTilesIndex != -1)
                 {
-                    shop.allTiles.splice(index, 1);
-                    shop.containerTiles.splice(containersIndex, 1);
-                    shop.generatorTiles.splice(generatorsIndex, 1);
-                    shop.registerTiles.splice(registersIndex, 1);
-                    
-                    player.addMoney(shop.availableTiles[object.name].price / 2);
-                    
-                    object.destructor();
+                    shop.tilesPendingDeletion.push({
+                        object: object,
+                        allTiles: allTilesIndex,
+                        containerTiles: containersIndex,
+                        generatorTiles: generatorsIndex,
+                        registerTIles: registersIndex
+                    });
                     
                     break;
                 }
@@ -575,48 +638,6 @@ export class SmallShop extends PlayerOwnedShop
             shop.stopDeletionMode();
     }
     
-    startDeletionMode()
-    {
-        this.inDeletionMode = true;
-        
-        document.dispatchEvent(new CustomEvent("closeBuyMenu"));
-        player.disableMovement(); // closeBuyMenu enables player movement
-        
-        $(window).keydown(this.keydownDuringDeletion);
-        $(window).mousemove(this.mousemoveDuringDeletion);
-        $(window).mousedown(this.mousedownDuringDeletion);
-        
-        scene.add(this.gridHelper);
-        
-        $("#interface").append(`<div id="deletionModeOverlay" class="mouse-pass-through">
-            <div>
-                <span><kbd>Escape</kbd>&nbsp;or&nbsp;<kbd>Right-Click</kbd>&nbsp;Cancel</span>
-                <br/>
-                <br/>
-                <span><kbd>Left-Click</kbd>&nbsp;Confirm</span>
-            </div>
-        </div>`);
-        
-        this.tileDeletionTarget = null;
-    }
-    
-    stopDeletionMode()
-    {
-        player.enableMovement();
-        
-        $(window).off("keydown", this.keydownDuringDeletion);
-        $(window).off("mousemove", this.mousemoveDuringDeletion);
-        $(window).off("mousedown", this.mousedownDuringDeletion);
-        
-        scene.remove(this.gridHelper);
-        
-        delete this.tileDeletionTarget;
-        
-        $("#deletionModeOverlay").remove();
-        
-        this.inDeletionMode = false;
-    }
-
     updateReputation(amount)
     {
         this.lifeReputation += amount;
@@ -760,5 +781,28 @@ export class SmallShop extends PlayerOwnedShop
             waitingCustomerCount += register.waitingCustomers.length;
         
         $("#waitingCustomers").text(waitingCustomerCount);
+        
+        // do this here because if the tile is deleted during the mouse event,
+        // it could happen in the middle of the update loop and cause an access violation
+        if (this.tilesPendingDeletion.length > 0)
+        {
+            for (const tile of this.tilesPendingDeletion)
+            {
+                console.log("Deleting tile.", tile);
+                
+                this.allTiles.splice(tile.allTiles, 1);
+                this.containerTiles.splice(tile.containersIndex, 1);
+                this.generatorTiles.splice(tile.generatorsIndex, 1);
+                this.registerTiles.splice(tile.registersIndex, 1);
+                
+                player.addMoney(shop.availableTiles[tile.object.name].price / 2);
+                
+                tile.object.destructor();
+                
+                tile.object.removeFromParent();
+            }
+            
+            this.tilesPendingDeletion = [];
+        }
     }
 }

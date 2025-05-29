@@ -1,6 +1,6 @@
 import * as THREE from "https://kerrishaus.com/assets/threejs/build/three.module.js";
 
-import { OrbitControls } from 'https://kerrishaus.com/assets/threejs/examples/jsm/controls/OrbitControls.js';
+import { OrbitControls } from "https://kerrishaus.com/assets/threejs/examples/jsm/controls/OrbitControls.js";
 
 import { Entity } from "./entity/Entity.js";
 import { ContainerComponent } from "./entity/components/ContainerComponent.js";
@@ -19,33 +19,32 @@ export class Player extends Entity
         this.carriedMoney = new Array();
         this.addComponent(new ContainerComponent());
         
-        const phys = this.addComponent(new RigidBodyComponent(
-            new THREE.BoxGeometry(1, 1, 2),
+        this.phys = this.addComponent(new RigidBodyComponent(
+            new THREE.BoxGeometry(1, 2, 1),
             new THREE.MeshStandardMaterial({ color: 0x0000aa }),
             0
         ));
 
-        phys.setPosition(new THREE.Vector3(0, 0, 0.5));
+        this.phys.setPosition(new THREE.Vector3(0, 0.5, 0));
         
-        const nose = GeometryUtil.createScaledCube(0.4, 0.5, 0.2, 0x0000aa);
-        nose.position.z = 0.8;
+        const nose = GeometryUtil.createScaledCube(0.4, 0.2, 0.5, 0x0000aa);
         nose.position.y = 0.75;
+        nose.position.z = 0.75;
         this.add(nose);
-        
-        this.maxSpeed = 0.15;
         
         this.controlsEnabled = true;
         
+        this.maxSpeed = 0.15;
+        
         this.MoveType = {
-            Mouse: 'Mouse',
-            Touch: 'Touch',
-            Keyboard: 'Keyboard'
+            Mouse: "Mouse",
+            Touch: "Touch",
+            Keyboard: "Keyboard"
         };
 
         this.move = null;
         this.keys = new Array();
         this.pointerMoveOrigin = new THREE.Vector2();
-        this.moving = false;
         
         this.moveTarget = new THREE.Mesh(
             new THREE.SphereGeometry(0.25, 24, 8), 
@@ -57,7 +56,7 @@ export class Player extends Entity
             })
         );
         
-        this.plane = new THREE.Plane(new THREE.Vector3(0, 0, 0.5), 0);
+        this.plane = new THREE.Plane(new THREE.Vector3(0, 0.5, 0), 0);
 
         this.mouse      = new THREE.Vector2();
         this.raycaster  = new THREE.Raycaster();
@@ -67,6 +66,11 @@ export class Player extends Entity
         this.freeControls.target.set(0, 0, 0);
         this.freeControls.update();
         this.freeControls.enabled = false;
+        
+        this.interior = null;
+        
+        this.currentCameraPosition = new THREE.Vector3();
+        this.currentCameraAngle    = new THREE.Vector3();
     }
     
     update(deltaTime)
@@ -75,67 +79,85 @@ export class Player extends Entity
         {
             if (this.move !== null)
             {
-                let position = new THREE.Vector2(), target = new THREE.Vector2();
-                let velocity = 0;
-                
-                if (this.move == this.MoveType.Touch)
+                if (this.move == this.MoveType.Keyboard)
                 {
-                    position = this.pointerMoveOrigin;
-                    target = this.mouse;
+                    const moveAmount = this.maxSpeed;
                     
-                    velocity = this.pointerMoveOrigin.distanceTo(new THREE.Vector3(this.mouse.x, this.mouse.y)) / 2;
+                    if (this.keys["KeyW"] || this.keys["ArrowUp"])
+                        this.translateZ(moveAmount);
+                    if (this.keys["KeyS"] || this.keys["ArrowDown"])
+                        this.translateZ(-moveAmount);
+                    
+                    if (this.keys["KeyA"] || this.keys["ArrowLeft"])
+                        this.rotateY(Math.PI / 40);
+                    if (this.keys["KeyD"] || this.keys["ArrowRight"])
+                        this.rotateY(-Math.PI / 40);
+                    
+                    this.moveTarget.position.copy(this.position);
                 }
                 else
                 {
-                    if (this.move == this.MoveType.Keyboard)
+                    let position = new THREE.Vector2(), target = new THREE.Vector2();
+                    let velocity = 0;
+                    
+                    if (this.move == this.MoveType.Touch)
                     {
-                        const moveAmount = this.maxSpeed;
+                        position = this.pointerMoveOrigin;
+                        target = this.mouse;
                         
-                        if (this.keys["KeyW"] || this.keys["ArrowUp"])
-                            this.moveTarget.translateY(moveAmount);
-                        if (this.keys["KeyA"] || this.keys["ArrowLeft"])
-                            this.moveTarget.translateX(-moveAmount);
-                        if (this.keys["KeyS"] || this.keys["ArrowDown"])
-                            this.moveTarget.translateY(-moveAmount);
-                        if (this.keys["KeyD"] || this.keys["ArrowRight"])
-                            this.moveTarget.translateX(moveAmount);
-                        
-                        this.moveTarget.quaternion.copy(this.quaternion);
+                        velocity = this.pointerMoveOrigin.distanceTo(new THREE.Vector3(this.mouse.x, this.mouse.y)) / 2;
                     }
-                    else if (this.move == this.MoveType.Mouse)
+                    /* disabled because camera is no longer third person fixed
+                    else
                     {
-                        this.raycaster.setFromCamera(this.mouse, camera);
-                        this.raycaster.ray.intersectPlane(this.plane, this.intersects);
-                        this.moveTarget.position.copy(this.intersects);
+                        if (this.move == this.MoveType.Mouse)
+                        {
+                            this.raycaster.setFromCamera(this.mouse, camera);
+                            this.raycaster.ray.intersectPlane(this.plane, this.intersects);
+                            this.moveTarget.position.copy(this.intersects);
+                        }
+                        
+                        position.x = this.position.x;
+                        position.y = this.position.y;
+                        
+                        target.x = this.moveTarget.position.x;
+                        target.y = this.moveTarget.position.y;
+                        
+                        velocity = this.position.distanceTo(this.moveTarget.position) / 20;
                     }
+                    */
                     
-                    position.x = this.position.x;
-                    position.y = this.position.y
+                    this.rotation.y = MathUtility.angleToPoint(position, target);
                     
-                    target.x = this.moveTarget.position.x;
-                    target.y = this.moveTarget.position.y;
+                    velocity = MathUtility.clamp(velocity, 0, this.maxSpeed);
                     
-                    velocity = this.position.distanceTo(this.moveTarget.position) / 20;
+                    this.translateZ(velocity);
                 }
-                
-                this.rotation.z = MathUtility.angleToPoint(position, target);
-                
-                velocity = MathUtility.clamp(velocity, 0, this.maxSpeed);
-                
-                this.translateY(velocity);
-                
-                // TODO: do this in Shop class maybe
-                shop.gridHelper.position.x = Math.floor(this.position.x / 2) * 2;
-                shop.gridHelper.position.y = Math.floor(this.position.y / 2) * 2;
             }
             
             // this is outside of the preceding conditional
             // because if the camera were to change from free to fixed
             // it would not update until the player moves again.
-            camera.position.x = this.position.x;
-            camera.position.z = this.position.z + 8;
-            camera.position.y = this.position.y - 6;
-            camera.lookAt(this.position);
+            if (this.interior == null)
+            {
+                const idealOffset = new THREE.Vector3(0, 3, -6);
+                idealOffset.applyQuaternion(this.quaternion);
+                idealOffset.add(this.position);
+
+                const idealLookat = new THREE.Vector3(0, 1, 0);
+                idealLookat.applyQuaternion(this.quaternion);
+                idealLookat.add(this.position);
+
+                const t = 1.0 - Math.pow(0.0001, deltaTime);
+
+                camera.position.copy(this.currentCameraPosition.lerp(idealOffset, t));
+                camera.lookAt(this.currentCameraAngle.lerp(idealLookat, t));
+            }
+            else
+            {
+                camera.position.copy(this.interior.interiorCameraPosition);
+                camera.lookAt(this.interior.position);
+            }
         }
         else
             this.freeControls.update();
@@ -151,13 +173,13 @@ export class Player extends Entity
             }
             
             if ("forPlayer" in money)
-                money.getComponent("CarryableComponent").updateTarget(this.position, new THREE.Vector3(0, 0, 0.5));
+                money.getComponent("CarryableComponent").updateTarget(this.position, new THREE.Vector3(0, 0.5, 0));
         }
         
         // super update coming last prevents carried items from lagging behind the player
         super.update(deltaTime);
     }
-
+    
     setMoney(amount)
     {
         //console.debug("updated player money to " + amount);
@@ -192,10 +214,10 @@ export class Player extends Entity
     {
         console.log("registered player controls event listener");
 
-        window.addEventListener("mousemove" , player.mousemove);
-        window.addEventListener("touchmove" , player.touchmove);
-        window.addEventListener("touchstart", player.touchstart);
-        window.addEventListener("mousedown" , player.mousedown);
+        // window.addEventListener("mousemove" , player.mousemove);
+        // window.addEventListener("touchmove" , player.touchmove);
+        // window.addEventListener("touchstart", player.touchstart);
+        // window.addEventListener("mousedown" , player.mousedown);
         window.addEventListener("keyup"     , player.keyup);
         window.addEventListener("keydown"   , player.keydown);
         $(window).on('mouseup touchend'     , player.moveEnd);
@@ -207,10 +229,10 @@ export class Player extends Entity
     {
         console.log("unregistered player controls event listener");
         
-        window.removeEventListener("mousemove" , player.mousemove);
-        window.removeEventListener("touchmove" , player.touchmove);
-        window.removeEventListener("touchstart", player.touchstart);
-        window.removeEventListener("mousedown" , player.mousedown);
+        // window.removeEventListener("mousemove" , player.mousemove);
+        // window.removeEventListener("touchmove" , player.touchmove);
+        // window.removeEventListener("touchstart", player.touchstart);
+        // window.removeEventListener("mousedown" , player.mousedown);
         window.removeEventListener("keyup"     , player.keyup);
         window.removeEventListener("keydown"   , player.keydown);
         $(window).off('mouseup touchend'       , player.moveEnd);
@@ -307,11 +329,9 @@ export class Player extends Entity
             case "ArrowDown":
             case "KeyD":
             case "ArrowRight":
-                break; // remove this when keyboard movement is allowed
-                
                 if (player.move !== null)
                     return;
-                    
+                
                 console.debug("Starting move by Keyboard.");
                 
                 player.move = player.MoveType.Keyboard;
@@ -328,8 +348,6 @@ export class Player extends Entity
         
         player.keys[event.code] = false;
 
-        return; // remove this when keyboard movement is allowed
-
         // it is important to do this this way, because if a player clicks
         // while moving with the keyboard, we don't want to suddnely stop moving.
         // TODO: maybe consider forcing one or the other, ignoring other
@@ -338,7 +356,7 @@ export class Player extends Entity
               player.keys["KeyA"] || player.keys["ArrowLeft"] ||
               player.keys["KeyS"] || player.keys["ArrowDown"] ||
               player.keys["KeyD"] || player.keys["ArrowRight"]))
-              this.moveEnd();
+              player.moveEnd(event);
     }
     
     moveEnd(event)

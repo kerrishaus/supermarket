@@ -20,7 +20,7 @@ export class Employee extends Entity
         this.#container = this.addComponent(new ContainerComponent());
         
         this.addComponent(new GeometryComponent(
-            new BoxGeometry(1, 1, 2),
+            new BoxGeometry(1, 2, 1),
             new MeshStandardMaterial({color: 0x42b6f5})
         ));
         
@@ -35,8 +35,8 @@ export class Employee extends Entity
         
         this.elapsedTime = 0;
         this.actionTime = 0;
-        this.startPosition = new Vector3(0, 0, 0.5);
-        this.targetPosition = new Vector3(0, 0, 0.5);
+        this.startPosition = new Vector3(0, 0.5, 0);
+        this.targetPosition = new Vector3(0, 0.5, 0);
 
         this.position.copy(this.startPosition);
         
@@ -409,7 +409,7 @@ export class Employee extends Entity
             {
                 this.position.lerpVectors(this.startPosition, this.targetPosition, this.elapsedTime / this.actionTime);
                 
-                this.rotation.z = MathUtility.angleToPoint(this.position, this.targetPosition);
+                this.rotation.y = MathUtility.angleToPoint(this.position, this.targetPosition);
             }
         }
         // no more actions, find a new one

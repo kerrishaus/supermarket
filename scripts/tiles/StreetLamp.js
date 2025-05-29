@@ -14,7 +14,7 @@ export class StreetLamp extends Entity
         this.model.scale.set(10, 10, 10);
 
         this.light = new PointLight(0xffffff, 0.3);
-        this.light.position.set(0, 2, 4.5);
+        this.light.position.set(0, 4.5, 2);
         this.light.castShadow = true;
         this.add(this.light);
     }
