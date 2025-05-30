@@ -22,7 +22,7 @@ export class Player extends Entity
         this.phys = this.addComponent(new RigidBodyComponent(
             new THREE.BoxGeometry(1, 2, 1),
             new THREE.MeshStandardMaterial({ color: 0x0000aa }),
-            0
+            80
         ));
 
         this.phys.setPosition(new THREE.Vector3(0, 0.5, 0));
@@ -57,11 +57,11 @@ export class Player extends Entity
         );
         
         this.plane = new THREE.Plane(new THREE.Vector3(0, 0.5, 0), 0);
-
+        
         this.mouse      = new THREE.Vector2();
         this.raycaster  = new THREE.Raycaster();
         this.intersects = new THREE.Vector3();
-
+        
         this.freeControls = new OrbitControls(camera, renderer.domElement);
         this.freeControls.target.set(0, 0, 0);
         this.freeControls.update();
@@ -127,7 +127,10 @@ export class Player extends Entity
                     }
                     */
                     
+                    // TODO: these do not work, or are not being used while vehicle exists?
+                    this.rotation.x = 0;
                     this.rotation.y = MathUtility.angleToPoint(position, target);
+                    this.rotation.z = 0;
                     
                     velocity = MathUtility.clamp(velocity, 0, this.maxSpeed);
                     
@@ -148,7 +151,7 @@ export class Player extends Entity
                 idealLookat.applyQuaternion(this.quaternion);
                 idealLookat.add(this.position);
 
-                const t = 1.0 - Math.pow(0.00001, deltaTime);
+                const t = 1.0 - Math.pow(0.000001, deltaTime);
 
                 camera.position.copy(this.currentCameraPosition.lerp(idealOffset, t));
                 camera.lookAt(this.currentCameraAngle.lerp(idealLookat, t));
