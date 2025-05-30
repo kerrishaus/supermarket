@@ -16,39 +16,39 @@ const saveDataRaw =
             {
                 "type":"tomatoStand",
                 "position":{
-                    "x":5,
+                    "x":3,
                     "y":0.5,
-                    "z":5
+                    "z":-3
                 }
             },
             {
                 "type":"tomatoPlant",
                 "position":{
-                    "x":5,
+                    "x":-3,
                     "y":0.5,
-                    "z":-5
+                    "z":3
                 },
                 "amount":3
             },
             {
                 "type":"register",
                 "position":{
-                    "x":-5,
+                    "x":-1,
                     "y":0.5,
-                    "z":-3
+                    "z":-1
                 },
                 "rotation":{
                     "x":0,
-                    "y":-3.141592653589793,
+                    "y":-1.5707963267948966,
                     "z":0
                 }
             },
             {
                 "type":"recycleBin",
                 "position":{
-                    "x":-5,
+                    "x":-3,
                     "y":0.5,
-                    "z":5
+                    "z":-3
                 }
             }
         ],

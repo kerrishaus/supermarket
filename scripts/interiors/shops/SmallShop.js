@@ -1,4 +1,4 @@
-import { BoxGeometry, Vector3, Vector2, Raycaster, Plane, GridHelper, PointLight, MeshStandardMaterial, TextureLoader, RepeatWrapping } from "https://kerrishaus.com/assets/threejs/build/three.module.js";
+import { BoxGeometry, Vector3, Vector2, Raycaster, Plane, GridHelper, PointLight, MeshStandardMaterial, TextureLoader, RepeatWrapping, MathUtils } from "https://kerrishaus.com/assets/threejs/build/three.module.js";
 
 import { PlayerOwnedShop } from "./PlayerOwnedShop.js";
 
@@ -29,10 +29,10 @@ export class SmallShop extends PlayerOwnedShop
     {
         super();
         
-        const shopWidth  = 12;
-        const wallHeight = 6;
-        const shopLength = 12;
-        const wallThickness = 1;
+        const shopWidth  = 8;
+        const wallHeight = 5;
+        const shopLength = 8;
+        const wallThickness = 0.1;
         
         const floorTexture = new TextureLoader().load("textures/tile.jpg");
         floorTexture.wrapS = RepeatWrapping;
@@ -49,20 +49,20 @@ export class SmallShop extends PlayerOwnedShop
         this.add(shopFloor);
         
         const northWall = GeometryUtil.createRigidBodyCube(shopWidth, wallHeight, wallThickness, { color: 0xbfbfbf }, 0);
-        northWall.position.set(0, wallHeight / 2 - 0.5, shopLength / 2 - wallThickness / 2 + 1);
-        this.add(northWall);
+        northWall.position.set(0, wallHeight / 2 - 0.5, shopLength / 2 + wallThickness / 2);
         
-        const westWall = GeometryUtil.createRigidBodyCube(wallThickness, wallHeight, shopWidth + 1, { color: 0xbfbfbf }, 0);
-        westWall.position.set(shopWidth / 2 - wallThickness / 2 + 1,  wallHeight / 2 - 0.5, 0.5);
-        this.add(westWall);
+        const eastWall = GeometryUtil.createRigidBodyCube(wallThickness, wallHeight, shopWidth + wallThickness, { color: 0xbfbfbf }, 0);
+        eastWall.position.set(shopWidth / 2 + wallThickness / 2,  wallHeight / 2 - 0.5, wallThickness / 2);
         
-        const eastWall = GeometryUtil.createRigidBodyCube(wallThickness, wallHeight, shopWidth + 1, { color: 0xbfbfbf }, 0);
-        eastWall.position.set(-shopWidth / 2 - wallThickness / 2, wallHeight / 2 - 0.5, 0.5);
-        this.add(eastWall);
+        const westWall = GeometryUtil.createRigidBodyCube(wallThickness, wallHeight, shopWidth + wallThickness, { color: 0xbfbfbf }, 0);
+        westWall.position.set(-shopWidth / 2 - wallThickness / 2, wallHeight / 2 - 0.5, wallThickness / 2);
 
         this.exteriorModel = new Entity();
         const exteriorModel = this.exteriorModel.addComponent(new ModelComponent(`buildings/commercial/building-a`)).model;
         exteriorModel.scale.set(16, 16, 16);
+        this.exteriorModel.position.y -= 0.5;
+        this.exteriorModel.rotation.y = MathUtils.degToRad(180);
+        this.add(this.exteriorModel);
 
         this.triggerEnt = new Entity();
         this.triggerEnt.position.y = wallHeight / 2 - 0.5;
@@ -91,7 +91,7 @@ export class SmallShop extends PlayerOwnedShop
             }
         };
         
-        this.door = new SingleSlidingDoor(new Vector3(-1, 1.25, northWall.position.z - 0.001), 0x0000ff);
+        this.door = new SingleSlidingDoor(new Vector3(3, 1.25, northWall.position.z - 0.001), 0x0000ff);
         this.add(this.door);
         
         const light = new PointLight(0xffffff, 0.4);
