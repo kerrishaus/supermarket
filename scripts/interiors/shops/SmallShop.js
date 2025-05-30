@@ -29,33 +29,33 @@ export class SmallShop extends PlayerOwnedShop
     {
         super();
         
-        const shopWidth  = 8;
-        const wallHeight = 5;
-        const shopLength = 8;
-        const wallThickness = 0.1;
+        this.width  = 8;
+        const height = 5;
+        this.length = 8;
+        this.wallThickness = 0.1;
         
         const floorTexture = new TextureLoader().load("textures/tile.jpg");
         floorTexture.wrapS = RepeatWrapping;
         floorTexture.wrapT = RepeatWrapping;
-        floorTexture.repeat.set(shopWidth / 2, shopLength / 2);
+        floorTexture.repeat.set(this.width / 2, this.length / 2);
         
         const shopFloor = new Entity();
         shopFloor.addComponent(new RigidBodyComponent(
-            new BoxGeometry(shopWidth, 1, shopLength),
+            new BoxGeometry(this.width, 1, this.length),
             new MeshStandardMaterial({ map: floorTexture }),
             0
         ));
         shopFloor.position.copy(new Vector3(0, -1, 0));
         this.add(shopFloor);
         
-        const northWall = GeometryUtil.createRigidBodyCube(shopWidth, wallHeight, wallThickness, { color: 0xbfbfbf }, 0);
-        northWall.position.set(0, wallHeight / 2 - 0.5, shopLength / 2 + wallThickness / 2);
+        const northWall = GeometryUtil.createRigidBodyCube(this.width, height, this.wallThickness, { color: 0xbfbfbf }, 0);
+        northWall.position.set(0, height / 2 - 0.5, this.length / 2 + this.wallThickness / 2);
         
-        const eastWall = GeometryUtil.createRigidBodyCube(wallThickness, wallHeight, shopWidth + wallThickness, { color: 0xbfbfbf }, 0);
-        eastWall.position.set(shopWidth / 2 + wallThickness / 2,  wallHeight / 2 - 0.5, wallThickness / 2);
+        const eastWall = GeometryUtil.createRigidBodyCube(this.wallThickness, height, this.width + this.wallThickness, { color: 0xbfbfbf }, 0);
+        eastWall.position.set(this.width / 2 + this.wallThickness / 2,  height / 2 - 0.5, this.wallThickness / 2);
         
-        const westWall = GeometryUtil.createRigidBodyCube(wallThickness, wallHeight, shopWidth + wallThickness, { color: 0xbfbfbf }, 0);
-        westWall.position.set(-shopWidth / 2 - wallThickness / 2, wallHeight / 2 - 0.5, wallThickness / 2);
+        const westWall = GeometryUtil.createRigidBodyCube(this.wallThickness, height, this.width + this.wallThickness, { color: 0xbfbfbf }, 0);
+        westWall.position.set(-this.width / 2 - this.wallThickness / 2, height / 2 - 0.5, this.wallThickness / 2);
 
         this.exteriorModel = new Entity();
         const exteriorModel = this.exteriorModel.addComponent(new ModelComponent(`buildings/commercial/building-a`)).model;
@@ -65,11 +65,11 @@ export class SmallShop extends PlayerOwnedShop
         this.add(this.exteriorModel);
 
         this.triggerEnt = new Entity();
-        this.triggerEnt.position.y = wallHeight / 2 - 0.5;
-        this.trigger = this.triggerEnt.addComponent(new TriggerComponent(shopWidth, wallHeight, shopLength));
+        this.triggerEnt.position.y = height / 2 - 0.5;
+        this.trigger = this.triggerEnt.addComponent(new TriggerComponent(this.width, height, this.length));
         this.add(this.triggerEnt);
         
-        this.interiorCameraPosition = new Vector3(0, wallHeight * 2, -shopWidth);
+        this.interiorCameraPosition = new Vector3(0, height * 2, -this.width);
 
         this.triggerEnt.onStartTrigger = (object) =>
         {
@@ -459,10 +459,10 @@ export class SmallShop extends PlayerOwnedShop
             Math.floor(this.intersectionPos.z / 2) * 2 + 1,
         );
 
-        if (this.newTile.tile.position.x > this.shopWidth ||
-            this.newTile.tile.position.x < -this.shopWidth ||
-            this.newTile.tile.position.y > this.shopLength ||
-            this.newTile.tile.position.y < -this.shopLength)
+        if (this.newTile.tile.position.x > this.width / 2 ||
+            this.newTile.tile.position.x < -this.width / 2 ||
+            this.newTile.tile.position.z > this.length / 2||
+            this.newTile.tile.position.z < -this.length / 2)
         {
             console.error("Selected tile position is outside of acceptable area.");
             return false;
