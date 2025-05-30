@@ -81,7 +81,6 @@ export class StartupState extends State
             renderer.domElement.style.width = "";
             renderer.domElement.style.height = "";
             renderer.setPixelRatio(1)
-            //renderer.setClearColor(new THREE.Color("#6EB1FF"))
             renderer.domElement.classList.add("webgl");
 
             const renderTarget = new THREE.WebGLRenderTarget(
@@ -104,6 +103,10 @@ export class StartupState extends State
             window.camera = new THREE.PerspectiveCamera(65, sizes.width / sizes.height, 0.1, 5000);
 
             window.scene = new PhysicsScene(); // TODO: FIXME: I don't really feel great about this, but it works, so it stays.
+            
+            const color = '#1b1b1b'; // #B8B8B3
+            scene.fog = new THREE.FogExp2(color, 0.04);
+            scene.background = new THREE.Color(color);
 
             window.composer = new EffectComposer(renderer, renderTarget);
             composer.setPixelRatio(1);

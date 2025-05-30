@@ -21,19 +21,19 @@ export class SingleSlidingDoor extends Entity
             .setTarget(this.leftDoor.position, new Vector3(0, 0, 0));
         
         // main door
-        this.leftDoor.add(createCube(new Vector3(2, 3.5, 1), new Vector3(0, 0, 0), 0x00d1e8));
+        this.leftDoor.add(createCube(new Vector3(1.95, 3.45, 0.2), new Vector3(0, 0, 0), 0x00d1e8));
 
         // vertical frames
-        this.leftDoor.add(createCube(new Vector3(0.2, 3.5, 0.1), new Vector3(-0.9, 0, -0.55), 0x919191));
-        this.leftDoor.add(createCube(new Vector3(0.2, 3.5, 0.1), new Vector3(0.9, 0, -0.55), 0x919191));
+        this.leftDoor.add(createCube(new Vector3(0.2, 3.5, 0.1), new Vector3(-0.9, 0, -0.1), 0x919191));
+        this.leftDoor.add(createCube(new Vector3(0.2, 3.5, 0.1), new Vector3(0.9, 0, -0.1), 0x919191));
         
         // horizontal frames
-        this.leftDoor.add(createCube(new Vector3(1.6, 0.2, 0.1), new Vector3(0, 1.65, -0.55), 0x919191));
-        this.leftDoor.add(createCube(new Vector3(1.6, 0.2, 0.1), new Vector3(0, 0, -0.55), 0x919191));
-        this.leftDoor.add(createCube(new Vector3(1.6, 0.2, 0.1), new Vector3(0, -1.65, -0.55), 0x919191));
+        this.leftDoor.add(createCube(new Vector3(1.6, 0.2, 0.1), new Vector3(0, 1.65, -0.1), 0x919191));
+        this.leftDoor.add(createCube(new Vector3(1.6, 0.2, 0.1), new Vector3(0, 0, -0.1), 0x919191));
+        this.leftDoor.add(createCube(new Vector3(1.6, 0.2, 0.1), new Vector3(0, -1.65, -0.1), 0x919191));
 
         // the black "void" behind the door
-        this.add(createCube(new Vector3(2, 3.5, 1), new Vector3(0, 0, 0.0005), 0x000000));
+        this.add(createCube(new Vector3(2, 3.5, 0.2), new Vector3(0, 0, 0.0005), 0x000000));
 
         this.position.copy(position);
     }
