@@ -159,7 +159,7 @@ export class Vehicle extends Entity
     {
         this.removeEventListeners();
         
-        this.driver.position.set(0, 10, 0);
+        this.driver.position.set(this.position.x, this.position.y, this.position.z + 4);
         this.driver.phys.enableSimulation();
         this.driver.registerEventListeners();
         

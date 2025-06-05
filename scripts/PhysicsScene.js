@@ -13,7 +13,7 @@ export class PhysicsScene extends Scene
         window.dispatcher_  			= new Ammo.btCollisionDispatcher(collisionConfiguration_);
         window.broadphase_  			= new Ammo.btDbvtBroadphase();
         window.solver_      			= new Ammo.btSequentialImpulseConstraintSolver();
-        window.physicsBodies            = [];
+        window.physicsBodies            = new Map();
         window.tmpTransform             = new Ammo.btTransform();
         window.physicsWorld 			= new Ammo.btDiscreteDynamicsWorld(dispatcher_, broadphase_, solver_, collisionConfiguration_);
         window.physicsWorld.setGravity(new Ammo.btVector3(0, -9.82, 0));
@@ -51,8 +51,8 @@ export class PhysicsScene extends Scene
     {
         physicsWorld.stepSimulation(deltaTime, 10);
 
-        for (const body of physicsBodies)
-        {
+        physicsBodies.forEach((body, uuid) => {
+
             body.motionState.getWorldTransform(tmpTransform);
 
             const pos = tmpTransform.getOrigin();
@@ -65,7 +65,9 @@ export class PhysicsScene extends Scene
             body.object.position.z = pos.z();
             
             body.object.quaternion.set(quat.x(), quat.y(), quat.z(), quat.w());
-        }
+        });
+
+        $("#physicsBodies").text(physicsBodies.size);
     }
 }
 

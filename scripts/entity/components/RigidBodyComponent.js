@@ -47,8 +47,7 @@ export class RigidBodyComponent extends EntityComponent
         this.setFriction(1);
         this.setRollingFriction(0.2);
         
-        physicsBodies.push({ object: this.parentEntity, motionState: this.motionState });
-        physicsWorld.addRigidBody(this.body);
+        this.enableSimulation();
 
         this.#parentPositionCopy        = this.parentEntity.position.copy;
         this.#parentPositionAdd         = this.parentEntity.position.add;
@@ -129,17 +128,14 @@ export class RigidBodyComponent extends EntityComponent
     
     disableSimulation()
     {
-        console.log("Original collision flags: " + this.body.getCollisionFlags());
-        
-        this.body.setCollisionFlags(4); // no contact response
-        this.body.setActivationState(5); // disable simulation
+        physicsBodies.delete(this.parentEntity.uuid);
+        physicsWorld.removeRigidBody(this.body);
     }
     
     enableSimulation()
     {
-        this.body.setCollisionFlags(1); // static object
-        this.body.setActivationState(1); // active
-        this.body.activate();
+        physicsBodies.set(this.parentEntity.uuid, { object: this.parentEntity, motionState: this.motionState });
+        physicsWorld.addRigidBody(this.body);
     }
     
     setRestitution(restitution)
