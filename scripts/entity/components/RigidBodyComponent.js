@@ -30,6 +30,8 @@ export class RigidBodyComponent extends EntityComponent
         
         if (geometry instanceof BoxGeometry)
             this.shape = new Ammo.btBoxShape(new Ammo.btVector3(geometry.parameters.width / 2, geometry.parameters.height / 2, geometry.parameters.depth / 2));
+        else if (geometry instanceof CapsuleGeometry)
+            this.shape = new Ammo.btCapsuleShape(new Ammo.btVector3(geometry.parameters.width / 2, geometry.parameters.height / 2, geometry.parameters.depth / 2));
         else
             console.error("Invalid geometry type passed to RigidBodyComponent.", geometry);
         
@@ -124,28 +126,20 @@ export class RigidBodyComponent extends EntityComponent
         
         // remove from RigidBodies and PhysicsWorld
     }
-
-    setKinematic(kinematic = true)
+    
+    disableSimulation()
     {
-        // This function causes shit to float on the floor like it's water.
-        return;
-
-        if (kinematic)
-        {
-            this.body.setCollisionFlags(2); // kinematic
-            this.body.setActivationState(4); // never sleep
-        }
-        else
-        {
-            // TODO: find out what these numbers meand
-            this.body.setCollisionFlags(1);
-            this.body.setActivationState(1);
-        }
+        console.log("Original collision flags: " + this.body.getCollisionFlags());
+        
+        this.body.setCollisionFlags(4); // no contact response
+        this.body.setActivationState(5); // disable simulation
     }
     
-    isKinematic()
+    enableSimulation()
     {
-        return this.body.isStaticOrKinematicObject();
+        this.body.setCollisionFlags(1); // static object
+        this.body.setActivationState(1); // active
+        this.body.activate();
     }
     
     setRestitution(restitution)

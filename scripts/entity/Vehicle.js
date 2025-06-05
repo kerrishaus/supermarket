@@ -3,6 +3,7 @@ import { BoxGeometry, Vector3, Vector2, Raycaster, Quaternion, MeshStandardMater
 import { Entity } from "./Entity.js";
 import { GeometryComponent } from "./components/GeometryComponent.js";
 import { RigidBodyComponent } from "./components/RigidBodyComponent.js";
+import { InteractableComponent } from "./components/InteractableComponent.js";
 
 import * as GeometryUtil from "../GeometryUtility.js";
 import * as MathUtility from "../MathUtility.js";
@@ -10,7 +11,7 @@ import * as MathUtility from "../MathUtility.js";
 export class Vehicle extends Entity
 {
     #chassisWidth  = 1.8;
-    #chassisHeight = .6;
+    #chassisHeight = 2.5;
     #chassisLength = 4;
     #vehicleMass   = 500;
     
@@ -18,13 +19,13 @@ export class Vehicle extends Entity
 	#wheelRadiusBack       = .4;
 	#wheelWidthBack        = .3;
 	#wheelHalfTrackBack    = 1;
-	#wheelAxisHeightBack   = .3;
+	#wheelAxisHeightBack   = -1;
 
 	#wheelAxisFrontPosition = 1.7;
 	#wheelHalfTrackFront    = 1;
-	#wheelAxisHeightFront   = .3;
 	#wheelRadiusFront       = .35;
 	#wheelWidthFront        = .2;
+	#wheelAxisHeightFront   = -1;
 	
 	#FRONT_LEFT  = 0;
 	#FRONT_RIGHT = 1;
@@ -48,16 +49,6 @@ export class Vehicle extends Entity
 	#brakingForce = 0;
 	
 	#wheelMeshes = [];
-	
-	#actions = {};
-	#keysActions = {
-		"KeyW"    : "acceleration",
-		"KeyS"    : "braking",
-		"KeySpace": "handbrake",
-		"KeyA"    : "left",
-		"KeyD"    : "right"
-	};
-    
     constructor()
     {
 		window.TRANSFORM_AUX = new Ammo.btTransform();
@@ -66,6 +57,15 @@ export class Vehicle extends Entity
         super();
         
         console.log("Creating vehicle...");
+        
+        this.actions = {};
+    	this.keysActions = {
+    		"KeyW"    : "acceleration",
+    		"KeyS"    : "braking",
+    		"KeySpace": "handbrake",
+    		"KeyA"    : "left",
+    		"KeyD"    : "right"
+    	};
         
 		this.transform = new Ammo.btTransform();
 		this.transform.setIdentity();
@@ -127,9 +127,8 @@ export class Vehicle extends Entity
     	addWheel(false, new Ammo.btVector3(this.#wheelHalfTrackBack  , this.#wheelAxisHeightBack , this.#wheelAxisPositionBack) , this.#wheelRadiusBack , this.#wheelWidthBack , this.#BACK_LEFT);
     	addWheel(false, new Ammo.btVector3(-this.#wheelHalfTrackBack , this.#wheelAxisHeightBack , this.#wheelAxisPositionBack) , this.#wheelRadiusBack , this.#wheelWidthBack , this.#BACK_RIGHT);
     	
-		$(document).keydown((event) => { this.keydown(event) });
-		$(document).keyup((event) => { this.keyup(event) });
-		
+    	const interact = this.addComponent(new InteractableComponent(this.#chassisWidth + 1, this.#chassisHeight + 1, this.#chassisLength + 1));
+    	
 		// TODO: eventually get the wheels and thing added this entity so the position is right.
 		// after it works.
 		// remove code that sets position of things, just set position of this,
@@ -137,21 +136,58 @@ export class Vehicle extends Entity
 		//this.position.copy(0, 0, 10);
 		//this.mesh.position.copy(0, 0, 10);
 		
-		setTimeout(() => {
-		    const rotation = new Ammo.btVector3(1, 0, 0);
-		    rotation.op_mul(2);
-		    
-		    this.body.setAngularVelocity(rotation);
-		}, 100);
-		
 		console.log("Vehicle is ready.");
+    }
+    
+    dispose()
+    {
+        this.removeEventListeners();
+    }
+    
+    startDriving(driver)
+    {
+        this.driver = driver;
+        this.driver.vehicle = this;
+        
+        driver.removeEventListeners?.();
+        this.driver.phys.disableSimulation();
+        
+        this.registerEventListeners();
+    }
+    
+    stopDriving()
+    {
+        this.removeEventListeners();
+        
+        this.driver.position.set(0, 10, 0);
+        this.driver.phys.enableSimulation();
+        this.driver.registerEventListeners();
+        
+        this.driver.vehicle = null;
+        this.driver = null;
+    }
+    
+    registerEventListeners()
+    {
+        window.addEventListener("keydown", player.vehicle.keydown);
+		window.addEventListener("keyup", player.vehicle.keyup);
+		
+		console.log("added vehicle event listeners");
+    }
+    
+    removeEventListeners()
+    {
+        window.removeEventListener("keydown", player.vehicle.keydown);
+		window.removeEventListener("keyup", player.vehicle.keyup);
+		
+		console.log("removed vehicle event listeners");
     }
     
 	keyup(e)
 	{
-		if (this.#keysActions[e.code]) 
+		if (player.vehicle.keysActions[e.code]) 
 		{
-			this.#actions[this.#keysActions[e.code]] = false;
+			player.vehicle.actions[player.vehicle.keysActions[e.code]] = false;
 			e.preventDefault();
 			e.stopPropagation();
 			return false;
@@ -160,9 +196,15 @@ export class Vehicle extends Entity
 	
 	keydown(e)
 	{
-		if (this.#keysActions[e.code])
+        if (e.code == "KeyE")
+        {
+            player.vehicle.stopDriving();
+            return;
+        }
+        
+		if (player.vehicle.keysActions[e.code])
 		{
-			this.#actions[this.#keysActions[e.code]] = true;
+			player.vehicle.actions[player.vehicle.keysActions[e.code]] = true;
 			e.preventDefault();
 			e.stopPropagation();
 			return false;
@@ -196,14 +238,14 @@ export class Vehicle extends Entity
 		this.#brakingForce = 0;
 		this.#engineForce = 0;
 
-		if (this.#actions.acceleration)
+		if (this.actions.acceleration)
 		{
 			if (speed < -1)
 				this.#brakingForce = this.#maxBrakingForce;
 			else
 			    this.#engineForce = this.#maxEngineForce;
 		}
-		else if (this.#actions.braking)
+		else if (this.actions.braking)
 		{
 			if (speed > 1)
 				this.#brakingForce = this.#maxBrakingForce;
@@ -218,17 +260,17 @@ export class Vehicle extends Entity
 		$("#brakingForce").text(this.#brakingForce);
 		$("#engineForce").text(this.#engineForce);
 
-		$("#forward").text(this.#actions.acceleration);
-		$("#braking").text(this.#actions.braking);
+		$("#forward").text(this.actions.acceleration);
+		$("#braking").text(this.actions.braking);
 		
-		if (this.#actions.left)
+		if (this.actions.left)
 		{
 			if (this.#vehicleSteering < this.#steeringClamp)
 				this.#vehicleSteering += this.#steeringIncrement;
 		}
 		else
 		{
-			if (this.#actions.right)
+			if (this.actions.right)
 			{
 				if (this.#vehicleSteering > -this.#steeringClamp)
 					this.#vehicleSteering -= this.#steeringIncrement;
@@ -253,7 +295,7 @@ export class Vehicle extends Entity
 		this.vehicle.setBrake(this.#brakingForce / 2, this.#FRONT_LEFT);
 		this.vehicle.setBrake(this.#brakingForce / 2, this.#FRONT_RIGHT);
 
-		if (this.#actions.handbraking)
+		if (this.actions.handbraking)
 		{
 			this.vehicle.setBrake(this.#maxBrakingForce, this.#BACK_LEFT);
 			this.vehicle.setBrake(this.#maxBrakingForce, this.#BACK_RIGHT);
@@ -285,5 +327,11 @@ export class Vehicle extends Entity
 		q = tm.getRotation();
 		this.chassisMesh.position.set(p.x(), p.y(), p.z());
 		this.chassisMesh.quaternion.set(q.x(), q.y(), q.z(), q.w());
+		
+		this.position.set(p.x(), p.y(), p.z());
+		this.quaternion.set(q.x(), q.y(), q.z(), q.w());
+		
+		this.driver?.position.copy(this.position);
+		this.driver?.quaternion.copy(this.quaternion);
     }
 }

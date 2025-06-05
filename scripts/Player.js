@@ -3,6 +3,8 @@ import * as THREE from "https://kerrishaus.com/assets/threejs/r177/build/three.m
 import { OrbitControls } from "https://kerrishaus.com/assets/threejs/r177/examples/jsm/controls/OrbitControls.js";
 
 import { Entity } from "./entity/Entity.js";
+import { Vehicle } from "./entity/Vehicle.js";
+
 import { ContainerComponent } from "./entity/components/ContainerComponent.js";
 import { RigidBodyComponent } from "./entity/components/RigidBodyComponent.js";
 
@@ -24,7 +26,7 @@ export class Player extends Entity
             new THREE.MeshStandardMaterial({ color: 0x0000aa }),
             80
         ));
-
+        
         this.phys.setPosition(new THREE.Vector3(0, 0.5, 0));
         
         const nose = GeometryUtil.createScaledCube(0.4, 0.2, 0.5, 0x0000aa);
@@ -34,7 +36,7 @@ export class Player extends Entity
         
         this.controlsEnabled = true;
         
-        this.maxSpeed = 0.15;
+        this.maxVelocity = 0.15;
         
         this.MoveType = {
             Mouse: "Mouse",
@@ -71,30 +73,90 @@ export class Player extends Entity
         
         this.currentCameraPosition = new THREE.Vector3();
         this.currentCameraAngle    = new THREE.Vector3();
+        
+        this.vehicle = null;
+        
+        /*
+        this.interactionHelper = new THREE.ArrowHelper(
+            new THREE.Vector3(0, 0, 1),
+            new THREE.Vector3(0, 0, 0.5),
+            2,
+            0xFF0000
+        );
+        this.add(this.interactionHelper);
+        */
     }
     
     update(deltaTime)
     {
+        // we fell through the map :(
+        if (this.position.y < -0.5)
+        {
+            /*
+            player.raycaster.set(player.position, new THREE.Vector3(0, 1, 0));
+            
+            const objects = player.raycaster.intersectObjects(scene.children, true);
+            
+            const arrow = new THREE.ArrowHelper(player.raycaster.ray.direction, player.raycaster.ray.origin, 6, 0xff0000);
+            scene.add(arrow);
+            
+            setTimeout(() => {
+                scene.remove(arrow);
+            }, 10000);
+        
+            if (objects.length > 0)
+            {
+                for (const object of objects)
+                {
+                    this.position.copy(object.object.position);
+                    break;
+                }
+            }
+            else
+            */
+                this.position.set(0, 3, 0);
+            
+            console.warn("Player fell out of the world!");
+        }
+        
         if (!this.freeControls.enabled)
         {
             if (this.move !== null)
             {
                 if (this.move == this.MoveType.Keyboard)
                 {
-                    const moveAmount = this.maxSpeed;
+                    this.phys.body.activate();
                     
                     if (this.keys["KeyW"] || this.keys["ArrowUp"])
-                        this.translateZ(moveAmount);
+                    {
+                        /*
+                        const direction = new THREE.Vector3(0, 0, 1);
+                        direction.applyQuaternion(this.quaternion);
+                        direction.multiplyScalar(48);
+                        this.phys.body.applyImpulse(new Ammo.btVector3(direction.x, direction.y, direction.z));
+                        */
+                        
+                        this.translateZ(this.maxVelocity);
+                    }
+                    
                     if (this.keys["KeyS"] || this.keys["ArrowDown"])
-                        this.translateZ(-moveAmount);
+                    {
+                        /*
+                        const direction = new THREE.Vector3(0, 0, -1);
+                        direction.applyQuaternion(this.quaternion);
+                        direction.multiplyScalar(48);
+                        this.phys.body.applyImpulse(new Ammo.btVector3(direction.x, direction.y, direction.z));
+                        */
+                        
+                        this.translateZ(-this.maxVelocity);
+                    }
                     
                     if (this.keys["KeyA"] || this.keys["ArrowLeft"])
                         this.rotateY(Math.PI / 40);
                     if (this.keys["KeyD"] || this.keys["ArrowRight"])
                         this.rotateY(-Math.PI / 40);
-                    
-                    this.moveTarget.position.copy(this.position);
                 }
+                /* disabled because camera is no longer third person fixed
                 else
                 {
                     let position = new THREE.Vector2(), target = new THREE.Vector2();
@@ -107,7 +169,6 @@ export class Player extends Entity
                         
                         velocity = this.pointerMoveOrigin.distanceTo(new THREE.Vector3(this.mouse.x, this.mouse.y)) / 2;
                     }
-                    /* disabled because camera is no longer third person fixed
                     else
                     {
                         if (this.move == this.MoveType.Mouse)
@@ -125,34 +186,44 @@ export class Player extends Entity
                         
                         velocity = this.position.distanceTo(this.moveTarget.position) / 20;
                     }
-                    */
                     
                     // TODO: these do not work, or are not being used while vehicle exists?
                     this.rotation.x = 0;
                     this.rotation.y = MathUtility.angleToPoint(position, target);
                     this.rotation.z = 0;
                     
-                    velocity = MathUtility.clamp(velocity, 0, this.maxSpeed);
+                    velocity = MathUtility.clamp(velocity, 0, this.maxVelocity);
                     
                     this.translateZ(velocity);
+                    
+                    const direction = new THREE.Vector3(0, 0, 1);
+                    direction.applyQuaternion(player.quaternion);
+                    direction.multiplyScalar(24);
+                    player.phys.body.applyImpulse(new Ammo.btVector3(direction.x, direction.y, direction.z));
+                    
+                    player.phys.body.setAngularVelocity(new Ammo.btVector3(0, 0, 0));
                 }
+                */
             }
             
             // this is outside of the preceding conditional
             // because if the camera were to change from free to fixed
             // it would not update until the player moves again.
-            if (this.interior == null)
+            if (this.vehicle != null || this.interior == null)
             {
+                const pos = this.vehicle instanceof Vehicle ? this.vehicle.position : this.position;
+                const quat = this.vehicle instanceof Vehicle ? this.vehicle.quaternion : this.quaternion;
+                
                 const idealOffset = new THREE.Vector3(0, 3, -6);
-                idealOffset.applyQuaternion(this.quaternion);
-                idealOffset.add(this.position);
-
+                idealOffset.applyQuaternion(quat);
+                idealOffset.add(pos);
+                
                 const idealLookat = new THREE.Vector3(0, 1, 0);
-                idealLookat.applyQuaternion(this.quaternion);
-                idealLookat.add(this.position);
-
+                idealLookat.applyQuaternion(quat);
+                idealLookat.add(pos);
+                
                 const t = 1.0 - Math.pow(0.000001, deltaTime);
-
+                
                 camera.position.copy(this.currentCameraPosition.lerp(idealOffset, t));
                 camera.lookAt(this.currentCameraAngle.lerp(idealLookat, t));
             }
@@ -205,14 +276,22 @@ export class Player extends Entity
     {
         this.moveEnd(null);
         
-        this.controlsEnabled = false;
+        this.removeEventListeners();
     }
 
     enableMovement()
     {
-        this.controlsEnabled = true;
+        this.registerEventListeners();
     }
-
+    
+    applyMovement(velocity)
+    {
+        const direction = new THREE.Vector3(0, 0, 1);
+        direction.applyQuaternion(this.quaternion);
+        direction.multiplyScalar(24);
+        this.phys.body.applyImpulse(new Ammo.btVector3(direction.x, direction.y, direction.z));
+    }
+    
     registerEventListeners()
     {
         console.log("registered player controls event listener");
@@ -221,9 +300,9 @@ export class Player extends Entity
         // window.addEventListener("touchmove" , player.touchmove);
         // window.addEventListener("touchstart", player.touchstart);
         // window.addEventListener("mousedown" , player.mousedown);
-        window.addEventListener("keyup"     , player.keyup);
-        window.addEventListener("keydown"   , player.keydown);
-        $(window).on('mouseup touchend'     , player.moveEnd);
+        window.addEventListener("keyup"  , player.keyup);
+        window.addEventListener("keydown", player.keydown);
+        $(window).on("mouseup touchend"  , player.moveEnd);
 
         player.controlsEnabled = true;
     }
@@ -236,36 +315,27 @@ export class Player extends Entity
         // window.removeEventListener("touchmove" , player.touchmove);
         // window.removeEventListener("touchstart", player.touchstart);
         // window.removeEventListener("mousedown" , player.mousedown);
-        window.removeEventListener("keyup"     , player.keyup);
-        window.removeEventListener("keydown"   , player.keydown);
-        $(window).off('mouseup touchend'       , player.moveEnd);
+        window.removeEventListener("keyup"  , player.keyup);
+        window.removeEventListener("keydown", player.keydown);
+        $(window).off("mouseup touchend"    , player.moveEnd);
 
         player.controlsEnabled = false;
     }
 
     mousemove(event)
     {
-        if (!player.controlsEnabled)
-            return;
-
         player.mouse.x = ( event.clientX / window.innerWidth ) * 2 - 1;
         player.mouse.y = - ( event.clientY / window.innerHeight ) * 2 + 1;
     };
     
     touchmove(event)
     {
-        if (!player.controlsEnabled)
-            return;
-
         player.mouse.x = ( event.touches[0].clientX / window.innerWidth ) * 2 - 1;
         player.mouse.y = - ( event.touches[0].clientY / window.innerHeight ) * 2 + 1;
     }
 
     touchstart(event)
     {
-        if (!player.controlsEnabled)
-            return;
-            
         if (player.move !== null)
             return;
             
@@ -284,9 +354,6 @@ export class Player extends Entity
     
     mousedown(event)
     {
-        if (!player.controlsEnabled)
-            return;
-
         if (player.move !== null)
             return;
             
@@ -296,7 +363,7 @@ export class Player extends Entity
         // left click only
         if (event.button != 0)
             return;
-            
+        
         console.debug("Starting move by Mouse.", event);
 
         player.pointerMoveOrigin.x = ( event.clientX / window.innerWidth ) * 2 - 1;
@@ -309,9 +376,6 @@ export class Player extends Entity
 
     keydown(event)
     {
-        if (!player.controlsEnabled)
-            return;
-
         player.keys[event.code] = true;
 
         switch (event.code)
@@ -322,6 +386,32 @@ export class Player extends Entity
                 player.freeControls.update();
                 
                 console.log("freecam toggled");
+                break;
+
+            case "KeyE":
+                player.raycaster.set(player.position, (new THREE.Vector3(0, 0, 1).applyQuaternion(player.quaternion)));
+                
+                const objects = player.raycaster.intersectObjects(scene.children, true);
+            
+                const arrow = new THREE.ArrowHelper(player.raycaster.ray.direction, player.raycaster.ray.origin, 6, 0xff0000);
+                scene.add(arrow);
+                
+                setTimeout(() => {
+                    scene.remove(arrow);
+                }, 10000);
+            
+                for (const object of objects)
+                {
+                    if (object.distance > 3)
+                        continue;
+                        
+                    if ("onInteract" in object.object)
+                    {
+                        if (object.object.parent instanceof Vehicle)
+                            object.object.parent.startDriving(player);
+                    }
+                }
+            
                 break;
 
             case "KeyW":
@@ -339,16 +429,12 @@ export class Player extends Entity
                 
                 player.move = player.MoveType.Keyboard;
                 player.moveTarget.quaternion.copy(player.quaternion);
-                scene.add(player.moveTarget);
                 break;
         };
     }
     
     keyup(event)
     {
-        if (!player.controlsEnabled)
-            return;
-        
         player.keys[event.code] = false;
 
         // it is important to do this this way, because if a player clicks
@@ -364,9 +450,6 @@ export class Player extends Entity
     
     moveEnd(event)
     {
-        if (!player.controlsEnabled)
-            return;
-        
         if (event !== null)
         {
             // only stop moving if the left mouse button is released
