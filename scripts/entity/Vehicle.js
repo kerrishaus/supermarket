@@ -1,12 +1,8 @@
-import { BoxGeometry, Vector3, Vector2, Raycaster, Quaternion, MeshStandardMaterial, CylinderGeometry, Mesh } from "https://kerrishaus.com/assets/threejs/r177/build/three.module.js";
+import { BoxGeometry, Object3D, Vector3, Vector2, Raycaster, Quaternion, MeshStandardMaterial, CylinderGeometry, Mesh } from "https://kerrishaus.com/assets/threejs/r177/build/three.module.js";
 
 import { Entity } from "./Entity.js";
-import { GeometryComponent } from "./components/GeometryComponent.js";
 import { RigidBodyComponent } from "./components/RigidBodyComponent.js";
 import { InteractableComponent } from "./components/InteractableComponent.js";
-
-import * as GeometryUtil from "../GeometryUtility.js";
-import * as MathUtility from "../MathUtility.js";
 
 export class Vehicle extends Entity
 {
@@ -127,6 +123,14 @@ export class Vehicle extends Entity
     	addWheel(false, new Ammo.btVector3(this.#wheelHalfTrackBack  , this.#wheelAxisHeightBack , this.#wheelAxisPositionBack) , this.#wheelRadiusBack , this.#wheelWidthBack , this.#BACK_LEFT);
     	addWheel(false, new Ammo.btVector3(-this.#wheelHalfTrackBack , this.#wheelAxisHeightBack , this.#wheelAxisPositionBack) , this.#wheelRadiusBack , this.#wheelWidthBack , this.#BACK_RIGHT);
     	
+		this.dismountPosition = new Mesh(
+			new BoxGeometry(1, 1, 1),
+			new MeshStandardMaterial({ color: 0xFF0000 })
+		);
+		this.dismountPosition.position.x += 2;
+		this.dismountPosition.position.y = -0.5;
+		this.attach(this.dismountPosition);
+
     	const interact = this.addComponent(new InteractableComponent(this.#chassisWidth + 1, this.#chassisHeight + 1, this.#chassisLength + 1));
     	
 		// TODO: eventually get the wheels and thing added this entity so the position is right.
@@ -159,8 +163,15 @@ export class Vehicle extends Entity
     {
         this.removeEventListeners();
         
-        this.driver.position.set(this.position.x, this.position.y, this.position.z + 4);
+		// TODO: I know there's a better way to do this, but I'm not quite sure what it is.
+		// I'd like to not have the dismount position object at all.
+		const tempPos = new Vector3();
+		tempPos.copy(this.position);
+		tempPos.setFromMatrixPosition(this.dismountPosition.matrixWorld);
+		this.driver.position.copy(tempPos);
+
         this.driver.phys.enableSimulation();
+
         this.driver.registerEventListeners();
         
         this.driver.vehicle = null;
