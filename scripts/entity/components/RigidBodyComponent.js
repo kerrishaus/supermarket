@@ -1,4 +1,4 @@
-import { BoxGeometry } from "https://kerrishaus.com/assets/threejs/build/three.module.js";
+import { BoxGeometry, CapsuleGeometry } from "https://kerrishaus.com/assets/threejs/r177/build/three.module.js";
 
 import { EntityComponent } from "./EntityComponent.js";
 import { GeometryComponent } from "./GeometryComponent.js";

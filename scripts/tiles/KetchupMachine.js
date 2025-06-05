@@ -1,4 +1,4 @@
-import { BoxGeometry, MeshStandardMaterial, Vector2 } from "https://kerrishaus.com/assets/threejs/build/three.module.js";
+import { BoxGeometry, MeshStandardMaterial, Vector2 } from "https://kerrishaus.com/assets/threejs/r177/build/three.module.js";
 
 import { Player } from "../Player.js";
 

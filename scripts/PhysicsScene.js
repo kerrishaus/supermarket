@@ -1,4 +1,4 @@
-import { Scene, BoxGeometry, MeshStandardMaterial, Vector3, Raycaster } from "https://kerrishaus.com/assets/threejs/build/three.module.js";
+import { Scene, BoxGeometry, MeshStandardMaterial, Vector3, Raycaster } from "https://kerrishaus.com/assets/threejs/r177/build/three.module.js";
 
 import { Entity } from "./entity/Entity.js";
 import { RigidBodyComponent } from "./entity/components/RigidBodyComponent.js";

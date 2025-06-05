@@ -1,6 +1,6 @@
-import * as THREE from "https://kerrishaus.com/assets/threejs/build/three.module.js";
+import * as THREE from "https://kerrishaus.com/assets/threejs/r177/build/three.module.js";
 
-import { OrbitControls } from "https://kerrishaus.com/assets/threejs/examples/jsm/controls/OrbitControls.js";
+import { OrbitControls } from "https://kerrishaus.com/assets/threejs/r177/examples/jsm/controls/OrbitControls.js";
 
 import { Entity } from "./entity/Entity.js";
 import { ContainerComponent } from "./entity/components/ContainerComponent.js";

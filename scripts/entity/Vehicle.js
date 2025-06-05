@@ -1,4 +1,4 @@
-import { BoxGeometry, Vector3, Vector2, Raycaster, Quaternion, MeshStandardMaterial, CylinderGeometry, Mesh } from "https://kerrishaus.com/assets/threejs/build/three.module.js";
+import { BoxGeometry, Vector3, Vector2, Raycaster, Quaternion, MeshStandardMaterial, CylinderGeometry, Mesh } from "https://kerrishaus.com/assets/threejs/r177/build/three.module.js";
 
 import { Entity } from "./Entity.js";
 import { GeometryComponent } from "./components/GeometryComponent.js";

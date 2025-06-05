@@ -1,4 +1,4 @@
-import { Mesh, BoxGeometry, MeshBasicMaterial } from "https://kerrishaus.com/assets/threejs/build/three.module.js";
+import { Mesh, BoxGeometry, MeshBasicMaterial } from "https://kerrishaus.com/assets/threejs/r177/build/three.module.js";
 
 import { OBB } from 'https://kerrishaus.com/assets/threejs/examples/jsm/math/OBB.js';
 

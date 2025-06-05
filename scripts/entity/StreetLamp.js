@@ -1,4 +1,4 @@
-import { PointLight, PointLightHelper, ConeGeometry, MeshStandardMaterial, Mesh, TextureLoader, MathUtils } from "https://kerrishaus.com/assets/threejs/build/three.module.js";
+import { SpotLight, SpotLightHelper, PointLight, PointLightHelper, ConeGeometry, MeshStandardMaterial, Mesh, TextureLoader, MathUtils, Vector3 } from "https://kerrishaus.com/assets/threejs/r177/build/three.module.js";
 
 import { Entity } from "./Entity.js";
 
@@ -13,13 +13,15 @@ export class StreetLamp extends Entity
         this.model = this.addComponent(new ModelComponent("roads/light-square")).model;
         this.model.scale.set(10, 10, 10);
 
-        this.light = new PointLight(0xd6cc9a, 0.3);
-        this.light.position.set(0, 4.5, -2);
+        //this.light = new PointLight(0xd6cc9a, 40);
+        this.light = new SpotLight(0xd6cc9a, 10, 0, 0.9, 0.7, 0);
         this.light.castShadow = true;
+        this.light.position.set(0, 5.5, -2);
         this.add(this.light);
+        this.add(this.light.target);
+        this.light.target.position.set(0, 0, -3);
         
-        // const pointLightHelper = new PointLightHelper(this.light);
-        // scene.add(pointLightHelper);
+        //scene.add(new SpotLightHelper(this.light));
 
         const lampGlowTexture = new TextureLoader().load("textures/lampglow.png");
         lampGlowTexture.rotation = MathUtils.degToRad(90);
@@ -33,7 +35,7 @@ export class StreetLamp extends Entity
         );
         
         this.cone.position.copy(this.light.position);
-        this.cone.position.y -= 1.5;
+        this.cone.position.y -= 2.5;
         this.cone.position.z += 0.35;
         
         this.add(this.cone);

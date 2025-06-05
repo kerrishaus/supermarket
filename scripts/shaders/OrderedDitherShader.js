@@ -1,7 +1,7 @@
 // https://github.com/samuelOsborne/PS1-demakes/
 // https://github.com/samwhitford/threejs-ordered-dithering-effect
 
-import { Vector2 } from "https://kerrishaus.com/assets/threejs/build/three.module.js";
+import { Vector2 } from "https://kerrishaus.com/assets/threejs/r177/build/three.module.js";
 
 export const OrderedDitherShader = {
     name: 'OrderedDitherShader',

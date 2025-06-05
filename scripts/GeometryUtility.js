@@ -1,4 +1,4 @@
-import { Vector3, BoxGeometry, MeshStandardMaterial, Mesh, Quaternion, TextureLoader } from "https://kerrishaus.com/assets/threejs/build/three.module.js";
+import { Vector3, BoxGeometry, MeshStandardMaterial, Mesh, Quaternion, TextureLoader } from "https://kerrishaus.com/assets/threejs/r177/build/three.module.js";
 
 import { Entity } from "./entity/Entity.js";
 import { CarryableComponent } from "./entity/components/CarryableComponent.js";

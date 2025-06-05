@@ -1,6 +1,6 @@
 import { State } from "./State.js";
 
-import * as THREE from "https://kerrishaus.com/assets/threejs/build/three.module.js";
+import * as THREE from "https://kerrishaus.com/assets/threejs/r177/build/three.module.js";
 
 import { Entity } from "../entity/Entity.js";
 import { Vehicle } from "../entity/Vehicle.js";

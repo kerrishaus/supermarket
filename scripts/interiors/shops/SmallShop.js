@@ -1,4 +1,4 @@
-import { BoxGeometry, Vector3, Vector2, Raycaster, Plane, GridHelper, PointLight, MeshStandardMaterial, TextureLoader, RepeatWrapping, MathUtils } from "https://kerrishaus.com/assets/threejs/build/three.module.js";
+import { BoxGeometry, Vector3, Vector2, Raycaster, Plane, GridHelper, PointLight, MeshStandardMaterial, TextureLoader, RepeatWrapping, MathUtils } from "https://kerrishaus.com/assets/threejs/r177/build/three.module.js";
 
 import { PlayerOwnedShop } from "./PlayerOwnedShop.js";
 
@@ -94,8 +94,8 @@ export class SmallShop extends PlayerOwnedShop
         this.door = new SingleSlidingDoor(new Vector3(3, 1.25, northWall.position.z - 0.001), 0x0000ff);
         this.add(this.door);
         
-        const light = new PointLight(0xffffff, 0.4);
-        light.position.set(0, 0, 3.5);
+        const light = new PointLight(0xffffff, 15, 10);
+        light.position.set(0, 3.5, 0);
         light.castShadow = true;
         this.add(light);
         

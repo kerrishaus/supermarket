@@ -1,4 +1,4 @@
-import { Group, AmbientLight, BoxGeometry, Vector3, Vector2, Raycaster, Plane, PointLight, PointLightHelper, MeshStandardMaterial, TextureLoader, RepeatWrapping, MathUtils } from "https://kerrishaus.com/assets/threejs/build/three.module.js";
+import { Group, AmbientLight, BoxGeometry, Vector3, Vector2, Raycaster, Plane, PointLight, PointLightHelper, MeshStandardMaterial, TextureLoader, RepeatWrapping, MathUtils } from "https://kerrishaus.com/assets/threejs/r177/build/three.module.js";
 
 import { Entity } from "./entity/Entity.js";
 
@@ -20,8 +20,8 @@ export class World extends Group
     {
         super();
         
-        //const sunLight = new AmbientLight(0x404040); // soft white light
-        //scene.add(sunLight);
+        const sunLight = new AmbientLight(0x404040, 25); // soft white light
+        scene.add(sunLight);
         
         const grass = GeometryUtil.createRigidBodyCube(100, 1, 100, { color: 0xbfbfbf }, 0);
         grass.position.set(0, -1, 0);

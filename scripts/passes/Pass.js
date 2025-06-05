@@ -1,7 +1,7 @@
 // https://github.com/samuelOsborne/PS1-demakes
 // https://github.com/samwhitford/threejs-ordered-dithering-effect
 
-import { BufferGeometry, Float32BufferAttribute, OrthographicCamera, Mesh } from "https://kerrishaus.com/assets/threejs/build/three.module.js";
+import { BufferGeometry, Float32BufferAttribute, OrthographicCamera, Mesh } from "https://kerrishaus.com/assets/threejs/r177/build/three.module.js";
 
 class Pass {
 

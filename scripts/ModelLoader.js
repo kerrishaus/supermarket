@@ -1,10 +1,10 @@
-import { GLTFLoader } from "https://kerrishaus.com/assets/threejs/examples/jsm/loaders/GLTFLoader.js";
-import { DRACOLoader } from "https://kerrishaus.com/assets/threejs/examples/jsm/loaders/DRACOLoader.js";
+import { GLTFLoader } from "https://kerrishaus.com/assets/threejs/r177/examples/jsm/loaders/GLTFLoader.js";
+import { DRACOLoader } from "https://kerrishaus.com/assets/threejs/r177/examples/jsm/loaders/DRACOLoader.js";
 
 let modelCache = new Map();
 
 let dracoLoader = new DRACOLoader();
-dracoLoader.setDecoderPath("https://kerrishaus.com/assets/threejs/examples/js/libs/draco/gltf");
+dracoLoader.setDecoderPath("https://kerrishaus.com/assets/threejs/r177/examples/js/libs/draco/gltf");
 
 let loader = new GLTFLoader();
 loader.setDRACOLoader(dracoLoader);

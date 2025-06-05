@@ -1,10 +1,10 @@
 // https://github.com/samuelOsborne/PS1-demakes/
 // https://github.com/samwhitford/threejs-ordered-dithering-effect
 
-import { ShaderMaterial, UniformsUtils, Vector2 } from "https://kerrishaus.com/assets/threejs/build/three.module.js";
+import { ShaderMaterial, UniformsUtils, Vector2 } from "https://kerrishaus.com/assets/threejs/r177/build/three.module.js";
 
-import { Pass, FullScreenQuad } from './Pass.js';
-import { OrderedDitherShader } from '../shaders/OrderedDitherShader.js';
+import { Pass, FullScreenQuad } from "./Pass.js";
+import { OrderedDitherShader } from "../shaders/OrderedDitherShader.js";
 
 export class OrderedDitherPass extends Pass
 {

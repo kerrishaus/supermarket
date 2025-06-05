@@ -2,12 +2,12 @@ import { State } from "./State.js";
 
 import AmmoLib from "https://kerrishaus.com/assets/ammojs/ammo.module.js";
 
-import * as THREE from "https://kerrishaus.com/assets/threejs/build/three.module.js";
+import * as THREE from "https://kerrishaus.com/assets/threejs/r177/build/three.module.js";
 
-import { CSS2DRenderer } from "https://kerrishaus.com/assets/threejs/examples/jsm/renderers/CSS2DRenderer.js";
+import { CSS2DRenderer } from "https://kerrishaus.com/assets/threejs/r177/examples/jsm/renderers/CSS2DRenderer.js";
 
-import { EffectComposer } from "https://kerrishaus.com/assets/threejs/examples/jsm/postprocessing/EffectComposer.js";
-import { RenderPass } from 'https://kerrishaus.com/assets/threejs/examples/jsm/postprocessing/RenderPass.js';
+import { EffectComposer } from "https://kerrishaus.com/assets/threejs/r177/examples/jsm/postprocessing/EffectComposer.js";
+import { RenderPass } from 'https://kerrishaus.com/assets/threejs/r177/examples/jsm/postprocessing/RenderPass.js';
 import { OrderedDitherPass } from '../passes/OrderedDitherPass.js'
 
 import { PhysicsScene } from "../PhysicsScene.js";
@@ -44,7 +44,7 @@ export class StartupState extends State
         {
             console.log("Preparing Three...");
             $("#progressText").text("Preparing Three.js");
-
+            
             // this is a very important override of Object3D#traverse,
             // becasue it prevents traverse from being called on children
             // which may no longer exist in the scene.
@@ -68,13 +68,12 @@ export class StartupState extends State
             };
 
             window.stretched = true;
-            window.fullbright = false;
             
             window.renderer = new THREE.WebGLRenderer({
                 antialias: false,
             });
             
-            renderer.shadowMap.enabled = false;
+            //renderer.shadowMap.enabled = false;
             //renderer.shadowMap.type = THREE.PCFSoftShadowMap;
 
             renderer.setSize(sizes.width, sizes.height)

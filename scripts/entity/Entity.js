@@ -1,4 +1,4 @@
-import { Object3D } from "https://kerrishaus.com/assets/threejs/build/three.module.js";
+import { Object3D } from "https://kerrishaus.com/assets/threejs/r177/build/three.module.js";
 
 // TODO: rename componentType to componentName
 export class Entity extends Object3D

@@ -1,4 +1,4 @@
-import { Vector3 } from "https://kerrishaus.com/assets/threejs/build/three.module.js";
+import { Vector3 } from "https://kerrishaus.com/assets/threejs/r177/build/three.module.js";
 
 import { createCube } from "../GeometryUtility.js";
 
