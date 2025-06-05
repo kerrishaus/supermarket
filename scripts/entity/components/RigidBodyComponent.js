@@ -117,13 +117,13 @@ export class RigidBodyComponent extends EntityComponent
         this.parentEntity.rotation.set  = this.#parentRotationSet;
         
         this.parentEntity.rotateOnAxis = this.#parentRotateOnAxis;
+
+        this.disableSimulation();
         
         Ammo.destroy(this.body);
         Ammo.destroy(this.shape);
         Ammo.destroy(this.motionState);
         Ammo.destroy(this.transform);
-        
-        // remove from RigidBodies and PhysicsWorld
     }
     
     disableSimulation()
