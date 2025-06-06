@@ -1,4 +1,4 @@
-#settings
+#SettingsMenu
 {
     width: 100vw;
     height: 100vh;
@@ -9,5 +9,5 @@
 
     z-index: 100;
 
-    background-color: white;
+    background: black;
 }

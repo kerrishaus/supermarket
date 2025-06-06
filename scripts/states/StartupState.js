@@ -13,7 +13,7 @@ import { OrderedDitherPass } from '../passes/OrderedDitherPass.js'
 import { PhysicsScene } from "../PhysicsScene.js";
 
 import { loadModel } from "../ModelLoader.js";
-import { LoadSaveState } from "./LoadSaveState.js";
+import { MainMenuState } from "./MainMenuState.js";
 
 import { addStyle, removeStyle } from "../PageUtility.js";
 
@@ -24,8 +24,8 @@ export class StartupState extends State
         addStyle("StartupState");
 
         $("body").prepend(
-            `<div id='loadingCover'>
-                 <div id='status'>
+            `<div id='LoadingCover'>
+                 <div id='logos'>
                      <img id='kerris' src='https://kerrishaus.com/assets/logo/text-big.png'></img>
                      <img id='threejs' src='https://raw.githubusercontent.com/mrdoob/three.js/43ec48015f23bda9c2a86533343ab3a2e104bfd6/files/icon.svg'></img>
                      <img id='webgl' src='https://upload.wikimedia.org/wikipedia/commons/thumb/2/25/WebGL_Logo.svg/1024px-WebGL_Logo.svg.png'></img>
@@ -89,14 +89,15 @@ export class StartupState extends State
                 }
             )
             
-            document.body.appendChild(renderer.domElement);
+            $("body").append(renderer.domElement);
             $(renderer.domElement).hide();
             
             window.htmlRenderer = new CSS2DRenderer();
             htmlRenderer.setSize(window.innerWidth, window.innerHeight);
             htmlRenderer.domElement.style.position = "absolute";
             htmlRenderer.domElement.style.top = "0px";
-            document.body.appendChild(htmlRenderer.domElement).style.pointerEvents = "none";
+            htmlRenderer.domElement.style.pointerEvents = "none";
+            $("body").append(htmlRenderer.domElement);
             $(htmlRenderer.domElement).hide();
             
             window.camera = new THREE.PerspectiveCamera(65, sizes.width / sizes.height, 0.1, 5000);
@@ -232,10 +233,16 @@ export class StartupState extends State
                 }
 
                 console.log("Loading is complete.");
-                $("#progressText").text("Ready!");
-                
-                this.stateMachine.popState();
-                this.stateMachine.pushState(new LoadSaveState());
+                $("#progressText").text("Click to continue...");
+
+                $("body").on("click.postStartup", () =>
+                {
+                    $("body").off("click.postStartup");
+
+                    this.stateMachine.changeState(new MainMenuState());
+                });
+
+                $("#LoadingCover").addClass("ready");
             }
             catch (exception)
             {

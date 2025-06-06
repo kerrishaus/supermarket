@@ -8,13 +8,14 @@ import { Customer  } from "../entity/Customer.js";
 
 import * as SaveLoader from "../SaveLoader.js";
 import * as ItemUtility from "../ItemUtility.js";
+import { PhysicsScene } from "../PhysicsScene.js";
 
 export class LoadSaveState extends State
 {
     init()
     {
         // these are created here because player and shop need themb
-        $(document.body).append(`
+        $("body").append(`
             <div id='interface' class="gameInterfaceContainer">
                 <div id="pauseMenu" class="game-menu" data-visibility="hidden">
                     <button id="resetSave">reset save file</button>
@@ -36,27 +37,27 @@ export class LoadSaveState extends State
                 </div>
                 
                 <div id="businessStats">
-                    <div id="moneyContainer">
-                        <i class='fa fa-money'></i> Money: $<span id='money'>0</span>
-                    </div>
-                    <div id="reputationContainer">
-                        <i class='fa fa-shield'></i> Reputation: <span id='reputation'>0</span>
+                    <div>
+                        Money: $<span id='money'>0</span>
                     </div>
                     <div>
-                        <i class='fa fa-users'></i> Customers in store: <span id="customerCount">0</span>
+                        Reputation: <span id='reputation'>0</span>
                     </div>
                     <div>
-                        <i class='fa fa-users'></i> Customers waiting to checkout: <span id="waitingCustomers">0</span>
+                        Customers in store: <span id="customerCount">0</span>
                     </div>
                     <div>
-                        <i class='fa fa-ball'></i> Physics Bodies: <span id='physicsBodies'>0</span>
+                        Customers waiting to checkout: <span id="waitingCustomers">0</span>
                     </div>
                     <div>
-                        <i class='fa fa-speedometer'></i> Speed: <span id="speed">0</span><br/>
-                        <i class='fa fa-speedometer'></i> Reverse: <span id="reverse">0</span><br/>
-                        <i class='fa fa-speedometer'></i> Forward: <span id="forward">0</span><br/>
-                        <i class='fa fa-speedometer'></i> Engine Force: <span id="engineForce">0</span><br/>
-                        <i class='fa fa-speedometer'></i> Braking Force: <span id="brakingForce">0</span><br/>
+                        Physics Bodies: <span id='physicsBodies'>0</span>
+                    </div>
+                    <div>
+                        Speed: <span id="speed">0</span><br/>
+                        Reverse: <span id="reverse">0</span><br/>
+                        Forward: <span id="forward">0</span><br/>
+                        Engine Force: <span id="engineForce">0</span><br/>
+                        Braking Force: <span id="brakingForce">0</span><br/>
                     </div>
                 </div>
                 

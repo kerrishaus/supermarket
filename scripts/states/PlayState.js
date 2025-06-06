@@ -119,13 +119,9 @@ export class PlayState extends State
         $(htmlRenderer.domElement).show();
         
         setTimeout(() => {
-            $("#loadingCover").fadeOut(1000, function()
-            {
-                $(this).remove(); 
-                $("#loadingStyles").remove();
-            });
-        }, 1000);
-        
+            $("body").fadeIn(1000);
+        }, 1000)
+
         this.animate();
     }
 

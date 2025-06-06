@@ -1,9 +1,11 @@
 import { State } from "./State.js";
 
-import { addStyle, removeStyle } from "../PageUtility.js";
+import * as THREE from "https://kerrishaus.com/assets/threejs/r177/build/three.module.js";
 
-import { PlayState } from "./PlayState.js";
+import { LoadSaveState } from "./LoadSaveState.js";
 import { SettingsState } from "./SettingsState.js";
+
+import { addStyle, removeStyle } from "../PageUtility.js";
 
 export class MainMenuState extends State
 {
@@ -11,34 +13,51 @@ export class MainMenuState extends State
     {
         addStyle("MainMenuState");
 
-        this.mainMenu = document.createElement("div");
-        this.mainMenu.id = "mainMenu";
-        this.mainMenu.classList = "display-flex justify-center align-center flex-column flex-gap";
-        document.body.appendChild(this.mainMenu);
+        $("body").append("<div id='MainMenu' class='display-flex justify-center align-center flex-column flex-gap'>");
 
-        const button = document.createElement("button");
-        button.id = "playGame";
-        button.textContent = "Play Game";
-        button.addEventListener("click", (event) =>
-        {
-            this.stateMachine.changeState(new PlayState());
-        });
-        this.mainMenu.appendChild(button);
+        $("<button id='PlayGame'>Play Game</button>")
+            .appendTo("#MainMenu")
+            .click((event) => {
+                $("body").fadeOut(1000);
+                setTimeout(() => {
+                    this.stateMachine.changeState(new LoadSaveState());
+                }, 1000);
+            });
+        
+        $("<button id='OpenSettings'>Settings</button>")
+            .appendTo("#MainMenu")
+            .click((event) => {
+                this.stateMachine.pushState(new SettingsState());
+            });
 
-        const settingsButton = document.createElement("button");
-        settingsButton.id = "settingsButton";
-        settingsButton.textContent = "Settings";
-        settingsButton.addEventListener("click", (event) =>
+        // create an AudioListener and add it to the camera
+        const listener = new THREE.AudioListener();
+        camera.add(listener);
+
+        // create a global audio source
+        const sound = new THREE.Audio(listener);
+
+        // load a sound and set it as the Audio object's buffer
+        const audioLoader = new THREE.AudioLoader();
+        audioLoader.load("music/title.mp3", function(buffer)
         {
-            this.stateMachine.pushState(new SettingsState());
+            sound.setBuffer(buffer);
+            sound.setLoop(true);
+            sound.setVolume(0.5);
+            sound.play();
         });
-        this.mainMenu.appendChild(settingsButton);
+
+        $("#LoadingCover").fadeOut(1000, function()
+        {
+            $(this).remove(); 
+            $("#loadingStyles").remove();
+        });
     }
 
     cleanup()
     {
-        removeStyle("MainMenuState");
+        $("#MainMenu").remove();
 
-        this.mainMenu.remove();
+        removeStyle("MainMenuState");
     }
 };

@@ -1,4 +1,4 @@
-#loadingCover
+#LoadingCover
 {
     position: absolute;
     z-index: 3;
@@ -25,7 +25,25 @@
     -webkit-user-select: none !important;
 }
 
-#loadingCover > #status
+#LoadingCover.ready #progressText
+{
+    animation: text-flash 2s infinite;
+}
+
+@keyframes text-flash
+{
+    50%
+    {
+        opacity: 1;
+    }
+
+    to 
+    {
+        opacity: 0;
+    }
+}
+
+#logos
 {
     display: flex;
     align-items: center;
