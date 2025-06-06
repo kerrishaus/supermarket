@@ -10,18 +10,18 @@ export class Vehicle extends Entity
     #chassisHeight = 2.5;
     #chassisLength = 4;
     #vehicleMass   = 500;
-    
-	#wheelAxisPositionBack = -1;
-	#wheelRadiusBack       = .4;
-	#wheelWidthBack        = .3;
-	#wheelHalfTrackBack    = 1;
-	#wheelAxisHeightBack   = -1;
 
 	#wheelAxisFrontPosition = 1.7;
 	#wheelHalfTrackFront    = 1;
-	#wheelRadiusFront       = .35;
-	#wheelWidthFront        = .2;
-	#wheelAxisHeightFront   = -1;
+	#wheelRadiusFront       = 0.4;
+	#wheelWidthFront        = 0.3;
+	#wheelAxisHeightFront   = -1.2;
+    
+	#wheelAxisPositionBack = -1.7;
+	#wheelHalfTrackBack    = 1;
+	#wheelRadiusBack       = 0.4;
+	#wheelWidthBack        = 0.3;
+	#wheelAxisHeightBack   = -1.2;
 	
 	#FRONT_LEFT  = 0;
 	#FRONT_RIGHT = 1;
@@ -37,8 +37,8 @@ export class Vehicle extends Entity
 
 	#steeringIncrement = 0.04;
 	#steeringClamp     = 0.5;
-	#maxEngineForce    = 2000;
-	#maxBrakingForce  = 100;
+	#maxEngineForce    = 1000;
+	#maxBrakingForce  = 25;
 	
 	#engineForce = 0;
 	#vehicleSteering = 0;
@@ -124,7 +124,7 @@ export class Vehicle extends Entity
     	addWheel(false, new Ammo.btVector3(-this.#wheelHalfTrackBack , this.#wheelAxisHeightBack , this.#wheelAxisPositionBack) , this.#wheelRadiusBack , this.#wheelWidthBack , this.#BACK_RIGHT);
     	
 		this.dismountPosition = new Mesh(
-			new BoxGeometry(1, 1, 1),
+			new BoxGeometry(0.3, 0.3, 0.3),
 			new MeshStandardMaterial({ color: 0xFF0000 })
 		);
 		this.dismountPosition.position.x += 2;
