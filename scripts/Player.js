@@ -45,7 +45,7 @@ export class Player extends Entity
         };
 
         this.move = null;
-        this.keys = new Array();
+        this.keys = [];
         this.pointerMoveOrigin = new THREE.Vector2();
         
         this.moveTarget = new THREE.Mesh(
@@ -211,6 +211,8 @@ export class Player extends Entity
             // it would not update until the player moves again.
             if (this.vehicle != null || this.interior == null)
             {
+                // TODO: this adds a little bit of a stutter to the camera
+                
                 const pos = this.vehicle instanceof Vehicle ? this.vehicle.position : this.position;
                 const quat = this.vehicle instanceof Vehicle ? this.vehicle.quaternion : this.quaternion;
                 
@@ -318,6 +320,8 @@ export class Player extends Entity
         window.removeEventListener("keyup"  , player.keyup);
         window.removeEventListener("keydown", player.keydown);
         $(window).off("mouseup touchend"    , player.moveEnd);
+        
+        this.keys = [];
 
         player.controlsEnabled = false;
     }
