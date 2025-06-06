@@ -2,14 +2,13 @@ import * as THREE from "https://kerrishaus.com/assets/threejs/r177/build/three.m
 
 import { OrbitControls } from "https://kerrishaus.com/assets/threejs/r177/examples/jsm/controls/OrbitControls.js";
 
-import { Entity } from "./entity/Entity.js";
-import { Vehicle } from "./entity/Vehicle.js";
+import { Entity } from "./Entity.js";
+import { Vehicle } from "./Vehicle.js";
 
-import { ContainerComponent } from "./entity/components/ContainerComponent.js";
-import { RigidBodyComponent } from "./entity/components/RigidBodyComponent.js";
+import { ContainerComponent } from "./components/ContainerComponent.js";
+import { RigidBodyComponent } from "./components/RigidBodyComponent.js";
 
-import * as GeometryUtil from "./GeometryUtility.js";
-import * as MathUtility from "./MathUtility.js";
+import * as GeometryUtil from "../GeometryUtility.js";
 
 export class Player extends Entity
 {

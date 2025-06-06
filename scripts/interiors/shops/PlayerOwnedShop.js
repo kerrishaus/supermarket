@@ -2,8 +2,8 @@ import { Vector3, Vector2, Group } from "https://kerrishaus.com/assets/threejs/r
 
 import { Register } from "../../tiles/Register.js";
 
-import { Employee } from "../../Employee.js";
-import { Customer } from "../../Customer.js";
+import { Employee } from "../../entity/Employee.js";
+import { Customer } from "../../entity/Customer.js";
 
 import { Entity } from "../../entity/Entity.js";
 

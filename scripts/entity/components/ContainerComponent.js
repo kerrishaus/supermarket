@@ -2,11 +2,11 @@ import { Vector3 } from "https://kerrishaus.com/assets/threejs/r177/build/three.
 
 import { CSS2DObject } from "https://kerrishaus.com/assets/threejs/r177/examples/jsm/renderers/CSS2DRenderer.js";
 
-import { EntityComponent } from "./EntityComponent.js";
+import { Player   } from "../Player.js";
+import { Customer } from "../Customer.js";
+import { Employee } from "../Employee.js";
 
-import { Player   } from "../../Player.js";
-import { Customer } from "../../Customer.js";
-import { Employee } from "../../Employee.js";
+import { EntityComponent } from "./EntityComponent.js";
 
 import * as ItemUtility from "../../ItemUtility.js";
 import * as MathUtility from "../../MathUtility.js";

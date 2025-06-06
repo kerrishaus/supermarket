@@ -1,8 +1,8 @@
 import { Vector3, BoxGeometry, MeshStandardMaterial } from "https://kerrishaus.com/assets/threejs/r177/build/three.module.js";
 
-import { Player } from "../Player.js";
+import { Entity } from "../entity/Entity.js";
+import { Player } from "../entity/Player.js";
 
-import { Entity             } from "../entity/Entity.js";
 import { TriggerComponent   } from "../entity/components/TriggerComponent.js";
 import { GeometryComponent  } from "../entity/components/GeometryComponent.js";
 

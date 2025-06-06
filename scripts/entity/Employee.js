@@ -2,12 +2,13 @@ import { BoxGeometry, MeshStandardMaterial, Vector3 } from "https://kerrishaus.c
 
 import { CSS2DObject } from "https://kerrishaus.com/assets/threejs/r177/examples/jsm/renderers/CSS2DRenderer.js";
 
-import { Entity } from "./entity/Entity.js";
-import { ContainerComponent } from "./entity/components/ContainerComponent.js";
-import { GeometryComponent } from "./entity/components/GeometryComponent.js";
+import { Entity } from "./Entity.js";
 
-import * as MathUtility from "./MathUtility.js";
-import { Register } from "./tiles/Register.js";
+import { ContainerComponent } from "./components/ContainerComponent.js";
+import { GeometryComponent  } from "./components/GeometryComponent.js";
+
+import * as MathUtility from "../MathUtility.js";
+import { Register } from "../tiles/Register.js";
 
 export class Employee extends Entity
 {

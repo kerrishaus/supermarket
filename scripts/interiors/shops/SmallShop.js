@@ -1,4 +1,4 @@
-import { BoxGeometry, Vector3, Vector2, Raycaster, Plane, GridHelper, PointLight, MeshStandardMaterial, TextureLoader, RepeatWrapping, MathUtils } from "https://kerrishaus.com/assets/threejs/r177/build/three.module.js";
+import { BoxGeometry, Vector3, Raycaster, Plane, GridHelper, PointLight, MeshStandardMaterial, TextureLoader, RepeatWrapping, MathUtils } from "https://kerrishaus.com/assets/threejs/r177/build/three.module.js";
 
 import { PlayerOwnedShop } from "./PlayerOwnedShop.js";
 
@@ -7,21 +7,17 @@ import { Register          } from "../../tiles/Register.js";
 import { RecycleBin        } from "../../tiles/RecycleBin.js";
 import { KetchupMachine    } from "../../tiles/KetchupMachine.js";
 
-import { Player   } from "../../Player.js";
-import { Employee } from "../../Employee.js";
-import { Customer } from "../../Customer.js";
-
 import { Entity } from "../../entity/Entity.js";
+import { Player } from "../../entity/Player.js";
 
-import { TriggerComponent } from "../../entity/components/TriggerComponent.js";
+import { TriggerComponent   } from "../../entity/components/TriggerComponent.js";
 import { ContainerComponent } from "../../entity/components/ContainerComponent.js";
-import { GeometryComponent } from "../../entity/components/GeometryComponent.js";
+import { GeometryComponent  } from "../../entity/components/GeometryComponent.js";
 import { GeneratorComponent } from "../../entity/components/GeneratorComponent.js";
-import { ModelComponent } from "../../entity/components/ModelComponent.js";
+import { ModelComponent     } from "../../entity/components/ModelComponent.js";
 import { RigidBodyComponent } from "../../entity/components/RigidBodyComponent.js";
 
 import * as GeometryUtil from "../../GeometryUtility.js";
-import * as MathUtility from "../../MathUtility.js";
 
 export class SmallShop extends PlayerOwnedShop
 {

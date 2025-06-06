@@ -3,8 +3,8 @@ import { State } from "./State.js";
 import { PlayState } from "./PlayState.js";
 import { SmallShop } from "../interiors/shops/SmallShop.js";
 import { World     } from "../World.js";
-import { Player    } from "../Player.js";
-import { Customer  } from "../Customer.js";
+import { Player    } from "../entity/Player.js";
+import { Customer  } from "../entity/Customer.js";
 
 import * as SaveLoader from "../SaveLoader.js";
 import * as ItemUtility from "../ItemUtility.js";

@@ -2,8 +2,8 @@ import { Vector3 } from "https://kerrishaus.com/assets/threejs/r177/build/three.
 
 import { CSS2DObject } from "https://kerrishaus.com/assets/threejs/r177/examples/jsm/renderers/CSS2DRenderer.js";
 
-import { Player   } from "../../Player.js";
-import { Employee } from "../../Employee.js";
+import { Player   } from "../Player.js";
+import { Employee } from "../Employee.js";
 
 import { EntityComponent } from "./EntityComponent.js";
 

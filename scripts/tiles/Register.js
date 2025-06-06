@@ -2,11 +2,11 @@ import { Vector3 } from "https://kerrishaus.com/assets/threejs/r177/build/three.
 
 import { createMoney } from "../GeometryUtility.js";
 
-import { Player	  } from "../Player.js";
-import { Customer } from "../Customer.js";
-import { Employee } from "../Employee.js";
+import { Entity   } from "../entity/Entity.js";
+import { Player	  } from "../entity/Player.js";
+import { Customer } from "../entity/Customer.js";
+import { Employee } from "../entity/Employee.js";
 
-import { Entity			  } from "../entity/Entity.js";
 import { TriggerComponent } from "../entity/components/TriggerComponent.js";
 import { ModelComponent   } from "../entity/components/ModelComponent.js";
 
