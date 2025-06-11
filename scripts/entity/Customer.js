@@ -9,16 +9,245 @@ import { GeometryComponent  } from "./components/GeometryComponent.js";
 
 import * as MathUtility from "../MathUtility.js";
 
+export class ActionStateMachine
+{
+    constructor(entity)
+    {
+        this.entity = entity;
+        
+        this.actions = [];
+    }
+    
+    pushAction(action)
+    {
+        action.controller = this;
+        
+        this.actions.push(action);
+        
+        console.debug("Pushed new customer action.", action);
+        
+        if (this.actions.length == 1)
+            action.onStart?.();
+    }
+    
+    nextAction()
+    {
+		const lastAction = this.actions.shift();
+		
+		lastAction.onComplete?.();
+		
+		console.debug(`Finished last action, starting next customer action. ${this.actions.length} remaining.`);
+        
+		this.actions[0]?.onStart?.();
+    }
+    
+    update(deltaTime)
+    {
+        this.actions[0]?.update?.(deltaTime);
+    }
+}
+
+export class Action
+{
+    constructor()
+    {
+        this.controller = null;
+        this.elapsedTime = 0;
+    }
+    
+    update(deltaTime)
+    {
+        this.elapsedTime += deltaTime;
+    }
+    
+    onStart() {}
+    
+    onPause() {}
+    
+    onResume() {}
+    
+    onComplete() {}
+}
+
+export class WaitAction extends Action
+{
+    constructor(time)
+    {
+        super();
+        
+        this.debug = `waiting for ${time} seconds`;
+        
+        this.waitTime = time;
+    }
+    
+    update(deltaTime)
+    {
+        super.update(deltaTime);
+        
+        if (this.elapsedTime > this.waitTime)
+            this.controller.nextAction();
+    }
+    
+    onStart()
+    {
+        this.elapsedTime = 0;
+    }
+}
+
+export class CheckoutAction extends WaitAction
+{
+    constructor(register)
+    {
+        super();
+        
+        this.register = register;
+        
+        this.maxWaitTime = 10;
+    }
+    
+    update(deltaTime)
+    {
+        super.update(deltaTime);
+        
+        // TODO: check if register still exists
+        
+        if (this.elapsedTime > this.maxWaitTime)
+        {
+            console.error("Customer waited too long to checkout and is leaving the store without paying.");
+            this.controller.entity.leaveStore();
+            return;
+        }
+    }
+    
+    onStart()
+    {
+        this.elapsedTime = 0;
+        
+        console.debug("Started customer CheckoutAction.");
+    }
+    
+    onComplete()
+    {
+        this.totalWaitTime += this.elapsedTime;
+    }
+}
+
+export class MoveAction extends Action
+{
+    constructor(targetPosition)
+    {
+        super();
+        
+        this.targetPosition = targetPosition;
+        
+        this.debug = `moving to ${targetPosition.x}, ${targetPosition.y}, ${targetPosition.z}`;
+    }
+    
+    update(deltaTime)
+    {
+        super.update(deltaTime);
+        
+		this.controller.entity.position.lerpVectors(this.startPosition, this.targetPosition, this.elapsedTime / this.time);
+		this.controller.entity.rotation.y = MathUtility.angleToPoint(this.controller.entity.position, this.targetPosition);
+		
+		if (this.elapsedTime > this.time)
+		{
+		    this.controller.entity.position.copy(this.targetPosition);
+		    this.controller.nextAction();
+		}
+    }
+    
+    onStart()
+    {
+        super.onStart();
+        
+        this.startPosition = new Vector3();
+        this.startPosition.copy(this.controller.entity.position);
+        
+        this.time = this.controller.entity.position.distanceTo(this.targetPosition) / 4;
+        
+        this.elapsedTime = 0;
+        
+        console.debug(`Started move action to ${this.targetPosition.x}, ${this.targetPosition.y}, ${this.targetPosition.z}.`);
+    }
+}
+
+export class PickAction extends Action
+{
+    constructor(container, amount)
+    {
+        super();
+        
+        this.container = container;
+        this.amount    = amount;
+        this.pickedUp  = 0;
+
+        this.maxWaitTime = 10;
+    }
+    
+    update(deltaTime)
+    {
+        super.update(deltaTime);
+        
+        this.debug = `pick items<br/>${this.elapsedTime}s/${this.maxWaitTime}.<br/>${this.pickedUp}/${this.amount} items.`;
+        
+		const container = this.container.getComponent("ContainerComponent");
+        
+	    while (container.carriedItems.length > 0 && // the container has items
+			   this.controller.entity.container.carriedItems.length < this.controller.entity.container.maxItems && // the customer hasn't hit their limit
+			   this.pickedUp < this.amount) // we've picked up fewer than the requested items for this action
+        {
+		    this.container.getComponent("ContainerComponent").transferToCarrier(this.controller.entity);
+			this.pickedUp++;
+		    console.debug(`Picked up item ${this.pickedUp} (carrying ${this.controller.entity.container.carriedItems.length}) of ${this.amount}`);
+        }
+        
+		// once they have all their items, start the next action
+		if (this.controller.entity.container.carriedItems.length >= this.amount)
+		{
+			this.controller.entity.mood += 3;
+			this.controller.entity.mood -= this.waitTime;
+			
+			console.debug("Customer finished picking.");
+			
+			this.controller.nextAction();
+			return;
+		}
+		
+		if (this.elapsedTime > this.maxWaitTime)
+        {
+		    
+            if (this.controller.entity.container.carriedItems.length > 0)
+            {
+                console.error("Customer spent too much time waiting to pick, skipping to checkout.");
+                this.controller.entity.cancelAndMoveToRegister();
+            }
+            else
+            {
+                console.error("Customer spent too much time waiting to pick and had no items, leaving store.");
+                this.controller.entity.leaveStore();
+            }
+            
+            return;
+        }
+    }
+    
+    onStart()
+    {
+        this.elapsedTime = 0;
+    }
+    
+    onComplete()
+    {
+        this.totalWaitTime += this.elapsedTime;
+    }
+}
+
 export class Customer extends Entity
 {
-	#container;
-
 	constructor(shop)
 	{
 		super();
-		
-		this.#container = this.addComponent(new ContainerComponent);
-		this.#container.maxItems = 4;
 		
 		this.addComponent(new GeometryComponent(
 			new BoxGeometry(1, 2, 1),
@@ -27,21 +256,18 @@ export class Customer extends Entity
 		
 		this.shop = shop;
 		
-		this.actions = [];
+		this.container = this.addComponent(new ContainerComponent);
+		this.container.maxItems = 4;
 		
-		this.elapsedTime = 0;
-		this.actionTime = 3;
-		this.startPosition = new Vector3(0, 0, 0);
-		this.targetPosition = new Vector3(0, 0, 0);
+		this.stateMachine = new ActionStateMachine(this);
 		
-		this.waitTime = 0;
-		this.leaveTime = 10; // in seconds
 		this.mood = 0;
+		this.totalWaitTime = 0;
 		
 		this.checkedOut = false;
 		
 		this.labelDiv = document.createElement("div");
-		this.labelDiv.textContent = "i am in pain";
+		this.labelDiv.textContent = "i bringeth pain";
 		
 		const label = new CSS2DObject(this.labelDiv);
 		label.color = "white";
@@ -56,81 +282,10 @@ export class Customer extends Entity
 		super.destructor();
 	}
 
-	pushAction(action)
-	{
-		// if there are no actions,
-		// focus this action immediately
-		if (this.actions.length < 1)
-		{
-			console.debug("focused action because there are no other actions", action);
-			this.focusAction(action);
-		}
-		
-		this.actions.push(action);
-		
-		console.debug("added action: " + action.type, action);
-	}
-	
-	focusAction(action)
-	{
-		if (action.type == "move")
-		{
-			console.debug("moving to", action.position);
-			this.actionTime = this.position.distanceTo(action.position) / 4;
-			this.setTarget(action.position, this.actionTime);
-		}
-		else if (action.type == "buy")
-		{
-			console.log("buying from " + action.container.name + " amount " + action.amount);
-			this.actionTime = this.position.distanceTo(action.container.position) / 4;
-			this.setTarget(action.container.position, this.actionTime);
-		}
-		else if (action.type == "waitToCheckout")
-		{
-		    this.waitTime = 0;
-		}
-		
-		console.debug("focused action:" + action.type, action);
-	}
-
-	nextAction()
-	{
-		console.debug("starting next action");
-
-		const lastAction = this.actions.shift();
-
-		if (this.actions.length > 0)
-			this.focusAction(this.actions[0]);
-		else
-        {
-            if (lastAction.type == "waitToCheckout")
-                this.leaveStore();
-        }
-	}
-	
-	setTarget(endPosition, actionTime)
-	{
-		if (!(endPosition instanceof Vector3))
-		{
-			console.error("endPosition must be a Vector3");
-			return;
-		}
-		
-		this.elapsedTime = 0;
-		this.startPosition.copy(this.position);
-		this.targetPosition.copy(endPosition);
-		this.actionTime = actionTime;
-	}
-
 	buyFromContainer(container, amount)
 	{
-		this.pushAction({
-			type: "buy",
-			container: container,
-			amount: amount,
-			pickedUp: 0, // used to track how many of the desired item the customer has picked up so far
-			debug: `Buy from ${container.name}.`
-		});
+	    this.stateMachine.pushAction(new MoveAction(container.position));
+		this.stateMachine.pushAction(new PickAction(container, amount));
 	}
     
 	findNearestRegister()
@@ -150,9 +305,19 @@ export class Customer extends Entity
 	{
 		// TODO: if they have items, discard them
 		
-		this.actions.length = 0;
-		this.pushAction({ type: "move", position: this.shop.readyPosition, debug: "to ready position, leaving" });
-		this.pushAction({ type: "move", position: this.shop.spawnPosition, debug: "to spawn position, leaving" });
+		console.debug("Customer leaving store.");
+		
+		this.stateMachine.actions.length = 0;
+		this.stateMachine.pushAction(new MoveAction(this.shop.readyPosition));
+		this.stateMachine.pushAction(new MoveAction(this.shop.spawnPosition));
+	}
+	
+	cancelAndMoveToRegister()
+	{
+	    console.debug("Customer cancelled future actions and is heading to nearest register.");
+	    
+	    this.stateMachine.actions.length = 0;
+	    this.stateMachine.pushAction(new MoveAction(this.findNearestRegister().position));
 	}
 
 	finishCheckout()
@@ -163,89 +328,12 @@ export class Customer extends Entity
 		this.leaveStore();
 	}
 	
-	update(deltaTime)
-	{
-	    this.elapsedTime += deltaTime;
-	    
-		if (this.elapsedTime > this.actionTime)
-		{
-			if (this.actions.length > 0)
-			{				
-				if (this.waitTime > this.leaveTime)
-				{
-					console.log("Customer waited too long and is leaving.");
-					
-					if (this.#container.carriedItems.length > 0)
-					{
-					    // give up and move to the next action. If there is no next action, move to the register.
-					    if (this.actions.length >= 1)
-                            this.nextAction();
-                        else
-                        {
-                            this.actions.length = 0;
-                            this.pushAction({type: "move", position: this.findNearestRegister().position, debug: "moving angrily to the register" });
-                        }
-
-						this.mood -= this.waitTime / 2;
-					}
-					else // waited too long at the register
-					{
-						this.mood -= this.waitTime;
-						// TODO: need to drop the items or something. right now they just take them lol
-					    this.leaveStore();
-					}
-
-					this.waitTime = 0;
-				}
-				else
-				{
-					if (this.actions[0].type == "move")
-						this.nextAction();
-					else if (this.actions[0].type == "buy")
-					{
-						const action = this.actions[0];
-						const container = action.container.getComponent("ContainerComponent");
-
-					    while (container.carriedItems.length > 0 && // the container has items
-							   this.#container.carriedItems.length < this.#container.maxItems && // the customer hasn't hit their limit
-							   action.pickedUp < action.amount) // we've picked up fewer than the requested items for this action
-					    {
-						    action.container.getComponent("ContainerComponent").transferToCarrier(this);
-							action.pickedUp++;
-						    console.debug(`Picked up item ${action.pickedUp} (carrying ${this.#container.carriedItems.length}) of ${action.amount}`);
-					    }
-					    
-						// once they have all their items, start the next action
-						if (this.#container.carriedItems.length >= action.amount)
-						{
-							this.mood += 3;
-							this.mood -= this.waitTime;
-							
-							this.nextAction();
-						}
-						else // otherwise keep waiting for enough items to become available
-						{
-							this.waitTime += deltaTime;
-						}
-					}
-					else if (this.actions[0].type == "waitToCheckout")
-					{
-					    this.waitTime += deltaTime;
-					}
-				}
-			}
-			else
-				this.position.copy(this.targetPosition);
-		}
-		else // moving somewhere
-		{
-			this.position.lerpVectors(this.startPosition, this.targetPosition, this.elapsedTime / this.actionTime);
-			
-			this.rotation.y = MathUtility.angleToPoint(this.position, this.targetPosition);
-		}
-		
+    update(deltaTime)
+    {
+        this.stateMachine.update(deltaTime);
+        
 		super.update(deltaTime);
 		
-		this.labelDiv.innerHTML = `Action: ${this.actions[0]?.debug ?? "none"}<br/>Wait: ${this.waitTime}<br/>Mood: ${this.mood}`;
+		this.labelDiv.innerHTML = `Action: ${this.stateMachine.actions[0]?.debug ?? "none"}<br/>Mood: ${this.mood}`;
 	}
 };

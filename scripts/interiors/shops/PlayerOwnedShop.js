@@ -3,7 +3,7 @@ import { Vector3, Vector2, Group } from "https://kerrishaus.com/assets/threejs/r
 import { Register } from "../../tiles/Register.js";
 
 import { Employee } from "../../entity/Employee.js";
-import { Customer } from "../../entity/Customer.js";
+import { Customer, CheckoutAction, WaitAction, MoveAction } from "../../entity/Customer.js";
 
 import { Entity } from "../../entity/Entity.js";
 
@@ -12,7 +12,6 @@ import * as MathUtility from "../../MathUtility.js";
 
 export class PlayerOwnedShop extends Group
 {
-
     populateTilesInBuyMenu()
     {
         $("#tiles").empty();
@@ -373,17 +372,17 @@ export class PlayerOwnedShop extends Group
 
         $("#customerCount").text(this.customers.length);
 
-        console.log("added customer");
+        console.log(`Added customer with ${customer.stateMachine.actions.length} actions.`, customer);
     }
     
     // creates a new customer and gives them actions
     spawnCustomer()
     {
         let customer = new Customer(this);
-        customer.startPosition.copy(this.spawnPosition);
-        customer.targetPosition.copy(this.spawnPosition);
         customer.position.copy(this.spawnPosition);
-        customer.pushAction({ type: "move", position: this.readyPosition, debug: "to ready position" });
+        
+        customer.stateMachine.pushAction(new WaitAction(0.4));
+        customer.stateMachine.pushAction(new MoveAction(this.readyPosition));
         
         let atLeastOneTileSelected = false;
         for (const containerTile of this.containerTiles)
@@ -414,8 +413,12 @@ export class PlayerOwnedShop extends Group
             customer.buyFromContainer(this.containerTiles[0], MathUtility.getRandomInt(0, customer.getComponent("ContainerComponent").maxItems) + 1);
         }
         
-        customer.pushAction({ type: "move", position: customer.findNearestRegister().position, debug: "to register" });
-        customer.pushAction({ type: "waitToCheckout", debug: "waiting to checkout" });
+        // TODO: this should probably be the nearest register to the door
+        
+        const nearestRegister = customer.findNearestRegister();
+        
+        customer.stateMachine.pushAction(new MoveAction(nearestRegister.position));
+        customer.stateMachine.pushAction(new CheckoutAction(nearestRegister));
         
         this.addCustomer(customer);
         scene.add(customer);
@@ -455,7 +458,7 @@ export class PlayerOwnedShop extends Group
 
         console.error("Failed to find requested employee to fire.", uuid);
     }
-
+    
     update(deltaTime)
     {
         if (this.timeSinceLastCustomer > this.timeUntilNextCustomer)
@@ -484,7 +487,7 @@ export class PlayerOwnedShop extends Group
         for (const customer of this.customers)
         {
             // if the customer has no actions, delete them.
-            if (customer.actions.length <= 0)
+            if (customer.stateMachine.actions.length <= 0)
             {
                 this.updateReputation(customer.mood);
                 

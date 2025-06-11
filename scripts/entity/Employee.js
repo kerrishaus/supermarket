@@ -96,7 +96,7 @@ export class Employee extends Entity
 
     nextAction()
     {
-        console.debug(`Action "${this.actions[0].type}" completed.`);
+        console.debug(`Employee action "${this.actions[0].type}" completed.`);
         
         this.actions[0].onFinish?.();
         

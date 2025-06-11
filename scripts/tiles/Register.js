@@ -4,8 +4,8 @@ import { createMoney } from "../GeometryUtility.js";
 
 import { Entity   } from "../entity/Entity.js";
 import { Player	  } from "../entity/Player.js";
-import { Customer } from "../entity/Customer.js";
 import { Employee } from "../entity/Employee.js";
+import { Customer, CheckoutAction } from "../entity/Customer.js";
 
 import { TriggerComponent } from "../entity/components/TriggerComponent.js";
 import { ModelComponent   } from "../entity/components/ModelComponent.js";
@@ -59,10 +59,10 @@ export class Register extends Entity
 		{
 			const customer = this.waitingCustomers[0];
 			
-			console.log("selling " + customer.getComponent("ContainerComponent").carriedItems.length + " items");
-			
 			for (let i = 0; i < customer.getComponent("ContainerComponent").carriedItems.length; i++)
 				this.addMoney(customer.position);
+				
+			console.log("Sold " + customer.getComponent("ContainerComponent").carriedItems.length + " items.");
 			
 			customer.finishCheckout();
 			
@@ -77,12 +77,12 @@ export class Register extends Entity
 		this.calculateGrid();
 		
 		const money = createMoney();
-		money.forPlayer   = true;
+		money.forPlayer = true;
 		
 		money.position.copy(this.position);
 		money.getComponent("CarryableComponent").setTarget(this.position, new Vector3(this.column_ * this.moneyLength - 0.6 - 1,
-		                                                    this.position.z - (this.scale.z / 2) + (this.layer_ * this.moneyThickness) + this.moneyThickness / 2),
-															this.row_ * this.moneyWidth - 0.5);
+		                                                   this.position.z - (this.scale.z / 2) + (this.layer_ * this.moneyThickness) + this.moneyThickness / 2),
+														   this.row_ * this.moneyWidth - 0.5);
 		
 		scene.add(money);
 		this.money.push(money);
@@ -152,14 +152,17 @@ export class Register extends Entity
 		}
 		else if (object instanceof Customer)
 		{
-			if (!object.checkedOut && !this.waitingCustomers.includes(object))
-			{
-				console.debug("Customer is now waiting to check out.", object);
-				
-				this.waitingCustomers.push(object);
-				
-				$("#waitingCustomers").text(this.waitingCustomers.length);
-			}
+		    if (object.stateMachine.actions[0] instanceof CheckoutAction)
+		    {
+    			if (!object.checkedOut && !this.waitingCustomers.includes(object))
+    			{
+    				console.debug("Customer is now waiting to check out.", object);
+    				
+    				this.waitingCustomers.push(object);
+    				
+    				$("#waitingCustomers").text(this.waitingCustomers.length);
+    			}
+		    }
 		}
 	}
 	

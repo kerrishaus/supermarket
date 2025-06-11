@@ -18,15 +18,15 @@ const saveDataRaw =
                 "position":{
                     "x":3,
                     "y":0.5,
-                    "z":-3
+                    "z":3
                 }
             },
             {
                 "type":"tomatoPlant",
                 "position":{
-                    "x":-3,
+                    "x":3,
                     "y":0.5,
-                    "z":3
+                    "z":-3
                 },
                 "amount":3
             },
