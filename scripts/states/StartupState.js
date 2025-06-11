@@ -14,6 +14,7 @@ import { PhysicsScene } from "../PhysicsScene.js";
 
 import { loadModel } from "../ModelLoader.js";
 import { MainMenuState } from "./MainMenuState.js";
+import { LoadSaveState } from "./LoadSaveState.js";
 
 import { addStyle, removeStyle } from "../PageUtility.js";
 
@@ -239,7 +240,7 @@ export class StartupState extends State
                 {
                     $("body").off("click.postStartup");
 
-                    this.stateMachine.changeState(new MainMenuState());
+                    this.stateMachine.changeState(new LoadSaveState());
                 });
 
                 $("#LoadingCover").addClass("ready");

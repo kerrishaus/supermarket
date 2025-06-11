@@ -60,15 +60,6 @@ export class PlayState extends State
                 console.log(stretched);
                 resize();
             }
-            else if (event.code == "KeyF")
-            {
-                fullbright = !fullbright;
-                
-                if (fullbright)
-                    renderer.setClearColor(0xFFFFFF);
-                else
-                    renderer.setClearColor(0x000000);
-            }
             else if (event.code == "KeyV")
             {
                 const vehicle = new Vehicle();
@@ -118,10 +109,16 @@ export class PlayState extends State
         $(renderer.domElement).show();
         $(htmlRenderer.domElement).show();
         
-        setTimeout(() => {
-            $("body").fadeIn(1000);
-        }, 1000)
-
+        $("#LoadingCover").fadeOut(1000, function()
+        {
+            $(this).remove(); 
+            $("#loadingStyles").remove();
+            
+            setTimeout(() => {
+                $("body").fadeIn(1000);
+            }, 1000)
+        });
+        
         this.animate();
     }
 
@@ -224,9 +221,10 @@ export class PlayState extends State
                 object.update(deltaTime);
             
             // TODO: this is a really ugly hack, but it prevents
-            // anything from being triggered during the first 3 frames of the game
-            // giving the oriented bounding boxes time to update into their proper positions.
-            if (this.clock.getElapsedTime() > 2)
+            // anything from being triggered during the first several frames of the game
+            // giving the oriented bounding boxes time to update into their proper positions,
+            // without triggering things due to them all starting in the same position
+            if (this.clock.getElapsedTime() > 0.5)
                 // if the object is a trigger, check if any geometry boxes are within it
             
                 if (object instanceof Entity && object.hasComponent("TriggerComponent"))
