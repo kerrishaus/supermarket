@@ -12,7 +12,8 @@ export class SingleSlidingDoor extends Entity
     {
         super();
 
-        this.trigger = this.addComponent(new TriggerComponent(2, 3.5, 4));
+        this.trigger = this.addComponent(new TriggerComponent(2, 3.5, 2.5));
+        this.trigger.triggerGeometry.position.z -= 0.5;
         
         this.leftDoor = new Entity();
         this.add(this.leftDoor);
@@ -41,11 +42,9 @@ export class SingleSlidingDoor extends Entity
     onStartTrigger()
     {
         this.leftDoor.getComponent("CarryableComponent").setTarget(
-            new Vector3(-2, 0, 0),
+            new Vector3(2, 0, 0),
             new Vector3(0, 0, 0),
         );
-
-        console.debug("opening door");
     }
     
     onStopTrigger()
@@ -59,7 +58,5 @@ export class SingleSlidingDoor extends Entity
             new Vector3(0, 0, 0),
             new Vector3(0, 0, 0),
         );
-
-        console.debug("closing door");
     }
 }
