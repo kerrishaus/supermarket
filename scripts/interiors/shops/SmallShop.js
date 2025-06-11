@@ -60,14 +60,12 @@ export class SmallShop extends PlayerOwnedShop
         this.exteriorModel.rotation.y = MathUtils.degToRad(180);
         this.add(this.exteriorModel);
 
-        this.triggerEnt = new Entity();
-        this.triggerEnt.position.y = height / 2 - 0.5;
-        this.trigger = this.triggerEnt.addComponent(new TriggerComponent(this.width, height, this.length));
-        this.add(this.triggerEnt);
+        this.occupiedTrigger = new Entity();
+        this.occupiedTrigger.position.y = height / 2 - 0.5;
+        this.trigger = this.occupiedTrigger.addComponent(new TriggerComponent(this.width, height, this.length));
+        this.add(this.occupiedTrigger);
         
-        this.interiorCameraPosition = new Vector3(0, height * 2, -this.width);
-
-        this.triggerEnt.onStartTrigger = (object) =>
+        this.occupiedTrigger.onStartTrigger = (object) =>
         {
             if (object instanceof Player)
             {
@@ -77,7 +75,7 @@ export class SmallShop extends PlayerOwnedShop
             }
         };
 
-        this.triggerEnt.onStopTrigger = (object) =>
+        this.occupiedTrigger.onStopTrigger = (object) =>
         {
             if (object instanceof Player)
             {
@@ -87,7 +85,37 @@ export class SmallShop extends PlayerOwnedShop
             }
         };
         
-        this.door = new SingleSlidingDoor(new Vector3(3, 1.25, northWall.position.z - 0.001), 0x0000ff);
+        this.externalDoorTrigger = new Entity();
+        this.externalDoorTrigger.addComponent(new TriggerComponent(3.2, 4, 2));
+        this.externalDoorTrigger.position.set(-3.5, 1.5, 6);
+        this.add(this.externalDoorTrigger);
+        
+        this.externalDoorTrigger.onStartTrigger = (object) =>
+        {
+            if (object instanceof Player)
+            {
+                if (player.interior == null)
+                {
+                    player.disableMovement();
+                    
+                    $("body").fadeOut(2000, () => {
+                        player.position.copy(this.readyPosition);
+                    });
+                }
+            }
+        };
+
+        this.externalDoorTrigger.onStopTrigger = (object) =>
+        {
+            if (object instanceof Player)
+            {
+                $("body").fadeIn(2000, () => {
+                    player.enableMovement();
+                });
+            }
+        };
+        
+        this.door = new SingleSlidingDoor(new Vector3(-3, 1.25, northWall.position.z - 0.001), 0x0000ff);
         this.add(this.door);
         
         const light = new PointLight(0xffffff, 15, 10);
@@ -95,8 +123,9 @@ export class SmallShop extends PlayerOwnedShop
         light.castShadow = true;
         this.add(light);
         
-        this.spawnPosition = new Vector3(this.door.position.x, 0.5, this.door.position.z + 4);
+        this.spawnPosition = new Vector3(this.door.position.x, 0.5, this.door.position.z + 0.8);
         this.readyPosition = new Vector3(this.door.position.x, 0.5, this.door.position.z - 3);
+        this.interiorCameraPosition = new Vector3(0, height * 1.6, -this.width);
         
         const size = 20;
         const divisions = 10;
