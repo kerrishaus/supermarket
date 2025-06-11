@@ -182,6 +182,7 @@ export class Vehicle extends Entity
     {
         window.addEventListener("keydown", player.vehicle.keydown);
 		window.addEventListener("keyup", player.vehicle.keyup);
+		window.addEventListener("blur", player.vehicle.blur);
 		
 		console.log("added vehicle event listeners");
     }
@@ -190,6 +191,7 @@ export class Vehicle extends Entity
     {
         window.removeEventListener("keydown", player.vehicle.keydown);
 		window.removeEventListener("keyup", player.vehicle.keyup);
+		window.removeEventListener("blur", player.vehicle.blur);
 		
 		console.log("removed vehicle event listeners");
     }
@@ -220,6 +222,11 @@ export class Vehicle extends Entity
 			e.stopPropagation();
 			return false;
 		}
+	}
+
+	blur(event)
+	{
+		player.vehicle.actions = [];
 	}
     
     createWheelMesh(radius, width)

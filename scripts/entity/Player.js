@@ -303,6 +303,7 @@ export class Player extends Entity
         // window.addEventListener("mousedown" , player.mousedown);
         window.addEventListener("keyup"  , player.keyup);
         window.addEventListener("keydown", player.keydown);
+        window.addEventListener("blur"   , player.blur);
         $(window).on("mouseup touchend"  , player.moveEnd);
 
         player.controlsEnabled = true;
@@ -318,6 +319,7 @@ export class Player extends Entity
         // window.removeEventListener("mousedown" , player.mousedown);
         window.removeEventListener("keyup"  , player.keyup);
         window.removeEventListener("keydown", player.keydown);
+        window.removeEventListener("blur"   , player.blur);
         $(window).off("mouseup touchend"    , player.moveEnd);
         
         this.keys = [];
@@ -449,6 +451,11 @@ export class Player extends Entity
               player.keys["KeyS"] || player.keys["ArrowDown"] ||
               player.keys["KeyD"] || player.keys["ArrowRight"]))
               player.moveEnd(event);
+    }
+
+    blur(event)
+    {
+        player.keys = [];
     }
     
     moveEnd(event)
