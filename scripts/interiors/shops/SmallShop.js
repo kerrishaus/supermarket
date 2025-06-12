@@ -59,71 +59,79 @@ export class SmallShop extends PlayerOwnedShop
         this.exteriorModel.position.y -= 0.5;
         this.exteriorModel.rotation.y = MathUtils.degToRad(180);
         this.add(this.exteriorModel);
-
-        this.occupiedTrigger = new Entity();
-        this.occupiedTrigger.position.y = height / 2 - 0.5;
-        this.trigger = this.occupiedTrigger.addComponent(new TriggerComponent(this.width, height, this.length));
-        this.add(this.occupiedTrigger);
-        
-        this.occupiedTrigger.onStartTrigger = (object) =>
-        {
-            if (object instanceof Player)
-            {
-                console.log("Player has entered shop.");
-                this.remove(this.exteriorModel);
-                player.interior = this;
-            }
-        };
-
-        this.occupiedTrigger.onStopTrigger = (object) =>
-        {
-            if (object instanceof Player)
-            {
-                console.log("Player has exited shop.");
-                this.add(this.exteriorModel);
-                player.interior = null;
-            }
-        };
         
         this.externalDoorTrigger = new Entity();
         this.externalDoorTrigger.addComponent(new TriggerComponent(3.2, 4, 2));
         this.externalDoorTrigger.position.set(-3.5, 1.5, 6);
         this.add(this.externalDoorTrigger);
         
-        this.externalDoorTrigger.onStartTrigger = (object) =>
+        this.externalDoorTrigger.addEventListener("startTrigger", (event) =>
         {
-            if (object instanceof Player)
+            if (event.object instanceof Player)
             {
-                if (player.interior == null)
+                if (event.object.interior == null)
                 {
-                    player.disableMovement();
+                    console.log("Player has entered shop.");
+                    
+                    event.object.disableMovement();
                     
                     $("body").fadeOut(2000, () => {
-                        player.position.copy(this.readyPosition);
+                        this.remove(this.exteriorModel);
+                        event.object.interior = this;
+                        event.object.position.copy(this.readyPosition);
                     });
                 }
             }
-        };
+        });
 
-        this.externalDoorTrigger.onStopTrigger = (object) =>
+        this.externalDoorTrigger.addEventListener("stopTrigger", (event) =>
         {
-            if (object instanceof Player)
+            if (event.object instanceof Player)
             {
                 $("body").fadeIn(2000, () => {
-                    player.enableMovement();
+                    event.object.enableMovement();
                 });
             }
-        };
+        });
         
         this.door = new SingleSlidingDoor(new Vector3(-3, 1.25, northWall.position.z - 0.001), 0x0000ff);
         this.add(this.door);
+        
+        this.door.addEventListener("startTrigger", (event) =>
+        {
+            if (event.object instanceof Player)
+            {
+                if (event.object.interior != null)
+                {
+                    event.object.disableMovement();
+                    
+                    $("body").fadeOut(2000, () => {
+                        event.object.position.copy(this.spawnPosition);
+                    });
+                }
+            }
+        });
+
+        this.door.addEventListener("stopTrigger", (event) =>
+        {
+            if (event.object instanceof Player)
+            {
+                console.log("Player has exited shop.");
+                this.add(this.exteriorModel);
+                event.object.interior = null;
+                
+                $("body").fadeIn(2000, () => {
+                    event.object.enableMovement();
+                });
+            }
+        });
         
         const light = new PointLight(0xffffff, 15, 10);
         light.position.set(0, 3.5, 0);
         light.castShadow = true;
         this.add(light);
         
-        this.spawnPosition = new Vector3(this.door.position.x, 0.5, this.door.position.z + 0.8);
+        this.spawnPosition = new Vector3(this.door.position.x, 0.5, this.door.position.z + 6);
         this.readyPosition = new Vector3(this.door.position.x, 0.5, this.door.position.z - 3);
         this.interiorCameraPosition = new Vector3(0, height * 1.6, -this.width);
         
@@ -191,10 +199,11 @@ export class SmallShop extends PlayerOwnedShop
                     model.position.y -= 1;
                     model.scale.set(2.5, 2.5, 2.5);
 
-                    tomatoStand.onTrigger = (object) => {
-                        if (object instanceof Player)
-                            tomatoContainer.transferFromCarrier(object);
-                    }
+                    tomatoStand.addEventListener("trigger", (event) =>
+                    {
+                        if (event.object instanceof Player)
+                            tomatoContainer.transferFromCarrier(event.object);
+                    });
 
                     return tomatoStand;
                 }
@@ -214,10 +223,11 @@ export class SmallShop extends PlayerOwnedShop
                         new MeshStandardMaterial({ color: 0xff0000 })
                     )).mesh.position.y -= 0.5;
 
-                    tomatoPlant.onTrigger = (object) => {
-                        if (object instanceof Player)
-                            tomatoPlantGenerator.transferToCarrier(object);
-                    }
+                    tomatoPlant.addEventListener("trigger", (event) =>
+                    {
+                        if (event.object instanceof Player)
+                            tomatoPlantGenerator.transferToCarrier(event.object);
+                    });
 
                     return tomatoPlant;
                 }
@@ -239,10 +249,10 @@ export class SmallShop extends PlayerOwnedShop
                     model.position.y -= 1;
                     model.scale.set(4, 2, 4);
 
-                    sodaStand.onTrigger = (object) => {
-                        if (object instanceof Player)
-                            sodaContainer.transferFromCarrier(object);
-                    }
+                    sodaStand.addEventListener("trigger", (event) => {
+                        if (event.object instanceof Player)
+                            sodaContainer.transferFromCarrier(event.object);
+                    });
 
                     return sodaStand;
                 }
@@ -264,10 +274,10 @@ export class SmallShop extends PlayerOwnedShop
                     model.position.y -= 1;
                     model.scale.set(3, 3, 3);
 
-                    sodaMaker.onTrigger = (object) => {
-                        if (object instanceof Player)
-                            sodaMachineGenerator.transferToCarrier(object);
-                    }
+                    sodaMaker.addEventListener("trigger", (event) => {
+                        if (event.object instanceof Player)
+                            sodaMachineGenerator.transferToCarrier(event.object);
+                    });
 
                     return sodaMaker;
                 }
@@ -287,10 +297,10 @@ export class SmallShop extends PlayerOwnedShop
                     model.position.y -= 1;
                     model.scale.set(2.5, 2.5, 2.5);
 
-                    ketchupStand.onTrigger = (object) => {
-                        if (object instanceof Player)
-                            ketchupContainer.transferFromCarrier(object);
-                    }
+                    ketchupStand.addEventListener("trigger", (event) => {
+                        if (event.object instanceof Player)
+                            ketchupContainer.transferFromCarrier(event.object);
+                    });
 
                     return ketchupStand;
                 }

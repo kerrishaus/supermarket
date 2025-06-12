@@ -25,6 +25,16 @@ export class RecycleBin extends Entity
         
         this.timeSinceLastRecycle = 0;
         this.recycleInterval = 0.2;
+        
+        this.addEventListener("trigger", (event) =>
+        {
+            if (event.object instanceof Player)
+                if (this.timeSinceLastRecycle > this.recycleInterval)   
+                {
+                    this.recycleItem(event.object);
+                    this.timeSinceLastRecycle = 0;
+                }
+        });
     }
     
     update(deltaTime)
@@ -54,15 +64,5 @@ export class RecycleBin extends Entity
         this.itemBuffer.push(item);
         
         item.getComponent("CarryableComponent").setTarget(this.position, new Vector3(0, 0, -1));
-    }
-    
-    onTrigger(object)
-    {
-        if (object instanceof Player)
-            if (this.timeSinceLastRecycle > this.recycleInterval)   
-            {
-                this.recycleItem(object);
-                this.timeSinceLastRecycle = 0;
-            }
     }
 }

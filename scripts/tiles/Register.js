@@ -49,6 +49,57 @@ export class Register extends Entity
 		this.playerIsInContact   = false;
 		this.employeeIsInContact = false;
 		this.handledByEmployee   = null;
+		
+		this.addEventListener("trigger", (event) =>
+		{
+    		if (event.object instanceof Player)
+    		{
+    			this.transferMoney(event.object);
+    			
+    			if (!this.playerIsInContact)
+    			{
+    				console.debug("Player is at register.");
+    				this.playerIsInContact = true;
+    			}
+    		}
+    		else if (event.object instanceof Employee)
+    		{
+    			if (!this.employeeIsInContact)
+    			{ 
+    				console.debug("Employee is at the register.");
+    				this.employeeIsInContact = true;
+    			}
+    		}
+    		else if (event.object instanceof Customer)
+    		{
+    		    if (event.object.stateMachine.actions[0] instanceof CheckoutAction)
+    		    {
+        			if (!event.object.checkedOut && !this.waitingCustomers.includes(event.object))
+        			{
+        				console.debug("Customer is now waiting to check out.", event.object);
+        				
+        				this.waitingCustomers.push(event.object);
+        				
+        				$("#waitingCustomers").text(this.waitingCustomers.length);
+        			}
+    		    }
+    		}
+		});
+		
+		this.addEventListener("stopTrigger", (event) =>
+		{
+    		if (event.object instanceof Player)
+    		{
+    			console.debug("Player has left the register.");
+    			this.playerIsInContact = false;
+    		}
+    		
+    		if (event.object instanceof Employee)
+    		{
+    			console.debug("Employee has left the register.");
+    			this.employeeIsInContact = false;
+    		}
+		});
 	}
 	
 	update(deltaTime)
@@ -127,57 +178,6 @@ export class Register extends Entity
 				this.row_ = 0;
 				this.layer_ += 1;
 			}
-		}
-	}
-	
-	onTrigger(object)
-	{
-		if (object instanceof Player)
-		{
-			this.transferMoney(object);
-			
-			if (!this.playerIsInContact)
-			{
-				console.debug("Player is at register.");
-				this.playerIsInContact = true;
-			}
-		}
-		else if (object instanceof Employee)
-		{
-			if (!this.employeeIsInContact)
-			{ 
-				console.debug("Employee is at the register.");
-				this.employeeIsInContact = true;
-			}
-		}
-		else if (object instanceof Customer)
-		{
-		    if (object.stateMachine.actions[0] instanceof CheckoutAction)
-		    {
-    			if (!object.checkedOut && !this.waitingCustomers.includes(object))
-    			{
-    				console.debug("Customer is now waiting to check out.", object);
-    				
-    				this.waitingCustomers.push(object);
-    				
-    				$("#waitingCustomers").text(this.waitingCustomers.length);
-    			}
-		    }
-		}
-	}
-	
-	onStopTrigger(object)
-	{
-		if (object instanceof Player)
-		{
-			console.debug("Player has left the register.");
-			this.playerIsInContact = false;
-		}
-		
-		if (object instanceof Employee)
-		{
-			console.debug("Employee has left the register.");
-			this.employeeIsInContact = false;
 		}
 	}
 };

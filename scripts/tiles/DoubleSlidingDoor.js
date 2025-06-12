@@ -58,40 +58,36 @@ export class DoubleSlidingDoor extends Entity
         this.add(createCube(new Vector3(4, 1, 3.5), new Vector3(0, 0.0005, 0), 0x000000));
 
         this.position.copy(position);
-    }
-
-    onStartTrigger()
-    {
-        this.rightDoor.getComponent("CarryableComponent").setTarget(
-            new Vector3(3, 0, 0),
-            new Vector3(0, 0, 0),
-        );
-            
-        this.leftDoor.getComponent("CarryableComponent").setTarget(
-            new Vector3(-3, 0, 0),
-            new Vector3(0, 0, 0),
-        );
-
-        console.debug("opening door");
-    }
-    
-    onStopTrigger()
-    {
-        // always open the door when triggered, in case it was shut for some reason
-        // only close the door when nothing else is left in the trigger.
-        if (this.trigger.triggered)
-            return;
         
-        this.rightDoor.getComponent("CarryableComponent").setTarget(
-            new Vector3(1, 0, 0),
-            new Vector3(0, 0, 0),
-        );
-
-        this.leftDoor.getComponent("CarryableComponent").setTarget(
-            new Vector3(-1, 0, 0),
-            new Vector3(0, 0, 0),
-        );
-
-        console.debug("closing door");
+        this.addEventListener("startTrigger", (event) =>
+        {
+            this.rightDoor.getComponent("CarryableComponent").setTarget(
+                new Vector3(3, 0, 0),
+                new Vector3(0, 0, 0),
+            );
+                
+            this.leftDoor.getComponent("CarryableComponent").setTarget(
+                new Vector3(-3, 0, 0),
+                new Vector3(0, 0, 0),
+            );
+        });
+        
+        this.addEventListener("stopTrigger", (event) =>
+        {
+            // always open the door when triggered, in case it was shut for some reason
+            // only close the door when nothing else is left in the trigger.
+            if (this.trigger.triggered)
+                return;
+            
+            this.rightDoor.getComponent("CarryableComponent").setTarget(
+                new Vector3(1, 0, 0),
+                new Vector3(0, 0, 0),
+            );
+    
+            this.leftDoor.getComponent("CarryableComponent").setTarget(
+                new Vector3(-1, 0, 0),
+                new Vector3(0, 0, 0),
+            );
+        })
     }
 }

@@ -30,6 +30,15 @@ export class KetchupMachine extends Entity
 
         this.transformTime = 5;
         this.timeSinceLastTransformation = 0;
+        
+        this.addEventListener("trigger", (event) =>
+        {
+            if (event.object instanceof Player)
+            {
+                this.container.transferFromCarrier(event.object);
+                this.generator.transferToCarrier(event.object);
+            }
+        });
     }
 
     update(deltaTime)
@@ -55,14 +64,5 @@ export class KetchupMachine extends Entity
                 }
 
         this.timeSinceLastTransformation += deltaTime;
-    }
-
-    onTrigger(object)
-    {
-        if (object instanceof Player)
-        {
-            this.container.transferFromCarrier(object);
-            this.generator.transferToCarrier(object);
-        }
     }
 }

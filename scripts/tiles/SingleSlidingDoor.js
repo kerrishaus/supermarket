@@ -37,26 +37,26 @@ export class SingleSlidingDoor extends Entity
         this.add(createCube(new Vector3(2, 3.5, 0.2), new Vector3(0, 0, 0.0005), 0x000000));
 
         this.position.copy(position);
-    }
-
-    onStartTrigger()
-    {
-        this.leftDoor.getComponent("CarryableComponent").setTarget(
-            new Vector3(2, 0, 0),
-            new Vector3(0, 0, 0),
-        );
-    }
-    
-    onStopTrigger()
-    {
-        // always open the door when triggered, in case it was shut for some reason
-        // only close the door when nothing else is left in the trigger.
-        if (this.trigger.triggered)
-            return;
         
-        this.leftDoor.getComponent("CarryableComponent").setTarget(
-            new Vector3(0, 0, 0),
-            new Vector3(0, 0, 0),
-        );
+        this.addEventListener("startTrigger", (event) =>
+        {
+            this.leftDoor.getComponent("CarryableComponent").setTarget(
+                new Vector3(2, 0, 0),
+                new Vector3(0, 0, 0),
+            );
+        });
+        
+        this.addEventListener("stopTrigger", (event) =>
+        {
+            // always open the door when triggered, in case it was shut for some reason
+            // only close the door when nothing else is left in the trigger.
+            if (this.trigger.triggered)
+                return;
+            
+            this.leftDoor.getComponent("CarryableComponent").setTarget(
+                new Vector3(0, 0, 0),
+                new Vector3(0, 0, 0),
+            );
+        });
     }
 }
