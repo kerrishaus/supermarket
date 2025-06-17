@@ -8,6 +8,7 @@ import { SmallShop    } from "../interiors/shops/SmallShop.js";
 
 import { Player   } from "../entity/Player.js";
 import { Customer } from "../entity/Customer.js";
+import { Vehicle  } from "../entity/Vehicle.js";
 
 import * as SaveLoader from "../SaveLoader.js";
 import * as ItemUtility from "../ItemUtility.js";
@@ -21,21 +22,6 @@ export class LoadSaveState extends State
             <div id='interface' class="gameInterfaceContainer">
                 <div id="pauseMenu" class="game-menu" data-visibility="hidden">
                     <button id="resetSave">reset save file</button>
-                    <label>
-                        Movement Type
-                        <select>
-                            <option>First Person</option>
-                            <option>Third Person Free Angle</option>
-                            <option>Third Person Fixed Angle</option>
-                            <option>Top Down</option>
-                        </select>
-                    </label>
-                    <label>
-                        <input id="pixelShader" type="checkbox" />Pixel Shader
-                    </label>
-                    <label>
-                        <input id="bloomShader" type="checkbox" />Bloom Shader
-                    </label>
                 </div>
                 
                 <div id="businessStats">
@@ -110,6 +96,9 @@ export class LoadSaveState extends State
         
         window.player = new Player();
         scene.add(player);
+        
+        window.vehicle = new Vehicle(12, 2, 12);
+        scene.add(vehicle);
         
         player.setMoney(saveData.player.money);
         player.deserialise(saveData.player);

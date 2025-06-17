@@ -215,6 +215,8 @@ export class StartupState extends State
                     "roads/road-crossroad-path",
 
                     "buildings/commercial/building-a",
+                    
+                    "vehicles/delivery",
                 ];
 
                 $("#progress").attr("max", models.length);

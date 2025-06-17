@@ -59,11 +59,6 @@ export class PlayState extends State
                 console.log(stretched);
                 resize();
             }
-            else if (event.code == "KeyV")
-            {
-                const vehicle = new Vehicle();
-                scene.add(vehicle);
-            }
             else if (shop.newTile === null && !shop.inDeletionMode)
             {
                 if (event.code == "KeyB")

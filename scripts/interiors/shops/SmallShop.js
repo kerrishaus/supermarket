@@ -25,15 +25,20 @@ export class SmallShop extends PlayerOwnedShop
     {
         super();
         
-        this.width  = 8;
+        this.width  = 12;
         const height = 5;
-        this.length = 8;
-        this.wallThickness = 0.1;
+        this.length = 12;
+        this.wallThickness = 1;
         
         const floorTexture = new TextureLoader().load("textures/tile.jpg");
         floorTexture.wrapS = RepeatWrapping;
         floorTexture.wrapT = RepeatWrapping;
         floorTexture.repeat.set(this.width / 2, this.length / 2);
+        
+        const wallTexture = new TextureLoader().load("textures/brick_wall.png");
+        wallTexture.wrapS = RepeatWrapping;
+        wallTexture.wrapT = RepeatWrapping;
+        wallTexture.repeat.set(this.width / 2, this.length / 4);
         
         const shopFloor = new Entity();
         shopFloor.addComponent(new RigidBodyComponent(
@@ -44,55 +49,14 @@ export class SmallShop extends PlayerOwnedShop
         shopFloor.position.copy(new Vector3(0, -1, 0));
         this.add(shopFloor);
         
-        const northWall = GeometryUtil.createRigidBodyCube(this.width, height, this.wallThickness, { color: 0xbfbfbf }, 0);
+        const northWall = GeometryUtil.createRigidBodyCube(this.width, height, this.wallThickness, { map: wallTexture }, 0);
         northWall.position.set(0, height / 2 - 0.5, this.length / 2 + this.wallThickness / 2);
         
-        const eastWall = GeometryUtil.createRigidBodyCube(this.wallThickness, height, this.width + this.wallThickness, { color: 0xbfbfbf }, 0);
+        const eastWall = GeometryUtil.createRigidBodyCube(this.wallThickness, height, this.width + this.wallThickness, { map: wallTexture }, 0);
         eastWall.position.set(this.width / 2 + this.wallThickness / 2,  height / 2 - 0.5, this.wallThickness / 2);
         
-        const westWall = GeometryUtil.createRigidBodyCube(this.wallThickness, height, this.width + this.wallThickness, { color: 0xbfbfbf }, 0);
+        const westWall = GeometryUtil.createRigidBodyCube(this.wallThickness, height, this.width + this.wallThickness, { map: wallTexture }, 0);
         westWall.position.set(-this.width / 2 - this.wallThickness / 2, height / 2 - 0.5, this.wallThickness / 2);
-
-        this.exteriorModel = new Entity();
-        const exteriorModel = this.exteriorModel.addComponent(new ModelComponent(`buildings/commercial/building-a`)).model;
-        exteriorModel.scale.set(16, 16, 16);
-        this.exteriorModel.position.y -= 0.5;
-        this.exteriorModel.rotation.y = MathUtils.degToRad(180);
-        this.add(this.exteriorModel);
-        
-        this.externalDoorTrigger = new Entity();
-        this.externalDoorTrigger.addComponent(new TriggerComponent(3.2, 4, 2));
-        this.externalDoorTrigger.position.set(-3.5, 1.5, 6);
-        this.add(this.externalDoorTrigger);
-        
-        this.externalDoorTrigger.addEventListener("startTrigger", (event) =>
-        {
-            if (event.object instanceof Player)
-            {
-                if (event.object.interior == null)
-                {
-                    console.log("Player has entered shop.");
-                    
-                    event.object.disableMovement();
-                    
-                    $("body").fadeOut(2000, () => {
-                        this.remove(this.exteriorModel);
-                        event.object.interior = this;
-                        event.object.position.copy(this.readyPosition);
-                    });
-                }
-            }
-        });
-
-        this.externalDoorTrigger.addEventListener("stopTrigger", (event) =>
-        {
-            if (event.object instanceof Player)
-            {
-                $("body").fadeIn(2000, () => {
-                    event.object.enableMovement();
-                });
-            }
-        });
         
         this.door = new SingleSlidingDoor(new Vector3(-3, 1.25, northWall.position.z - 0.001), 0x0000ff);
         this.add(this.door);
@@ -101,26 +65,36 @@ export class SmallShop extends PlayerOwnedShop
         {
             if (event.object instanceof Player)
             {
-                if (event.object.interior != null)
+                if (event.object.interior instanceof PlayerOwnedShop)
                 {
+                    console.log("Player is exiting shop.");
+                    
                     event.object.disableMovement();
                     
-                    $("body").fadeOut(2000, () => {
+                    $("body").fadeOut(1000, () => {
+                        event.object.interior = null;
                         event.object.position.copy(this.spawnPosition);
+                    });
+                }
+                else
+                {
+                    console.log("Player is entering shop.");
+                    
+                    event.object.disableMovement();
+                    
+                    $("body").fadeOut(1000, () => {
+                        event.object.interior = this;
+                        event.object.position.copy(this.readyPosition);
                     });
                 }
             }
         });
-
+        
         this.door.addEventListener("stopTrigger", (event) =>
         {
             if (event.object instanceof Player)
             {
-                console.log("Player has exited shop.");
-                this.add(this.exteriorModel);
-                event.object.interior = null;
-                
-                $("body").fadeIn(2000, () => {
+                $("body").fadeIn(1000, () => {
                     event.object.enableMovement();
                 });
             }
@@ -131,7 +105,7 @@ export class SmallShop extends PlayerOwnedShop
         light.castShadow = true;
         this.add(light);
         
-        this.spawnPosition = new Vector3(this.door.position.x, 0.5, this.door.position.z + 6);
+        this.spawnPosition = new Vector3(this.door.position.x, 0.5, this.door.position.z + 3);
         this.readyPosition = new Vector3(this.door.position.x, 0.5, this.door.position.z - 3);
         this.interiorCameraPosition = new Vector3(0, height * 1.6, -this.width);
         
@@ -158,9 +132,9 @@ export class SmallShop extends PlayerOwnedShop
         this.minTimeUntilNextCustomer         = 7;
         this.customerWaitReputationMultiplier = 0.1;
         
-        this.lifeSales                        = 0;
-        this.lifeCustomers                    = 0;
-        this.lifeReputation                   = 0;
+        this.lifeSales      = 0;
+        this.lifeCustomers  = 0;
+        this.lifeReputation = 0;
         
         this.allTiles             = [];
         this.containerTiles       = [];
@@ -239,15 +213,15 @@ export class SmallShop extends PlayerOwnedShop
                     const sodaStand = new Entity();
                     sodaStand.name = "sodaStand";
 
-                    const sodaTrigger = sodaStand.addComponent(new TriggerComponent(4, 2, 4));
+                    const sodaTrigger = sodaStand.addComponent(new TriggerComponent(4, 4, 2));
                     sodaTrigger.triggerGeometry.position.x -= 1;
 
                     const sodaContainer = sodaStand.addComponent(new ContainerComponent("Soda Stand", "sodaCan"));
                     const model = sodaStand.addComponent(new ModelComponent("tiles/freezers-standing")).model;
                     
-                    model.position.z -= 1;
+                    model.position.x -= 1;
                     model.position.y -= 1;
-                    model.scale.set(4, 2, 4);
+                    model.scale.set(4, 4, 2);
 
                     sodaStand.addEventListener("trigger", (event) => {
                         if (event.object instanceof Player)
