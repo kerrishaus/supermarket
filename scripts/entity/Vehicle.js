@@ -97,8 +97,6 @@ export class Vehicle extends Entity
 		    
 		this.add(this.chassisMesh);
 		
-		console.error(this.chassisMesh);
-		
         this.tuning    = new Ammo.btVehicleTuning();
         this.raycaster = new Ammo.btDefaultVehicleRaycaster(physicsWorld);
         this.vehicle   = new Ammo.btRaycastVehicle(this.tuning, this.body, this.raycaster);

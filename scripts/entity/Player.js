@@ -159,19 +159,34 @@ export class Player extends Entity
                     }
                     else
                     {
+                        const move = new THREE.Vector3(0, 0, 0);
+
                         if (this.keys["KeyW"] || this.keys["ArrowUp"])
-                            this.rotation.set(0, 0, 0);
-                        
+                            move.z += 1;
+
                         if (this.keys["KeyS"] || this.keys["ArrowDown"])
-                            this.rotation.set(0, Math.PI, 0);
-                        
+                            move.z -= 1;
+
                         if (this.keys["KeyA"] || this.keys["ArrowLeft"])
-                            this.rotation.set(0, Math.PI / 2, 0);
-                        
+                            move.x += 1;
+
                         if (this.keys["KeyD"] || this.keys["ArrowRight"])
-                            this.rotation.set(0, -Math.PI / 2, 0);
-                            
-                        this.translateZ(this.maxVelocity / 2);
+                            move.x -= 1;
+
+                        move.normalize().multiplyScalar(this.maxVelocity);
+
+                        this.quaternion.rotateTowards(
+                            new THREE.Quaternion().setFromRotationMatrix(
+                                new THREE.Matrix4().lookAt(
+                                    move,
+                                    new THREE.Vector3(0, 0, 0), 
+                                    new THREE.Vector3(0, 1, 0)
+                                )
+                            ), 
+                            0.4
+                        );
+
+                        this.position.add(move);
                     }
                 }
                 /* disabled because camera is no longer third person fixed
