@@ -126,34 +126,53 @@ export class Player extends Entity
                 {
                     this.phys.body.activate();
                     
-                    if (this.keys["KeyW"] || this.keys["ArrowUp"])
+                    if (this.interior == null)
                     {
-                        /*
-                        const direction = new THREE.Vector3(0, 0, 1);
-                        direction.applyQuaternion(this.quaternion);
-                        direction.multiplyScalar(48);
-                        this.phys.body.applyImpulse(new Ammo.btVector3(direction.x, direction.y, direction.z));
-                        */
+                        if (this.keys["KeyA"] || this.keys["ArrowLeft"])
+                            this.rotateY(Math.PI / 40);
+                        if (this.keys["KeyD"] || this.keys["ArrowRight"])
+                            this.rotateY(-Math.PI / 40);
                         
-                        this.translateZ(this.maxVelocity);
+                        if (this.keys["KeyW"] || this.keys["ArrowUp"])
+                        {
+                            /*
+                            const direction = new THREE.Vector3(0, 0, 1);
+                            direction.applyQuaternion(this.quaternion);
+                            direction.multiplyScalar(48);
+                            this.phys.body.applyImpulse(new Ammo.btVector3(direction.x, direction.y, direction.z));
+                            */
+                            
+                            this.translateZ(this.maxVelocity);
+                        }
+                        
+                        if (this.keys["KeyS"] || this.keys["ArrowDown"])
+                        {
+                            /*
+                            const direction = new THREE.Vector3(0, 0, -1);
+                            direction.applyQuaternion(this.quaternion);
+                            direction.multiplyScalar(48);
+                            this.phys.body.applyImpulse(new Ammo.btVector3(direction.x, direction.y, direction.z));
+                            */
+                            
+                            this.translateZ(-this.maxVelocity);
+                        }
                     }
-                    
-                    if (this.keys["KeyS"] || this.keys["ArrowDown"])
+                    else
                     {
-                        /*
-                        const direction = new THREE.Vector3(0, 0, -1);
-                        direction.applyQuaternion(this.quaternion);
-                        direction.multiplyScalar(48);
-                        this.phys.body.applyImpulse(new Ammo.btVector3(direction.x, direction.y, direction.z));
-                        */
+                        if (this.keys["KeyW"] || this.keys["ArrowUp"])
+                            this.rotation.set(0, 0, 0);
                         
-                        this.translateZ(-this.maxVelocity);
+                        if (this.keys["KeyS"] || this.keys["ArrowDown"])
+                            this.rotation.set(0, Math.PI, 0);
+                        
+                        if (this.keys["KeyA"] || this.keys["ArrowLeft"])
+                            this.rotation.set(0, Math.PI / 2, 0);
+                        
+                        if (this.keys["KeyD"] || this.keys["ArrowRight"])
+                            this.rotation.set(0, -Math.PI / 2, 0);
+                            
+                        this.translateZ(this.maxVelocity / 2);
                     }
-                    
-                    if (this.keys["KeyA"] || this.keys["ArrowLeft"])
-                        this.rotateY(Math.PI / 40);
-                    if (this.keys["KeyD"] || this.keys["ArrowRight"])
-                        this.rotateY(-Math.PI / 40);
                 }
                 /* disabled because camera is no longer third person fixed
                 else
