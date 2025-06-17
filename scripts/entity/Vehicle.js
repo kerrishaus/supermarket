@@ -14,15 +14,15 @@ export class Vehicle extends Entity
     #vehicleMass   = 600;
 
 	#wheelAxisFrontPosition = 2;
-	#wheelHalfTrackFront    = 1;
+	#wheelHalfTrackFront    = 1.1;
 	#wheelRadiusFront       = 0.5;
-	#wheelWidthFront        = 0.3;
+	#wheelWidthFront        = 0.4;
 	#wheelAxisHeightFront   = -0.8;
     
 	#wheelAxisPositionBack = -1.25;
-	#wheelHalfTrackBack    = 1;
+	#wheelHalfTrackBack    = 1.1;
 	#wheelRadiusBack       = 0.5;
-	#wheelWidthBack        = 0.3;
+	#wheelWidthBack        = 0.4;
 	#wheelAxisHeightBack   = -0.8;
 	
 	#FRONT_LEFT  = 0;
