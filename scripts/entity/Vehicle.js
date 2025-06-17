@@ -4,24 +4,26 @@ import { Entity } from "./Entity.js";
 import { RigidBodyComponent } from "./components/RigidBodyComponent.js";
 import { InteractableComponent } from "./components/InteractableComponent.js";
 
+import { getModel } from "../ModelLoader.js";
+
 export class Vehicle extends Entity
 {
-    #chassisWidth  = 1.8;
-    #chassisHeight = 2.5;
-    #chassisLength = 4;
-    #vehicleMass   = 500;
+    #chassisWidth  = 2.8;
+    #chassisHeight = 3;
+    #chassisLength = 6.5;
+    #vehicleMass   = 600;
 
-	#wheelAxisFrontPosition = 1.7;
+	#wheelAxisFrontPosition = 2;
 	#wheelHalfTrackFront    = 1;
-	#wheelRadiusFront       = 0.4;
+	#wheelRadiusFront       = 0.5;
 	#wheelWidthFront        = 0.3;
-	#wheelAxisHeightFront   = -1.2;
+	#wheelAxisHeightFront   = -0.8;
     
-	#wheelAxisPositionBack = -1.7;
+	#wheelAxisPositionBack = -1.25;
 	#wheelHalfTrackBack    = 1;
-	#wheelRadiusBack       = 0.4;
+	#wheelRadiusBack       = 0.5;
 	#wheelWidthBack        = 0.3;
-	#wheelAxisHeightBack   = -1.2;
+	#wheelAxisHeightBack   = -0.8;
 	
 	#FRONT_LEFT  = 0;
 	#FRONT_RIGHT = 1;
@@ -37,19 +39,17 @@ export class Vehicle extends Entity
 
 	#steeringIncrement = 0.04;
 	#steeringClamp     = 0.5;
-	#maxEngineForce    = 1000;
-	#maxBrakingForce  = 25;
+	#maxEngineForce    = 1200;
+	#maxBrakingForce  = 10;
 	
 	#engineForce = 0;
 	#vehicleSteering = 0;
 	#brakingForce = 0;
 	
 	#wheelMeshes = [];
-    constructor()
+	
+    constructor(x = 0, y = 0, z = 0)
     {
-		window.TRANSFORM_AUX = new Ammo.btTransform();
-		window.ZERO_QUATERNION = new Quaternion(0, 0, 0, 1);
-		
         super();
         
         console.log("Creating vehicle...");
@@ -65,11 +65,11 @@ export class Vehicle extends Entity
         
 		this.transform = new Ammo.btTransform();
 		this.transform.setIdentity();
-		this.transform.setOrigin(new Ammo.btVector3(0, 0, 0));
+		this.transform.setOrigin(new Ammo.btVector3(x, y, z));
 		this.transform.setRotation(new Ammo.btQuaternion(0, 0, 0, 1));
 		this.motionState = new Ammo.btDefaultMotionState(this.transform);
 		
-		this.box = new Ammo.btBoxShape(new Ammo.btVector3(this.#chassisWidth * .5, this.#chassisHeight * .5, this.#chassisLength * .5));
+		this.box = new Ammo.btBoxShape(new Ammo.btVector3(this.#chassisWidth / 2, this.#chassisHeight / 2, this.#chassisLength / 2));
 		
 		this.inertia = new Ammo.btVector3(0, 0, 0);
 		this.box.calculateLocalInertia(this.#vehicleMass, this.inertia);
@@ -80,11 +80,24 @@ export class Vehicle extends Entity
 		physicsWorld.addRigidBody(this.body);
 		//physicsBodies.push({ object: this, motionState: this.motionState });
 		
-		this.chassisMesh = new Mesh(
-		    new BoxGeometry(this.#chassisWidth, this.#chassisHeight, this.#chassisLength),
-		    new MeshStandardMaterial({ color: 0x0000FF })
-	    );
-		scene.add(this.chassisMesh);
+		this.chassisMesh = getModel("vehicles/delivery");
+		this.chassisMesh.scale.x = 2;
+		this.chassisMesh.scale.y = 2;
+		this.chassisMesh.scale.z = 2;
+		this.chassisMesh.position.y -= 1.8;
+		
+		let toRemove = [];
+		
+		for (const child of this.chassisMesh.children)
+		    if (child.name.startsWith("wheel"))
+		        toRemove.push(child);
+		        
+		for (const object of toRemove)
+		    this.chassisMesh.remove(object);
+		    
+		this.add(this.chassisMesh);
+		
+		console.error(this.chassisMesh);
 		
         this.tuning    = new Ammo.btVehicleTuning();
         this.raycaster = new Ammo.btDefaultVehicleRaycaster(physicsWorld);
@@ -131,7 +144,7 @@ export class Vehicle extends Entity
 		this.dismountPosition.position.y = -0.5;
 		this.attach(this.dismountPosition);
 
-    	const interact = this.addComponent(new InteractableComponent(this.#chassisWidth + 1, this.#chassisHeight + 1, this.#chassisLength + 1));
+    	const interact = this.addComponent(new InteractableComponent(this.#chassisWidth, this.#chassisHeight, this.#chassisLength));
     	
 		// TODO: eventually get the wheels and thing added this entity so the position is right.
 		// after it works.
@@ -343,8 +356,6 @@ export class Vehicle extends Entity
 		tm = this.vehicle.getChassisWorldTransform();
 		p = tm.getOrigin();
 		q = tm.getRotation();
-		this.chassisMesh.position.set(p.x(), p.y(), p.z());
-		this.chassisMesh.quaternion.set(q.x(), q.y(), q.z(), q.w());
 		
 		this.position.set(p.x(), p.y(), p.z());
 		this.quaternion.set(q.x(), q.y(), q.z(), q.w());
