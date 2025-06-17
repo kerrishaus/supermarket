@@ -1,14 +1,14 @@
 import { Vector3 } from "https://kerrishaus.com/assets/threejs/r177/build/three.module.js";
 
-import { createMoney } from "../GeometryUtility.js";
+import { createMoney } from "../../GeometryUtility.js";
 
-import { Entity   } from "../entity/Entity.js";
-import { Player	  } from "../entity/Player.js";
-import { Employee } from "../entity/Employee.js";
-import { Customer, CheckoutAction } from "../entity/Customer.js";
+import { Entity   } from "../Entity.js";
+import { Player	  } from "../Player.js";
+import { Employee } from "../Employee.js";
+import { Customer, CheckoutAction } from "../Customer.js";
 
-import { TriggerComponent } from "../entity/components/TriggerComponent.js";
-import { ModelComponent   } from "../entity/components/ModelComponent.js";
+import { TriggerComponent } from "../components/TriggerComponent.js";
+import { ModelComponent   } from "../components/ModelComponent.js";
 
 export class Register extends Entity
 {
@@ -16,10 +16,10 @@ export class Register extends Entity
 	{
 		super();
 		
-		const trigger = this.addComponent(new TriggerComponent(4, 2, 3));
+		const trigger = this.addComponent(new TriggerComponent(4, 2, 4));
 		trigger.triggerGeometry.position.x -= 1;
 		trigger.triggerGeometry.position.y -= 1;
-		trigger.triggerGeometry.position.z -= 0.5;
+		trigger.triggerGeometry.position.z;
 		
 		const model = this.addComponent(new ModelComponent("tiles/cash-register")).model;
 

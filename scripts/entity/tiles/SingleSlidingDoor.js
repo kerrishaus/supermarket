@@ -1,10 +1,10 @@
 import { Vector3 } from "https://kerrishaus.com/assets/threejs/r177/build/three.module.js";
 
-import { createCube } from "../GeometryUtility.js";
+import { createCube } from "../../GeometryUtility.js";
 
-import { Entity } from "../entity/Entity.js";
-import { CarryableComponent } from "../entity/components/CarryableComponent.js";
-import { TriggerComponent } from "../entity/components/TriggerComponent.js";
+import { Entity } from "../Entity.js";
+import { CarryableComponent } from "../components/CarryableComponent.js";
+import { TriggerComponent } from "../components/TriggerComponent.js";
 
 export class SingleSlidingDoor extends Entity
 {
@@ -12,8 +12,7 @@ export class SingleSlidingDoor extends Entity
     {
         super();
 
-        this.trigger = this.addComponent(new TriggerComponent(2, 3.5, 2.5));
-        this.trigger.triggerGeometry.position.z -= 0.5;
+        this.trigger = this.addComponent(new TriggerComponent(2, 3.5, 4));
         
         this.leftDoor = new Entity();
         this.add(this.leftDoor);
@@ -21,20 +20,20 @@ export class SingleSlidingDoor extends Entity
         this.leftDoor.addComponent(new CarryableComponent)
             .setTarget(this.leftDoor.position, new Vector3(0, 0, 0));
         
-        // main door
-        this.leftDoor.add(createCube(new Vector3(1.95, 3.45, 0.2), new Vector3(0, 0, 0), 0x00d1e8));
+        //blue glass door body
+        this.leftDoor.add(createCube(new Vector3(1.95, 3.45, 1.005), new Vector3(0, 0, 0), 0x00d1e8));
 
-        // vertical frames
-        this.leftDoor.add(createCube(new Vector3(0.2, 3.5, 0.1), new Vector3(-0.9, 0, -0.1), 0x919191));
-        this.leftDoor.add(createCube(new Vector3(0.2, 3.5, 0.1), new Vector3(0.9, 0, -0.1), 0x919191));
-        
-        // horizontal frames
-        this.leftDoor.add(createCube(new Vector3(1.6, 0.2, 0.1), new Vector3(0, 1.65, -0.1), 0x919191));
-        this.leftDoor.add(createCube(new Vector3(1.6, 0.2, 0.1), new Vector3(0, 0, -0.1), 0x919191));
-        this.leftDoor.add(createCube(new Vector3(1.6, 0.2, 0.1), new Vector3(0, -1.65, -0.1), 0x919191));
+        //vertical frames
+        this.leftDoor.add(createCube(new Vector3(0.2, 3.5, 1.2), new Vector3(-0.9, 0, 0), 0x919191));
+        this.leftDoor.add(createCube(new Vector3(0.2, 3.5, 1.2), new Vector3(0.9, 0, 0), 0x919191));
+
+        //horizontal frames
+        this.leftDoor.add(createCube(new Vector3(1.6, 0.2, 1.2), new Vector3(0, 1.65, 0), 0x919191));
+        this.leftDoor.add(createCube(new Vector3(1.6, 0.2, 1.2), new Vector3(0, 0, 0), 0x919191));
+        this.leftDoor.add(createCube(new Vector3(1.6, 0.2, 1.2), new Vector3(0, -1.65, 0), 0x919191));
 
         // the black "void" behind the door
-        this.add(createCube(new Vector3(2, 3.5, 0.2), new Vector3(0, 0, 0.0005), 0x000000));
+        this.add(createCube(new Vector3(2, 3.5, 1.003), new Vector3(0, 0, 0), 0x000000));
 
         this.position.copy(position);
         

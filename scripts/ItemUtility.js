@@ -1,6 +1,6 @@
-import { Tomato  } from "./items/Tomato.js";
-import { SodaCan } from "./items/SodaCan.js";
-import { Ketchup } from "./items/Ketchup.js";
+import { Tomato  } from "./entity/items/Tomato.js";
+import { SodaCan } from "./entity/items/SodaCan.js";
+import { Ketchup } from "./entity/items/Ketchup.js";
 
 export function instantiateItem(itemData)
 {

@@ -7,8 +7,9 @@ import { Entity } from "./Entity.js";
 import { ContainerComponent } from "./components/ContainerComponent.js";
 import { GeometryComponent  } from "./components/GeometryComponent.js";
 
+import { Register } from "./tiles/Register.js";
+
 import * as MathUtility from "../MathUtility.js";
-import { Register } from "../tiles/Register.js";
 
 export class Employee extends Entity
 {

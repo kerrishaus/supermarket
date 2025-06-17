@@ -2,10 +2,10 @@ import { BoxGeometry, Vector3, Raycaster, Plane, GridHelper, PointLight, MeshSta
 
 import { PlayerOwnedShop } from "./PlayerOwnedShop.js";
 
-import { SingleSlidingDoor } from "../../tiles/SingleSlidingDoor.js";
-import { Register          } from "../../tiles/Register.js";
-import { RecycleBin        } from "../../tiles/RecycleBin.js";
-import { KetchupMachine    } from "../../tiles/KetchupMachine.js";
+import { SingleSlidingDoor } from "../../entity/tiles/SingleSlidingDoor.js";
+import { Register          } from "../../entity/tiles/Register.js";
+import { RecycleBin        } from "../../entity/tiles/RecycleBin.js";
+import { KetchupMachine    } from "../../entity/tiles/KetchupMachine.js";
 
 import { Entity } from "../../entity/Entity.js";
 import { Player } from "../../entity/Player.js";

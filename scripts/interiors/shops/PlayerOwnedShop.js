@@ -1,6 +1,6 @@
 import { Vector3, Vector2, Group } from "https://kerrishaus.com/assets/threejs/r177/build/three.module.js";
 
-import { Register } from "../../tiles/Register.js";
+import { Register } from "../../entity/tiles/Register.js";
 
 import { Employee } from "../../entity/Employee.js";
 import { Customer, CheckoutAction, WaitAction, MoveAction } from "../../entity/Customer.js";

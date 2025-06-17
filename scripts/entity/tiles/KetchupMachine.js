@@ -1,12 +1,12 @@
 import { BoxGeometry, MeshStandardMaterial, Vector2 } from "https://kerrishaus.com/assets/threejs/r177/build/three.module.js";
 
-import { Entity } from "../entity/Entity.js";
-import { Player } from "../entity/Player.js";
+import { Entity } from "../Entity.js";
+import { Player } from "../Player.js";
 
-import { GeometryComponent  } from "../entity/components/GeometryComponent.js";
-import { ContainerComponent } from "../entity/components/ContainerComponent.js";
-import { GeneratorComponent } from "../entity/components/GeneratorComponent.js";
-import { TriggerComponent   } from "../entity/components/TriggerComponent.js";
+import { GeometryComponent  } from "../components/GeometryComponent.js";
+import { ContainerComponent } from "../components/ContainerComponent.js";
+import { GeneratorComponent } from "../components/GeneratorComponent.js";
+import { TriggerComponent   } from "../components/TriggerComponent.js";
 
 export class KetchupMachine extends Entity
 {

@@ -2,9 +2,9 @@ import { Vector3 } from "https://kerrishaus.com/assets/threejs/r177/build/three.
 
 import { createCube } from "../GeometryUtility.js";
 
-import { Entity } from "../entity/Entity.js";
-import { CarryableComponent } from "../entity/components/CarryableComponent.js";
-import { TriggerComponent } from "../entity/components/TriggerComponent.js";
+import { Entity } from "../Entity.js";
+import { CarryableComponent } from "../components/CarryableComponent.js";
+import { TriggerComponent } from "../components/TriggerComponent.js";
 
 export class DoubleSlidingDoor extends Entity
 {

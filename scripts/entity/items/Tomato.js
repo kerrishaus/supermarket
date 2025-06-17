@@ -1,6 +1,7 @@
-import { Item               } from "../items/Item.js";
-import { CarryableComponent } from "../entity/components/CarryableComponent.js";
-import { ModelComponent     } from "../entity/components/ModelComponent.js";
+import { Item               } from "./Item.js";
+
+import { CarryableComponent } from "../components/CarryableComponent.js";
+import { ModelComponent     } from "../components/ModelComponent.js";
 
 export class Tomato extends Item
 {
