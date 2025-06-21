@@ -134,13 +134,16 @@ export class Vehicle extends Entity
     	addWheel(false, new Ammo.btVector3(this.#wheelHalfTrackBack  , this.#wheelAxisHeightBack , this.#wheelAxisPositionBack) , this.#wheelRadiusBack , this.#wheelWidthBack , this.#BACK_LEFT);
     	addWheel(false, new Ammo.btVector3(-this.#wheelHalfTrackBack , this.#wheelAxisHeightBack , this.#wheelAxisPositionBack) , this.#wheelRadiusBack , this.#wheelWidthBack , this.#BACK_RIGHT);
     	
-		this.dismountPosition = new Mesh(
-			new BoxGeometry(0.3, 0.3, 0.3),
-			new MeshStandardMaterial({ color: 0xFF0000 })
-		);
-		this.dismountPosition.position.x += 2;
+		this.dismountPosition = new Object3D();
+		this.dismountPosition.position.x += 2.5;
 		this.dismountPosition.position.y = -0.5;
+		this.dismountPosition.position.z += 1.2;
 		this.attach(this.dismountPosition);
+
+		this.cameraPosition = new Object3D();
+		this.cameraPosition.position.z -= this.#chassisLength;
+		this.cameraPosition.position.y += this.#chassisHeight;
+		this.attach(this.cameraPosition);
 
     	const interact = this.addComponent(new InteractableComponent(this.#chassisWidth, this.#chassisHeight, this.#chassisLength));
     	

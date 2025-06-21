@@ -107,7 +107,7 @@ export class SmallShop extends PlayerOwnedShop
         
         this.spawnPosition = new Vector3(this.door.position.x, 0.5, this.door.position.z + 3);
         this.readyPosition = new Vector3(this.door.position.x, 0.5, this.door.position.z - 3);
-        this.interiorCameraPosition = new Vector3(0, height * 1.6, -this.width);
+        this.cameraPosition = new Vector3(0, height * 1.6, -this.width);
         
         const size = 20;
         const divisions = 10;

@@ -9,6 +9,7 @@ import { ContainerComponent } from "./components/ContainerComponent.js";
 import { RigidBodyComponent } from "./components/RigidBodyComponent.js";
 
 import * as GeometryUtil from "../GeometryUtility.js";
+import { PlayerOwnedShop } from "../interiors/shops/PlayerOwnedShop.js";
 
 export class Player extends Entity
 {
@@ -242,7 +243,23 @@ export class Player extends Entity
             // this is outside of the preceding conditional
             // because if the camera were to change from free to fixed
             // it would not update until the player moves again.
-            if (this.vehicle != null || this.interior == null)
+            if (this.vehicle instanceof Vehicle)
+            {
+                // TODO: I know there's a better way to do this, but I'm not quite sure what it is.
+                // see also: Vehicle#stopDriving.
+                const tempPos = new THREE.Vector3();
+                tempPos.copy(this.vehicle.cameraPosition.position);
+                tempPos.setFromMatrixPosition(this.vehicle.cameraPosition.matrixWorld);
+                
+                camera.position.copy(tempPos);
+                camera.lookAt(this.vehicle.position);
+            }
+            else if (this.interior instanceof PlayerOwnedShop)
+            {
+                camera.position.copy(this.interior.cameraPosition);
+                camera.lookAt(this.interior.position);
+            }
+            else
             {
                 // TODO: this adds a little bit of a stutter to the camera
                 
@@ -261,11 +278,6 @@ export class Player extends Entity
                 
                 camera.position.copy(this.currentCameraPosition.lerp(idealOffset, t));
                 camera.lookAt(this.currentCameraAngle.lerp(idealLookat, t));
-            }
-            else
-            {
-                camera.position.copy(this.interior.interiorCameraPosition);
-                camera.lookAt(this.interior.position);
             }
         }
         else
