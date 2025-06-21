@@ -213,6 +213,11 @@ export class StartupState extends State
                     "roads/light-square",
                     "roads/road-straight",
                     "roads/road-crossroad-path",
+                    "roads/road-side-entry",
+                    "roads/road-side",
+                    "roads/road-side-exit",
+                    "roads/road-intersection-path",
+                    "roads/sign-highway",
 
                     "buildings/commercial/building-a",
                     

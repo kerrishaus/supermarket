@@ -240,9 +240,7 @@ export class Player extends Entity
                 */
             }
             
-            // this is outside of the preceding conditional
-            // because if the camera were to change from free to fixed
-            // it would not update until the player moves again.
+            // camera is updated even when the player is standing still
             if (this.vehicle instanceof Vehicle)
             {
                 // TODO: I know there's a better way to do this, but I'm not quite sure what it is.

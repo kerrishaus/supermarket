@@ -40,14 +40,8 @@ export class SmallShop extends PlayerOwnedShop
         wallTexture.wrapT = RepeatWrapping;
         wallTexture.repeat.set(this.width / 2, this.length / 4);
         
-        const shopFloor = new Entity();
-        shopFloor.addComponent(new RigidBodyComponent(
-            new BoxGeometry(this.width, 1, this.length),
-            new MeshStandardMaterial({ map: floorTexture }),
-            0
-        ));
-        shopFloor.position.copy(new Vector3(0, -1, 0));
-        this.add(shopFloor);
+        const shopFloor = GeometryUtil.createRigidBodyCube(this.width, 1, this.length, { map: floorTexture }, 0);
+        shopFloor.position.set(0, -1, 0);
         
         const northWall = GeometryUtil.createRigidBodyCube(this.width, height, this.wallThickness, { map: wallTexture }, 0);
         northWall.position.set(0, height / 2 - 0.5, this.length / 2 + this.wallThickness / 2);
