@@ -238,9 +238,9 @@ export class StartupState extends State
                 console.log("Loading is complete.");
                 $("#progressText").text("Click to continue...");
 
-                $("body").on("click.postStartup", () =>
+                $("body").on("click.postStartup keydown.postStartup", () =>
                 {
-                    $("body").off("click.postStartup");
+                    $("body").off("click.postStartup keydown.postStartup");
 
                     this.stateMachine.changeState(new LoadSaveState());
                 });
