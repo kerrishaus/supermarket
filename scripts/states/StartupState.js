@@ -220,6 +220,7 @@ export class StartupState extends State
                     "roads/sign-highway",
 
                     "buildings/commercial/building-a",
+                    "buildings/building_1",
                     
                     "vehicles/delivery",
                 ];
