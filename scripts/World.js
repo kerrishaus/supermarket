@@ -120,12 +120,14 @@ export class World extends Group
         lamp3.rotation.y = MathUtils.degToRad(-45);
         this.add(lamp3);
         
+        /*
         const tile = new Entity();
 
         const model = tile.addComponent(new ModelComponent(`buildings/building_1`)).model;
         model.scale.set(1, 1, 1);
 
         this.add(tile);
+        */
     }
     
     getRoadTile(name)
